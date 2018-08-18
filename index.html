@@ -4,11 +4,9 @@
 		<meta charset="utf-8">
 		<meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Realtime Annotations &amp; Visualizations in Live Coding Performance</title>
-		<link rel="icon" href="https://milligram.github.io/images/icon.png">
 		<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300italic,700,700italic">
 		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/3.0.3/normalize.css">
 		<link rel="stylesheet" href="./dist/milligram.min.css">
-    <!--<link rel="stylesheet" href="https://milligram.github.io/styles/main.css">-->
     
     <link rel="stylesheet" href="./node_modules/codemirror/lib/codemirror.css">
     <link rel="stylesheet" href="./gibber.css">
@@ -33,7 +31,7 @@
         font-size:.8em;
         background:rgba(46,50,53,1);
         color:rgb( 153 ) !important
-       }
+      }
 
       span.cm-comment { color:rgb(121,121,121) !important }
       
@@ -83,6 +81,7 @@
       }
 
       p { max-width: 60rem }
+
     </style>
 	</head>
 	<body>
@@ -145,10 +144,10 @@ notesPattern.gain[0].values.set.seq( [[7,7,7,7],[16,14,12,10]], 8 )
       
 			<section class="container" id="Motivation">
 				<h3 class="title">Motivation</h3>
-        <p>The initial motivation for this research was to improve audience understanding live coding performances, where source code is written on stage and often projected for the audience to follow. However, over time the feedback provided by the annotations and visualizations described here became important to my personal practice as a performer (anonymized citation). The feedback provides important indications of activity, and a quick way to visually confirm that algorithms are proceeding as intended. A survey we conducted with over a hundred live coders and computer scientists indicated a near universal level of interest in the types of annotations presented here (anonymized citation).</p>
+        <p>The initial motivation for this research was to improve audience understanding of live coding performances, where source code is written on stage and often projected for the audience to follow. However, over time the feedback provided by the annotations and visualizations described also became important to my personal performance practice (anonymized citation). The feedback provides important indications of activity, and a quick way to visually confirm that algorithms are proceeding as intended. A survey we conducted with over a hundred live coders and computer scientists indicated a near universal level of interest in the types of annotations presented here (anonymized citation).</p>
 
-        <p>Although parts of this research has been previously presented to the digital arts community, our goal in describing it here is to obtain feedback from a broader community of computer scientists with interests in the psychology of programming and in novel techniques for interactive programming environments. There are also a number of new techniques that are being presented in this essay for the first time. Finally, we feel that the web essay format is fundamentally the best vehicle for presenting this research, as the animated/temporal characteristics of the annotations and visualizations are extremely difficult to convey in the papers we have previously published on the subject.</p>
-       
+        <p>Although parts of this research has been previously presented to the digital arts community, our goal in describing it here is to obtain feedback from a broader community of computer scientists with interests in the psychology of programming and in novel techniques for interactive programming environments. There are also a number of new techniques that are being presented in this essay for the first time. Finally, we feel that the web essay format is fundamentally the best vehicle for presenting this research, as the animated/temporal characteristics of the annotations and visualizations are extremely difficult to convey in static text and images, such as in the papers we have previously published on the subject.</p>
+
         <p>Outside of informal, high-level descriptions, we do not explain the code or APIs used in the examples. The focus is instead on how algorithms are annotated / visualized, and we provide only the minimal explanation necessary to understand our design decisions in this regard. While our research to date has focused on implementation and evaluation in the context of our personal artistic practice, we look forward to more formal user evaluations in the future, and are particuarly interested in implications for teaching computational media.</p> 
 			</section>
 

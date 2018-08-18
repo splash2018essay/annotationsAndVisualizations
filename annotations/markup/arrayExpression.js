@@ -1,5 +1,4 @@
 const Utility = require( './utility.js' )
-
 const $ = Utility.create
 
 module.exports = function( Marker ) {
@@ -166,7 +165,7 @@ module.exports = function( Marker ) {
 
         cycle.clear()
       }else{
-        cycle( true )
+        cycle( Array.isArray( patternObject.value ) )
       }
     }
 
