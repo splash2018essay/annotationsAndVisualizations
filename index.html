@@ -3,14 +3,12 @@
 	<head>
 		<meta charset="utf-8">
 		<meta name="viewport" content="width=device-width, initial-scale=1">
-		<meta name="author" content="CJ Patoilo">
-		<meta name="description" content="Milligram provides a minimal setup of styles for a fast and clean starting point. Specially designed for better performance and higher productivity with fewer properties to reset resulting in cleaner code.">
-		<title>Milligram | A minimalist CSS framework.</title>
+    <title>Realtime Annotations &amp; Visualizations in Live Coding Performance</title>
 		<link rel="icon" href="https://milligram.github.io/images/icon.png">
 		<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300italic,700,700italic">
 		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/3.0.3/normalize.css">
 		<link rel="stylesheet" href="./dist/milligram.min.css">
-		<link rel="stylesheet" href="https://milligram.github.io/styles/main.css">
+    <!--<link rel="stylesheet" href="https://milligram.github.io/styles/main.css">-->
     
     <link rel="stylesheet" href="./node_modules/codemirror/lib/codemirror.css">
     <link rel="stylesheet" href="./gibber.css">
@@ -79,6 +77,12 @@
       }
 
       .code p { clear:both }
+
+      h1 {
+        font-size:3.5rem
+      }
+
+      p { max-width: 60rem }
     </style>
 	</head>
 	<body>
@@ -95,16 +99,16 @@
 
       <section class='container'>
         <h3>Abstract</h3>
-        <p>In this web essay we present research on dynamically injecting realtime annotations and visualizations into a programming environment for live coding performance. The techniques we describe enable both performers and audiences to gain greater insight into discrete events, continuous signals, and the algorithmic transformation of musical pattern. We catalog the various techniques and enable readers to interactively experiment with each of them, and conclude by describing challenges and future directions for our research.</p>
+        <p>In this web essay we present research on dynamically injecting realtime annotations and visualizations into a programming environment for live coding performance. The techniques we describe enable both performers and audiences to gain greater insight into discrete events, continuous signals, and the algorithmic transformation of musical pattern. We catalog our techniques and encourage readers to interactively experiment with each of them, and conclude by describing challenges and future directions for our research.</p>
       </section>
 
-			<section class="container" id="Introduction">
+			<section class="container code" id="Introduction">
         <p><em>NOTE: The examples in this essay currently only work in Chrome. If accepted, I pinky-swear to fix this before the conference.</em></p>
 
 				<h3 class="title">Introduction</h3>
-        <p>This web essay will explore the addition of annotations and visualizations to custom-developed programming environments for <a href="http://toplap.org/about">live coding performance</a>. We provide a catalogue of techniques we've developed to help reveal algorithmic activity to both audience members and programmer/performers. The techniques here are implemented in JavaScript; however, many are generalizable and some have drawn inspiration from features found in programming environemnts for other languages. The code examples below are 'live'; feel free to make minor edits and view the resulting changes. In addition to pressing the 'Play' button, which selects all code in a given example and runs it, you can also highlight code you'd like to execute and hit Ctrl+Enter.</p>
+        <p>This web essay will explore the addition of annotations and visualizations to custom-developed programming environments for <a href="http://toplap.org/about">live coding performance</a>; in this essay we will use the term 'live coding' to more specifically refer to the digital arts practice, as opposed to live programming more generally.  We provide a catalogue of techniques we've developed to help reveal algorithmic activity to both audience members and programmer/performers. These techniques are implemented in JavaScript; however, many are generalizable and some have drawn inspiration from features found in programming environemnts for other languages. The code examples below are <em>live</em>; feel free to make minor edits and view / listen to the resulting changes. In addition to pressing the 'Play' button, which selects all code in a given example and runs it, you can also highlight code you'd like to execute and hit Ctrl+Enter.</p>
 
-        <p>But before diving in, we'd like to provide an example of what many of these annotations look like when combined together. Although they might be somewhat overwhelming when simultaneously viewed together, such as in this next example, in our experience they can provide valuable scaffolding to the development of a program as it is written over time.</p>
+        <p>Before diving in, we'd like to provide an example of what many of these annotations look like when combined together. Although they might be somewhat overwhelming when simultaneously viewed together, such as in this next example, in our experience they can provide valuable scaffolding to the development of a program as it is written over time.</p>
 
 
         <div id='full' class='example'>
@@ -121,8 +125,10 @@ snare.trigger.seq( .85, 1/2, 0,1/4 )
 
 kick = Kick('tight').trigger.seq( .8, 1/4 )
 
-drums = Drums('x*ox*xo-', 1/8, { pitch:8, gain:.35, pan:.75 }).connect( verb, .15 )
-drums2 = Drums('x*ox*xo-', 1/16, { pitch:16, gain:.325, pan:.25 }).connect( verb, .15 )
+drums = Drums('x*ox*xo-', 1/8, { pitch:8, gain:.35, pan:.75 })
+drums.connect( verb, .15 )
+drums2 = Drums('x*ox*xo-', 1/16, { pitch:16, gain:.325, pan:.25 })
+drums2.connect( verb, .15 )
 
 drums2.seq.values.rotate.seq( 1,1 )
 
@@ -139,16 +145,16 @@ notesPattern.gain[0].values.set.seq( [[7,7,7,7],[16,14,12,10]], 8 )
       
 			<section class="container" id="Motivation">
 				<h3 class="title">Motivation</h3>
-        <p>The initial motivation for this research was to improve audience understanding live coding performances, where source is written on stage and projected for the audience to follow. However, over time the feedback provided by the annotations and visualizations described here became important to my personal practice as a performer (anonymized citation). For me, the feedback provides important indications of activity, and a quick way to visually confirm that algorithms are proceeding as intended. A survey we conducted with over a hundred live coders and computer scientists indicated a near universal level of interest in the types of annotations presented here (anonymized citation).</p>
+        <p>The initial motivation for this research was to improve audience understanding live coding performances, where source is written on stage and often projected for the audience to follow. However, over time the feedback provided by the annotations and visualizations described here became important to my personal practice as a performer (anonymized citation). For me, the feedback provides important indications of activity, and a quick way to visually confirm that algorithms are proceeding as intended. A survey we conducted with over a hundred live coders and computer scientists indicated a near universal level of interest in the types of annotations presented here (anonymized citation).</p>
 
-        <p>Although some of this research has been previously presented to the digital arts community, our goal in describing it here is to obtain feedback from a broader community of computer scientists with interests in the psychology of programming and in novel techniques for interactive programming environments. Additionally, there are also a number of new techniques that are being presented in this essay for the first time. Finally, we feel that the web essay format is fundamentally the best vehicle for presenting this research, as the animated/temporal characteristics of it are destroyed in the papers we have previously published on the subject.</p>
+        <p>Although some of this research has been previously presented to the digital arts community, our goal in describing it here is to obtain feedback from a broader community of computer scientists with interests in the psychology of programming and in novel techniques for interactive programming environments. Additionally, there are also a number of new techniques that are being presented in this essay for the first time. Finally, we feel that the web essay format is fundamentally the best vehicle for presenting this research, as the animated/temporal characteristics of the annotations and visualizations are extremely difficult to convey in the papers we have previously published on the subject.</p>
        
-        <p> While our research to date has focused on implementation and evaluation in the context of our personal artistic practice, we look forward to more formal user evaluations in the future, and are particuarly interested in implications these annotations could have for teaching computational media.</p> 
+        <p>Outside of informal, high-level descriptions, we do not explain the code or APIs used in the examples in this essay. The focus is instead on how algorithms are annotated / visualized, and we provide only the minimal explanation necessary to understand our design decisions in this regard. While our research to date has focused on implementation and evaluation in the context of our personal artistic practice, we look forward to more formal user evaluations in the future, and are particuarly interested in its implications for teaching computational media.</p> 
 			</section>
 
       <section class='container code' >
         <h3>Catalog of techniques</h3>
-        <p>Our research augments the programming interface to include visualizations, self-modifying source code, automated annotations via inserted code comments, and a variety of other techniques for annotating code. By injecting annotations and visualizations into the source code itself, we improve association between code and the annotations / visualizations depicting its effects. This placement of visualizations, characterized as <em>in situ</em> by Hofswell et. al, <a href='https://homes.cs.washington.edu/~jhoffs/papers/2018-AugmentingCode-CHI.pdf'>has been shown to aid in the understanding of programs</a> under certain conditions, which is intuitive following Gestalt principles of proximity. The annotations and visualizations we have developed are described in below.</p> 
+        <p>Our research augments the programming interface to include visualizations, self-modifying source code, automated annotations via inserted code comments, and a variety of other techniques. By injecting annotations and visualizations into the source code itself, we improve association between code and the annotations / visualizations depicting its effects. This placement of visualizations, characterized as <em>in situ</em> by Hofswell et. al, <a href='https://homes.cs.washington.edu/~jhoffs/papers/2018-AugmentingCode-CHI.pdf'>has been shown to aid in the understanding of programs</a> under certain conditions, which is intuitive following Gestalt principles of proximity. The annotations and visualizations we have developed are described below.</p> 
 
         <h4 class='title'>Repeating static values</h5>
         <p>The simplest annotation we add to our environment is a rotating border around static elements that are accessed repeatedly. The rotation provides a visual indication of when the values are used. Survey results indicated that rotation was preferable to other techniques (such as flashing) due to its less distracting nature (anonymized citation). The example below shows a repeated scale index (0) being triggered every quarter note. We'll see how this simple annotation can be useful in combination with others in the next section.</p>
