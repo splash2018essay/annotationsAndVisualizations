@@ -1,0 +1,311 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<meta name="author" content="CJ Patoilo">
+		<meta name="description" content="Milligram provides a minimal setup of styles for a fast and clean starting point. Specially designed for better performance and higher productivity with fewer properties to reset resulting in cleaner code.">
+		<title>Milligram | A minimalist CSS framework.</title>
+		<link rel="icon" href="https://milligram.github.io/images/icon.png">
+		<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300italic,700,700italic">
+		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/3.0.3/normalize.css">
+		<link rel="stylesheet" href="./dist/milligram.min.css">
+		<link rel="stylesheet" href="https://milligram.github.io/styles/main.css">
+    
+    <link rel="stylesheet" href="./node_modules/codemirror/lib/codemirror.css">
+    <link rel="stylesheet" href="./gibber.css">
+    
+    <script src="./node_modules/codemirror/lib/codemirror.js"></script>
+    <script src="./node_modules/codemirror/mode/javascript/javascript.js"></script>
+    <script src="./node_modules/codemirror/addon/edit/matchbrackets.js"></script>
+    <script src="./node_modules/codemirror/addon/edit/closebrackets.js"></script>
+    
+    <script src="./dist/gibber.audio.js"></script>
+    <script src="bundle.js"></script>
+    
+    <style>
+
+      .CodeMirror-matchingbracket {
+        text-decoration:none !important;
+        background: rgba(255,255,255,.25)
+      }
+
+      .CodeMirror {
+        font-family:Menlo, monospace;
+        font-size:.8em;
+        background:rgba(46,50,53,1);
+        color:rgb( 153 ) !important
+       }
+
+      span.cm-comment { color:rgb(121,121,121) !important }
+      
+      span.cm-property, 
+      span.cm-attribute,
+      span.cm-variable,
+      span.cm-variable-2,
+      .cm-def,
+      .cm-s-default { color: rgba(173,173,173,1) !important }
+      
+      span.cm-keyword,
+      span.cm-number, span.cm-atom { color:rgba(89, 151, 198, 1) !important }
+
+      span.cm-string {color: rgb(225, 225, 225) !important }
+
+      .CodeMirror-cursor {
+        background: rgba(255,255,255,.5);
+        border: none !important;
+        width: .5em !important;
+        display: block;
+      }
+
+      .CodeMirror-selected {
+        background:rgba(84,84,84,.5) !important;
+      }
+
+      .CodeMirror-highlight {
+        background:rgba(255,255,255,.5)
+      }
+
+      button { right:0 } 
+
+      .code button {
+        margin: 5px 0 0 5px
+      }
+
+      .example {
+        display:block;
+        margin-bottom:8rem;
+        margin-top:2rem;
+      }
+
+      .code p { clear:both }
+    </style>
+	</head>
+	<body>
+
+		<main class="wrapper">
+
+			<nav class="navigation">
+				<section class="container">
+					<a class="navigation-title" href="https://milligram.github.io/">
+						<h1 class="title">Realtime Annotations &amp; Visualizations in Live Coding Performance</h1>
+					</a>
+				</section>
+			</nav>
+
+			<section class="container" id="Introduction">
+        <p><em>NOTE: The examples in this essay currently only work in Chrome. If accepted, I pinky-swear to fix this before the conference.</em></p>
+
+				<h3 class="title">Introduction</h3>
+        <p>This web essay will explore the addition of annotations and visualizations to custom-developed programming environments for <a href="http://toplap.org/about">live coding performance</a>. We provide a catalogue of techniques we've developed to help reveal algorithmic activity to both audience members and programmer/performers. The techniques here are implemented in JavaScript; however, many are generalizable and some have drawn inspiration from features found in programming environemnts for other languages. The code examples below are 'live'; feel free to make minor edits and view the resulting changes. In addition to pressing the 'Play' button, which selects all code in a given example and runs it, you can also highlight code you'd like to execute and hit Ctrl+Enter.</p>
+
+        <p>But before diving in, we'd like to provide an example of what many of these annotations look like when combined together. Although they might be somewhat overwhelming when simultaneously viewed together, such as in this next example, in our experience they can provide valuable scaffolding to the development of a program as it is written over time.</p>
+
+
+        <div id='full' class='example'>
+          <div class='editor'>
+verb = Bus2('spaceverb')
+delay = Bus2('delay.1/6')
+delay.connect( verb, .35 )
+
+snare = Snare('snappy').connect( verb, .075 )
+snare.trigger.seq( [.1,.25,.1,.5,.1,.65,.1], Euclid(9,16), 1 ) 
+snare.trigger[1].timings.rotate.seq( 1,1 )
+
+snare.trigger.seq( .85, 1/2, 0,1/4 )
+
+kick = Kick('tight').trigger.seq( .8, 1/4 )
+
+drums = Drums('x*ox*xo-', 1/8, { pitch:8, gain:.35, pan:.75 }).connect( verb, .15 )
+drums2 = Drums('x*ox*xo-', 1/16, { pitch:16, gain:.325, pan:.25 }).connect( verb, .15 )
+
+drums2.seq.values.rotate.seq( 1,1 )
+
+bass = Synth('acidBass2').connect( delay, .225 )
+
+notesPattern = SineR( 2, 7 )
+bass.note.seq( notesPattern , Euclid(9,16) )
+
+notesPattern.gain.seq( [16,14,12,10], 1 )
+notesPattern.gain[0].values.set.seq( [[7,7,7,7],[16,14,12,10]], 8 )
+          </div> 
+        </div>
+			</section>
+      
+			<section class="container" id="Motivation">
+				<h3 class="title">Motivation</h3>
+        <p>The initial motivation for this research was to improve audience understanding live coding performances, where source is written on stage and projected for the audience to follow. However, over time the feedback provided by the annotations and visualizations described here became important to my personal practice as a performer (anonymized citation). For me, the feedback provides important indications of activity, and a quick way to visually confirm that algorithms are proceeding as intended. A survey we conducted with over a hundred live coders and computer scientists indicated a near universal level of interest in the types of annotations presented here (anonymized citation).</p>
+
+        <p>Although some of this research has been previously presented to the digital arts community, our goal in describing it here is to obtain feedback from a broader community of computer scientists with interests in the psychology of programming and in novel techniques for interactive programming environments. Additionally, there are also a number of new techniques that are being presented in this essay for the first time. Finally, we feel that the web essay format is fundamentally the best vehicle for presenting this research, as the animated/temporal characteristics of it are destroyed in the papers we have previously published on the subject.</p>
+       
+        <p> While our research to date has focused on implementation and evaluation in the context of our personal artistic practice, we look forward to more formal user evaluations in the future, and are particuarly interested in implications these annotations could have for teaching computational media.</p> 
+			</section>
+
+      <section class='container code' >
+        <h3>Catalog of techniques</h3>
+        <p>Our research augments the programming interface to include visualizations, self-modifying source code, automated annotations via inserted code comments, and a variety of other techniques for annotating code. By injecting annotations and visualizations into the source code itself, we improve association between code and the annotations / visualizations depicting its effects. This placement of visualizations, characterized as <em>in situ</em> by Hofswell et. al, <a href='https://homes.cs.washington.edu/~jhoffs/papers/2018-AugmentingCode-CHI.pdf'>has been shown to aid in the understanding of programs</a> under certain conditions, which is intuitive following Gestalt principles of proximity. The annotations and visualizations we have developed are described in below.</p> 
+
+        <h4 class='title'>Repeating static values</h5>
+        <p>The simplest annotation we add to our environment is a rotating border around static elements that are accessed repeatedly. The rotation provides a visual indication of when the values are used. Survey results indicated that rotation was preferable to other techniques (such as flashing) due to its less distracting nature (anonymized citation). The example below shows a repeated scale index (0) being triggered every quarter note. We'll see how this simple annotation can be useful in combination with others in the next section.</p>
+
+        <div id='static1' class='example'>
+          <div class='editor'>
+syn = Synth('bleep')
+syn.note.seq( 0, 1/4 )
+          </div> 
+        </div>
+
+      </section>
+
+      <section class='container code' >
+        <h4 class='title'>Cycling through musical patterns</h5>
+        <p>Musical patterns (aka sets) are common ways of expressing lists that can be transformed and manipulated algorithmically.
+        However, even if a pattern is read from start to finish without modification, it can still be useful to know which elements of
+        the pattern are being triggered when, so that programmers and audience members can associate the the values being triggered with
+        the corresponding sonic results.</p>
+
+        <p>In the example below, a synthesizer plays a simple pattern that loops through the seven notes of a standard scale from Western harmony. In addition to this pattern of melodic output, a rhythmic pattern alternates between quarter notes and eighth notes in duration.</p>
+
+        <div id='array1' class='example'>
+          <div class='editor'>
+syn = Synth('bleep')
+syn.note.seq( [0,1,2,3,4,5,6,7], [1/4,1/8] )
+          </div> 
+        </div>
+
+        <p>The potential of this method is more apparent when the pattern is not playing sequentially. In the example below, scale indices are randomly chosen. Also note that the rotating border annotation now provides a indication of how many times a randomly chosen value has been repeated in a row. </p>
+
+        <div id='array2' class='example'>
+          <div class='editor'>
+syn = Synth('bleep')
+syn.note.seq( [0,3,7].rnd(), 1/8 )
+          </div> 
+        </div>
+      </section>
+
+      <section class='container code' >
+        <h4 class='title'>Pattern transformations</h5>
+        <p>20th-century serialist techniques take musical patterns and transform them in various ways. Common pattern transformation techniques include reversal, rotation, inversion, and scaling. We were inspired by Thor Magnussons's ixi lang environment to depict these transformations within the code itself, clearly revealing how patterns are transformed over time.</p>
+
+        <p>In the example below, a percussion pattern is played against a steady kick drum rhythm. Each of the symbols in the percussion pattern denotes a different sound that is played; this pattern is then rotated one position after every measure, creating varying rhythms against the constant kick drum.</p>
+
+        <div id='transform1' class='example'>
+          <div class='editor'>
+kick = Kick('tight').trigger.seq( .75, 1/4 )
+
+drums = Drums('x*ox*xo-', 1/8, { pitch:8, gain:.5 })
+drums.seq.values.rotate.seq( 1,1 )
+          </div> 
+        </div>
+
+        <p>The above example is more complex than the previous examples in this essay, providing an opportunity to see how two different instruments rhythmically relate to each other and also view transformations in musical pattern. It is worth comparing the example given above to the exact same code, but without the annotations that are the focus of the research presented here.</p>
+        <div id='transform2' class='example'>
+          <div class='editor'>
+kick = Kick('tight').trigger.seq( .75, 1/4 )
+
+drums = Drums('x*ox*xo-', 1/8, { pitch:8, gain:.5 })
+drums.seq.values.rotate.seq( 1,1 )
+          </div> 
+        </div>
+      </section>
+
+      <section class='container code' >
+        <h4 class='title'>Revealing 'hidden' data and function output</h5>
+        <p>As we saw from prior examples, we can highlight selected members of patterns as they are selected / triggered. However, this assumes that the pattern has been fully notated, with all its members included in the source code document. But it is natural to assume that in styels of music that are fundamentally algorithmic, the source material for musical patterns might be created algorithmically, as opposed to manually entered, data point by data point, by a programmer/perfomer.</p>
+
+        <p>Our solution to this problem is to present such patterns in code comments adjacent to the code that is responsible for creating the pattern. In addition to visualizing generated patterns, this technique can also be used to show the output of executed functions. Our first example hosw the output of an random integer function, configured to output numbers between 0-10; these values are then used to trigger notes in a scale.</p>
+
+        <div id='anonymous1' class='example'>
+          <div class='editor'>
+syn = Synth('bleep')
+syn.note.seq( Rndi(0,10), 1/8 )
+          </div> 
+        </div>
+
+        <p>For our next example, we'll use a 'Euclidean' rhythm, a terse description of a rhythmic pattern drawn from <a href="http://cgm.cs.mcgill.ca/~godfried/publications/banff.pdf">a well-known musicology paper by Godfried Toussaint</a>, where a given number of pulses are fit into a given number of slots using Bjorklund's algorithm. The results of running the Euclidean rhythm  will determine the output of a kick drum. Whenever a zero is present in the automata a rest will be triggered; a one (pulse) will trigger the kick drum.</p>
+        <div id='euclid' class='example'>
+          <div class='editor'>
+kick = Kick('tight').trigger.seq( .75, Euclid(5,8) ) 
+          </div> 
+        </div>
+
+        <p>These generated patterns can also be transformed over time; these changes are also depicted in the source code. Note that when playback stops the code comments are automatically cleared. The example below shows comments used to display both the initial data generated by the Euclidean rhythm and its subsequent transformations. </p>
+        <div id='euclid2' class='example'>
+          <div class='editor'>
+// our first kick drum will play a steady beat
+kick = Kick('tight').trigger.seq( .75, 1/4 )
+
+// ...while our second will rotate over time
+kick2 = Kick('tight').trigger.seq( .5, Euclid(6,16) )
+kick2.trigger[0].timings.rotate.seq( 1,1 )
+          </div> 
+        </div>
+      </section>
+
+      <section class='container code' >
+        <h4 class='title'>Visualizing continuous data</h5>
+        <p>Our previous examples have all featured data that is discrete; for example, notes are triggered at particular moments in time, as our pattern transformations and many other types of events. However, the musical world is divided into discrete and continuous data. An individual note might be triggered at one moment in time (and released at another) but the expressive characteristics of that note, such as vibrato, are determined continuously over the note's duration.</p>
+
+        <p>During the development of (anonymized coding environment) we added many affordances for defining continuous signals, and sequencing changes to their parameters over time. In some live coding performances, I noticed that I often spent time early on programming discrete events and patterns, and then segued to creating continuous manipulations of these events. Put another way, many performances consisted of initially creating patterns, and then subsequently adding expressive nuance to them. However, at the time there were no affordances in our environment for displaying continuous signals, which led to a suddent lack of feedback during performances where continuous controls were being programmed. In order to corret this we added a simple visualization showing the output of generated signals. In the example below, a synth slowly moves through the left/right stereo spectrum based on the output of a sine oscillator.</p>
+
+        <div id='sparklines1' class='example'>
+          <div class='editor'>
+syn = Synth('bleep', { panVoices:true })
+syn.note.seq( 0, 1/8 )
+
+// create a sine oscillator in the range of {0,1}
+sine = gen( add( .5, mul( cycle(.5), .5 ) ) )
+
+syn.pan = sine
+          </div> 
+        </div>
+
+        <p>Although we initially used sparklines for these visualizations, we subsequently found that including the output range of the signals greatly improved their suefulness. One interesting point to note is that the output ranges are dynamic, based off an analysis of the generated signal. This means that if the signal range changes by a significant factor, the visualization will update itself to reflect the current average output range.</p>
+      </section>
+
+      <section class='container code' >
+        <h4 class='title'>Mixing continuous and discrete information</h5>
+        <p>An idiomatic generative technique of electronic music is to <em>sample-and-hold</em> a continuous signal, effectively turning it into a discrete one. Instead of visualizing the resulting stepped signal, we chose instead to visualize the continuous signal before it is sampled, and then depict the points where sampling occurs. In this way we visualize both the discrete events and continuous signals that are being generated. In the example below, we use a sine oscillator to create a signal which is then sampled over time based on an Euclidean rhythm. These sampled values are then used to look up notes in a musical scale, which are then fed to a bass synthesizer.</p>
+
+        <div id='sparklines2' class='example'>
+          <div class='editor'>
+verb = Bus2( 'spaceverb' )
+syn = Synth( 'acidBass2' ).connect( verb, .225 )
+
+notes = SineR( 2, 16 )
+
+syn.note.seq( notes, Euclid(9,16) )
+          </div> 
+        </div>
+      </section>
+      
+      <section class='container'>
+        <h3>Challenges and Conclusions</h3>
+        <p>The biggest challenge in developing these techniques is simply the time it takes to figure out the best way to parse and markup the source code so that annotations and visualizations are possible. Using a dynamic language like JavaScript makes parsing more difficult, as there are a wide variety of different ways to accomplish a given task, and the annotations / visualizations need to be able to respond appropriately to each of them. Because of this, it is only over the last two years or so that I've enabled these features by default in the programming environments; up until that point they were strictly 'opt-in' for people that weren't afraid of the possible errors that they might incur. Moving the annotations to a more constrained domain-specific language might provide for greater safety and ease future development of these techniques.</p>
+
+        <p>Another challenge is that some data lends itself better to this type of depiction than others. For example, if I use a function that generates an array of a thousand random numbers, it becomes quite impractical to display every output value inside the code editor in comments. Similarly, it is difficult to perceive change in continuous signals with extremely low frequncies; in many types of music modulations lasting over a minute in length are quite common, and hard to depict using the automated techniques described here.</p>
+
+        <p>But, in the end, the feedback provided by these annotations and visualizations have become a critical part of my live coding practice. Inevitably when I participate in events with other live coders who don't have the same type of feedback systems in place, audience members go out of their way to tell me how much they appreciate the extra feedback and, in some cases, how it improved their ability to understand what was happening during the performance. We are optimistic that we can continue improving the robustness of our techniques so that they can be applied to a wider variety of live coding environments in the future.</p>
+      </section>
+     <!-- 
+      <section class='container'>
+        <h3>Citations</h3>
+        <ul>
+          <li>
+        Hoffswell, J. and Satyanarayan, and Heer, J. <a href="https://homes.cs.washington.edu/~jhoffs/papers/2018-AugmentingCode-CHI.pdf">Augmenting Code with in Situ Visualizations to Aid Program Understanding</a>. ACM Human Factors in Computing Systems (CHI). 2018.
+          </li>
+        </ul>
+      </section>
+     -->
+
+			<footer class="footer">
+				<section class="container">
+				</section>
+			</footer>
+
+		</main>
+
+		<script src="https://milligram.github.io/scripts/main.js"></script>
+
+	</body>
+</html>
