@@ -2287,7 +2287,7 @@ const playCode = function( cm, shouldAnnotate=true ) {
 }
 
 window.onload = function() {
-  const workletPath = '../dist/gibberish_worklet.js' 
+  const workletPath = './dist/gibberish_worklet.js' 
   Gibber.init( workletPath )
 
   environment.editor = cm
