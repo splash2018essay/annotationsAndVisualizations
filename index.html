@@ -106,9 +106,9 @@
         <p><em>NOTE: The examples in this essay currently only work in Chrome. If accepted, I pinky-swear to fix this before the conference.</em></p>
 
 				<h3 class="title">Introduction</h3>
-        <p>This web essay will explore the addition of annotations and visualizations to custom-developed programming environments for <a href="http://toplap.org/about">live coding performance</a>; in this essay we will use the term 'live coding' to more specifically refer to the digital arts practice, as opposed to live programming more generally.  We provide a catalogue of techniques we've developed to help reveal algorithmic activity to both audience members and programmer/performers. These techniques are implemented in JavaScript; however, many are generalizable and some have drawn inspiration from features found in programming environemnts for other languages. The code examples below are <em>live</em>; feel free to make minor edits and view / listen to the resulting changes. In addition to pressing the 'Play' button, which selects all code in a given example and runs it, you can also highlight code you'd like to execute and hit Ctrl+Enter.</p>
+        <p>This web essay will explore the addition of annotations and visualizations to custom-developed programming environments for <a href="http://toplap.org/about">live coding performance</a>; in this essay we will use the term 'live coding' to more specifically refer to the digital arts practice, as opposed to live programming more generally.  We provide a catalogue of techniques we've developed to help reveal algorithmic activity to both audience members and programmer/performers. These techniques are implemented in JavaScript; however, many are generalizable and some have drawn inspiration from features found in programming environments for other languages. The code examples below are <em>live</em>; feel free to make minor edits and view / listen to the resulting changes. In addition to pressing the 'Play' button, which selects all code in a given example and runs it, you can also highlight code you'd like to execute and hit Ctrl+Enter.</p>
 
-        <p>Before diving in, we'd like to provide an example of what many of these annotations look like when combined together. Although they might be somewhat overwhelming when simultaneously viewed together, such as in this next example, in our experience they can provide valuable scaffolding to the development of a program as it is written over time.</p>
+        <p>Before diving in, we'd like to provide an example of what many of these annotations look like when combined. Although they might be somewhat overwhelming when simultaneously viewed, in our experience they can provide valuable scaffolding to the development of a program as it is written over time.</p>
 
 
         <div id='full' class='example'>
@@ -145,11 +145,11 @@ notesPattern.gain[0].values.set.seq( [[7,7,7,7],[16,14,12,10]], 8 )
       
 			<section class="container" id="Motivation">
 				<h3 class="title">Motivation</h3>
-        <p>The initial motivation for this research was to improve audience understanding live coding performances, where source is written on stage and often projected for the audience to follow. However, over time the feedback provided by the annotations and visualizations described here became important to my personal practice as a performer (anonymized citation). For me, the feedback provides important indications of activity, and a quick way to visually confirm that algorithms are proceeding as intended. A survey we conducted with over a hundred live coders and computer scientists indicated a near universal level of interest in the types of annotations presented here (anonymized citation).</p>
+        <p>The initial motivation for this research was to improve audience understanding live coding performances, where source code is written on stage and often projected for the audience to follow. However, over time the feedback provided by the annotations and visualizations described here became important to my personal practice as a performer (anonymized citation). The feedback provides important indications of activity, and a quick way to visually confirm that algorithms are proceeding as intended. A survey we conducted with over a hundred live coders and computer scientists indicated a near universal level of interest in the types of annotations presented here (anonymized citation).</p>
 
-        <p>Although some of this research has been previously presented to the digital arts community, our goal in describing it here is to obtain feedback from a broader community of computer scientists with interests in the psychology of programming and in novel techniques for interactive programming environments. Additionally, there are also a number of new techniques that are being presented in this essay for the first time. Finally, we feel that the web essay format is fundamentally the best vehicle for presenting this research, as the animated/temporal characteristics of the annotations and visualizations are extremely difficult to convey in the papers we have previously published on the subject.</p>
+        <p>Although parts of this research has been previously presented to the digital arts community, our goal in describing it here is to obtain feedback from a broader community of computer scientists with interests in the psychology of programming and in novel techniques for interactive programming environments. There are also a number of new techniques that are being presented in this essay for the first time. Finally, we feel that the web essay format is fundamentally the best vehicle for presenting this research, as the animated/temporal characteristics of the annotations and visualizations are extremely difficult to convey in the papers we have previously published on the subject.</p>
        
-        <p>Outside of informal, high-level descriptions, we do not explain the code or APIs used in the examples in this essay. The focus is instead on how algorithms are annotated / visualized, and we provide only the minimal explanation necessary to understand our design decisions in this regard. While our research to date has focused on implementation and evaluation in the context of our personal artistic practice, we look forward to more formal user evaluations in the future, and are particuarly interested in its implications for teaching computational media.</p> 
+        <p>Outside of informal, high-level descriptions, we do not explain the code or APIs used in the examples. The focus is instead on how algorithms are annotated / visualized, and we provide only the minimal explanation necessary to understand our design decisions in this regard. While our research to date has focused on implementation and evaluation in the context of our personal artistic practice, we look forward to more formal user evaluations in the future, and are particuarly interested in implications for teaching computational media.</p> 
 			</section>
 
       <section class='container code' >
@@ -157,7 +157,13 @@ notesPattern.gain[0].values.set.seq( [[7,7,7,7],[16,14,12,10]], 8 )
         <p>Our research augments the programming interface to include visualizations, self-modifying source code, automated annotations via inserted code comments, and a variety of other techniques. By injecting annotations and visualizations into the source code itself, we improve association between code and the annotations / visualizations depicting its effects. This placement of visualizations, characterized as <em>in situ</em> by Hofswell et. al, <a href='https://homes.cs.washington.edu/~jhoffs/papers/2018-AugmentingCode-CHI.pdf'>has been shown to aid in the understanding of programs</a> under certain conditions, which is intuitive following Gestalt principles of proximity. The annotations and visualizations we have developed are described below.</p> 
 
         <h4 class='title'>Repeating static values</h5>
-        <p>The simplest annotation we add to our environment is a rotating border around static elements that are accessed repeatedly. The rotation provides a visual indication of when the values are used. Survey results indicated that rotation was preferable to other techniques (such as flashing) due to its less distracting nature (anonymized citation). The example below shows a repeated scale index (0) being triggered every quarter note. We'll see how this simple annotation can be useful in combination with others in the next section.</p>
+        <p>The simplest annotation we add to our environment is a rotating border around static elements that are accessed repeatedly. The rotation provides a visual indication of when the values are used. Survey results indicated that rotation was preferable to other techniques (such as flashing) due to its less distracting nature (anonymized citation). It is worth noting that distracting flashes can sometimes be used to spectacular effect; in the livecoding environment SchemeBricks by Dave Griffith blocks flash whenever they receive a control signal, providing an indication of activity with greater spectacle.</p>
+
+
+<iframe src="https://player.vimeo.com/video/62615513" width="640" height="360" frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe>
+<p><a href="https://vimeo.com/62615513">SLUB - Live coding</a> from <a href="https://vimeo.com/jomasan">jomasan</a> on <a href="https://vimeo.com">Vimeo</a>.</p>
+        
+        <p>The example below shows a repeated scale index (0) being triggered every quarter note. We'll see how this simple annotation can be useful in combination with others in the next section.</p>
 
         <div id='static1' class='example'>
           <div class='editor'>
@@ -196,7 +202,11 @@ syn.note.seq( [0,3,7].rnd(), 1/8 )
 
       <section class='container code' >
         <h4 class='title'>Pattern transformations</h5>
-        <p>20th-century serialist techniques take musical patterns and transform them in various ways. Common pattern transformation techniques include reversal, rotation, inversion, and scaling. We were inspired by Thor Magnussons's ixi lang environment to depict these transformations within the code itself, clearly revealing how patterns are transformed over time.</p>
+        <p>20th-century serialist techniques take musical patterns and transform them in various ways. Common pattern transformation techniques include reversal, rotation, inversion, and scaling. We were inspired by <a href='http://sro.sussex.ac.uk/46869/1/ixi_lang_02.pdf'>Thor Magnussons's ixi lang environment</a> to depict these transformations within the code itself, clearly revealing how patterns are transformed over time. The video below shows the effect of this technique in a recreation of Steve Reich's classic composition <em>Piano Phase</em>.</p>
+
+
+<iframe src="https://player.vimeo.com/video/14964509" width="640" height="360" frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe>
+<p><a href="https://vimeo.com/14964509">ixi lang take on Steve Reich&#039;s Piano Phase</a> from <a href="https://vimeo.com/ixi">ixi audio</a> on <a href="https://vimeo.com">Vimeo</a>.</p>
 
         <p>In the example below, a percussion pattern is played against a steady kick drum rhythm. Each of the symbols in the percussion pattern denotes a different sound that is played; this pattern is then rotated one position after every measure, creating varying rhythms against the constant kick drum.</p>
 
@@ -209,7 +219,7 @@ drums.seq.values.rotate.seq( 1,1 )
           </div> 
         </div>
 
-        <p>The above example is more complex than the previous examples in this essay, providing an opportunity to see how two different instruments rhythmically relate to each other and also view transformations in musical pattern. It is worth comparing the example given above to the exact same code, but without the annotations that are the focus of the research presented here.</p>
+        <p>The above example is more complex than the previous examples in this essay, providing an opportunity to see how two different instruments rhythmically relate to each other and also view transformations in musical pattern. It is perhaps worth comparing the example given above to the exact same code, but without the annotations in order to gauge how they affect perception of / engagement with the code.</p>
         <div id='transform2' class='example'>
           <div class='editor'>
 kick = Kick('tight').trigger.seq( .75, 1/4 )
@@ -218,6 +228,7 @@ drums = Drums('x*ox*xo-', 1/8, { pitch:8, gain:.5 })
 drums.seq.values.rotate.seq( 1,1 )
           </div> 
         </div>
+
       </section>
 
       <section class='container code' >
@@ -233,7 +244,7 @@ syn.note.seq( Rndi(0,10), 1/8 )
           </div> 
         </div>
 
-        <p>For our next example, we'll use a 'Euclidean' rhythm, a terse description of a rhythmic pattern drawn from <a href="http://cgm.cs.mcgill.ca/~godfried/publications/banff.pdf">a well-known musicology paper by Godfried Toussaint</a>, where a given number of pulses are fit into a given number of slots using Bjorklund's algorithm. The results of running the Euclidean rhythm  will determine the output of a kick drum. Whenever a zero is present in the automata a rest will be triggered; a one (pulse) will trigger the kick drum.</p>
+        <p>For our next example, we'll use a 'Euclidean' rhythm, a terse description of a rhythmic pattern drawn from <a href="http://cgm.cs.mcgill.ca/~godfried/publications/banff.pdf">a well-known musicology paper by Godfried Toussaint</a>, where a given number of pulses are fit into a given number of slots using Bjorklund's algorithm. The results of running the Euclidean rhythm will determine the output of a kick drum. Whenever a zero is present in the automata a rest will be triggered; a one (pulse) will trigger the kick drum.</p>
         <div id='euclid' class='example'>
           <div class='editor'>
 kick = Kick('tight').trigger.seq( .75, Euclid(5,8) ) 
@@ -271,7 +282,12 @@ syn.pan = sine
           </div> 
         </div>
 
-        <p>Although we initially used sparklines for these visualizations, we subsequently found that including the output range of the signals greatly improved their suefulness. One interesting point to note is that the output ranges are dynamic, based off an analysis of the generated signal. This means that if the signal range changes by a significant factor, the visualization will update itself to reflect the current average output range.</p>
+        <p>Although we initially used sparklines for these visualizations, we subsequently found that including the output range of the signals greatly improved their usefulness. One interesting point to note is that the output ranges are dynamic, based off an analysis of the generated signal. This means that if the signal range changes by a significant factor, the visualization will update itself to reflect the current average output range; this behavior can be seen in the first example found in this essay.</p>
+
+        <p>A notable precursor to this work in live coding literature is the <a href="https://eprints.qut.edu.au/61525/1/liveannotations.pdf">in situ visualization described by Swift et. al for the Impromptu environment</a>. The image below, taken from the paper describing the work, shows two 'clocks' depicting the amount of time remaining before a recursive function next calls itself.</p>
+
+        <img src='./media/impromptu.png'>
+        <div style='clear:both; margin-bottom:4rem'><em>In situ visualizations in the Impromptu environment.</em></div>
       </section>
 
       <section class='container code' >
