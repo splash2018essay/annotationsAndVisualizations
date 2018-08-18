@@ -357,19 +357,32 @@ const __Identifier = function( Marker ) {
       // store value changes in array and then pop them every time the annotation is updated
       patternObject.update.value = []
 
-      if( updateName !== 'Lookup' )
-        Marker._addPatternFilter( patternObject )
+      //if( updateName !== 'Lookup' )
+        //Marker._addPatternFilter( patternObject )
     }
 
     if( patternObject.update !== undefined ) {
-    let currentIndex = 0
-    Object.defineProperty( patternObject.update, 'currentIndex', {
-      get() { return currentIndex },
-      set(v){ 
-        currentIndex = v; 
-        patternObject.update()
-      }
-    })
+      let currentIndex = 0
+      Object.defineProperty( patternObject.update, 'currentIndex', {
+        get() { return currentIndex },
+        set(v){ 
+          //if( currentIndex !== v ) {
+            currentIndex = v; 
+            patternObject.update()
+          //}
+        }
+      })
+
+       //let value = 0
+       //Object.defineProperty( patternObject.update, 'value', {
+       //  get() { return value },
+       //  set(v){ 
+       //    //if( value !== v ) {
+       //      value = v; 
+       //      patternObject.update()
+       //    //}
+       //  }
+       //})
     }
 
     patternObject.marker = marker
@@ -698,8 +711,8 @@ module.exports = function( node, cm, track, objectName, state, cb ) {
       //span.remove( 'euclid1' )
     }
 
-    let spanName = `.step_${patternObject.id}_${currentIdx}`,
-      currentValue = patternObject.update.value.pop() //step.value[ currentIdx ]
+    let spanName = `.step_${patternObject.id}_${currentIdx}`
+      //currentValue = patternObject.update.value.pop() //step.value[ currentIdx ]
 
     span = $( spanName )
 
@@ -945,8 +958,10 @@ arguments[4][7][0].apply(exports,arguments)
 module.exports = ( patternObject, marker, className, cm ) => {
   patternObject.commentMarker = marker
   let update = () => {
+
     if( !patternObject.commentMarker ) return
-    let patternValue = '' + patternObject.update.value.pop()
+    let patternValue = '' + patternObject.update.value
+
 
     if( patternValue.length > 8 ) patternValue = patternValue.slice(0,8) 
 
@@ -1897,16 +1912,28 @@ const Marker = {
 
     // automatically trigger annotation update whenever a new currentIndex value is received...
     let currentIndex = 0
+    let value = 0
     Object.defineProperty( patternObject.update, 'currentIndex', {
       get() { return currentIndex },
       set(v){ 
-        currentIndex = v; 
-        patternObject.update()
+        //if( currentIndex !== v ) {
+          currentIndex = v
+          patternObject.update()
+        //}
       }
     })
 
+    //Object.defineProperty( patternObject.update, 'value', {
+    //  get() { return value },
+    //  set(v){
+    //    //if( value !== v ) {
+    //      value = v
+    //      patternObject.update()
+    //    //}
+    //  }
+    //})
     //Marker._addPatternUpdates( patternObject, className )
-    Marker._addPatternFilter( patternObject )
+    //Marker._addPatternFilter( patternObject )
 
     patternObject.patternName = className
     patternObject._onchange = () => { Marker._updatePatternContents( patternObject, className, seqTarget ) }
@@ -2268,7 +2295,6 @@ const createEditor = function( selector, shouldAnnotate = true ) {
   const play = document.createElement('button')
   play.innerText = 'play'
   play.classList.add( 'float-right' )
-  console.log( 'shouldAnnotate', shouldAnnotate )
   play.onclick = ()=> playCode( cm, shouldAnnotate )
 
   const stop = document.createElement( 'button' )
@@ -2439,7 +2465,6 @@ CodeMirror.keyMap.playground =  {
   fallthrough:'default',
 
   'Ctrl-Enter': function( cm, shouldAnnotate = true ) {
-    console.log( shouldAnnotate )
     const selectedCode = getSelectionCodeColumn( cm, false )
 
     flash( cm, selectedCode.selection )

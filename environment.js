@@ -124,7 +124,6 @@ const createEditor = function( selector, shouldAnnotate = true ) {
   const play = document.createElement('button')
   play.innerText = 'play'
   play.classList.add( 'float-right' )
-  console.log( 'shouldAnnotate', shouldAnnotate )
   play.onclick = ()=> playCode( cm, shouldAnnotate )
 
   const stop = document.createElement( 'button' )
@@ -295,7 +294,6 @@ CodeMirror.keyMap.playground =  {
   fallthrough:'default',
 
   'Ctrl-Enter': function( cm, shouldAnnotate = true ) {
-    console.log( shouldAnnotate )
     const selectedCode = getSelectionCodeColumn( cm, false )
 
     flash( cm, selectedCode.selection )

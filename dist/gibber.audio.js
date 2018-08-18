@@ -6293,6 +6293,7 @@ const patternWrapper = function( Gibber ) {
 
       // XXX why is this one off from the worlet-side pattern id?
       if( Gibberish.mode === 'processor' ) {
+        Gibberish.processor.messages.push( this.id, 'update.value', args[0] )
         Gibberish.processor.messages.push( this.id, 'update.currentIndex', args[2] )
         if( this.isGen === true ) {
           Gibberish.processor.messages.push( this.id, 'waveformPoint', args[0] )
@@ -6389,13 +6390,6 @@ const patternWrapper = function( Gibber ) {
       }
       */
 
-      // if pattern has update function, add new value to array
-      // values are popped when updated by animation scheduler
-      //if( fnc.update ) { 
-        // XXX why is this one off from the worklet-side pattern id?
-        //if( Gibberish.mode === 'processor' ) Gibberish.processor.messages.push( fnc.id + 1, 'update.currentIndex', val )
-        //fnc.update.value.unshift( val )
-      //}
       
       if( val === fnc.DNR ) val = null
 
