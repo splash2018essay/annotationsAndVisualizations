@@ -105,7 +105,7 @@
         <p><em>NOTE: The examples in this essay currently only work in Chrome. If accepted, I pinky-swear to fix this before the conference.</em></p>
 
 				<h3 class="title">Introduction</h3>
-        <p>This web essay will explore the addition of annotations and visualizations to custom-developed programming environments for <a href="http://toplap.org/about">live coding performance</a>; in this essay we will use the term 'live coding' to more specifically refer to the digital arts practice, as opposed to live programming more generally.  We provide a catalogue of techniques we've developed to help reveal algorithmic activity to both audience members and programmer/performers. These techniques are implemented in JavaScript; however, many are generalizable and some have drawn inspiration from features found in programming environments for other languages. The code examples below are <em>live</em>; feel free to make minor edits and view / listen to the resulting changes. In addition to pressing the 'Play' button, which selects all code in a given example and runs it, you can also highlight code you'd like to execute and hit Ctrl+Enter.</p>
+        <p>This web essay will explore the addition of annotations and visualizations to custom-developed programming environments for <a href="http://toplap.org/about">live coding performance</a>; in this essay we will use the term 'live coding' to more specifically refer to the digital arts practice, as opposed to live programming more generally.  We provide a catalogue of techniques we've developed to help reveal algorithmic activity to both audience members and programmer/performers. These techniques are implemented in standard JavaScript, which is also the end-user language; however, many are generalizable and some have drawn inspiration from features found in programming environments for other languages. The code examples below are <em>live</em>; feel free to make minor edits and view / listen to the resulting changes. In addition to pressing the 'Play' button, which selects all code in a given example and runs it, you can also highlight code you'd like to execute and hit Ctrl+Enter.</p>
 
         <p>Before diving in, we'd like to provide an example of what many of these annotations look like when combined. Although they might be somewhat overwhelming when simultaneously viewed, in our experience they can provide valuable scaffolding to the development of a program as it is written over time.</p>
 
@@ -234,12 +234,21 @@ drums.seq.values.rotate.seq( 1,1 )
         <h4 class='title'>Revealing 'hidden' data and function output</h5>
         <p>As we saw from prior examples, we can highlight selected members of patterns as they are selected / triggered. However, this assumes that the pattern has been fully notated, with all its members included in the source code document. But it is natural to assume that in styles of music that are fundamentally algorithmic, the source material for musical patterns might also be created algorithmically, as opposed to manually entered by a programmer/perfomer.</p>
 
-        <p>Our solution to this problem is to present generated patterns in code comments adjacent to the code that is responsible for creating the them. In addition to depicting generated patterns, this technique can also be used to show the output of anonymous functions. Our first example shows the output of a function which outputs integers between 0-10; these values are then used to trigger notes in a scale.</p>
+        <p>Our solution to this problem is to present generated patterns in code comments adjacent to the code that is responsible for creating the them. In addition to depicting generated patterns, this technique can also be used to show the output of functions. Our first example shows the output of a function which outputs integers between 0-10; these values are then used to trigger notes in a scale.</p>
 
         <div id='anonymous1' class='example'>
           <div class='editor'>
 syn = Synth('bleep')
 syn.note.seq( Rndi(0,10), 1/4 )
+          </div> 
+        </div>
+
+        <p>It is important to note that while Rndi (and Rndf) are included as convenience methods, there is nothing special about them in terms of annotations. The technique works for any function, enabling performers and students to experiment with writing their own generative functions while receiving visual feedback. Below we use an anonymous function that randomly returns a value of zero or one.</p>
+
+        <div id='anonymous2' class='example'>
+          <div class='editor'>
+syn = Synth('bleep')
+syn.note.seq( ()=> Math.round( Math.random() ), 1/4 )
           </div> 
         </div>
 

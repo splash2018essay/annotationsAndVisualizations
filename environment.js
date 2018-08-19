@@ -173,6 +173,7 @@ window.onload = function() {
   createEditor( '#transform1' )
   createEditor( '#transform2', false )
   createEditor( '#anonymous1' )
+  createEditor( '#anonymous2' )
   createEditor( '#euclid' )
   createEditor( '#euclid2' )
   createEditor( '#full' )
