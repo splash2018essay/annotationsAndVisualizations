@@ -2294,7 +2294,15 @@ const createEditor = function( selector, shouldAnnotate = true ) {
   const play = document.createElement('button')
   play.innerText = 'play'
   play.classList.add( 'float-right' )
-  play.onclick = ()=> playCode( cm, shouldAnnotate )
+  play.onclick = ()=> {
+    if( Gibber.initialized === true ) {
+      playCode( cm, shouldAnnotate )
+    }else{
+      setTimeout( ()=> playCode( cm, shouldAnnotate ), 250 )
+    }
+
+    return true
+  }
 
   const stop = document.createElement( 'button' )
   stop.classList.add( 'float-right' )
