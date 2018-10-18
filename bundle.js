@@ -1,5 +1,5 @@
-(function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
-const Utility = require( './utility.js' )
+(function(){function r(e,n,t){function o(i,f){if(!n[i]){if(!e[i]){var c="function"==typeof require&&require;if(!f&&c)return c(i,!0);if(u)return u(i,!0);var a=new Error("Cannot find module '"+i+"'");throw a.code="MODULE_NOT_FOUND",a}var p=n[i]={exports:{}};e[i][0].call(p.exports,function(r){var n=e[i][1][r];return o(n||r)},p,p.exports,r,e,n,t)}return n[i].exports}for(var u="function"==typeof require&&require,i=0;i<t.length;i++)o(t[i]);return o}return r})()({1:[function(require,module,exports){
+const Utility = require('./../../utility.js')
 const $ = Utility.create
 
 module.exports = function( Marker ) {
@@ -199,7 +199,7 @@ module.exports = function( Marker ) {
 }
 
 
-},{"./utility.js":7}],2:[function(require,module,exports){
+},{"./../../utility.js":48}],2:[function(require,module,exports){
 module.exports = function( Marker ) {
   'use strict'
 
@@ -365,10 +365,10 @@ const __Identifier = function( Marker ) {
       Object.defineProperty( patternObject.update, 'currentIndex', {
         get() { return currentIndex },
         set(v){ 
-          //if( currentIndex !== v ) {
+          if( currentIndex !== v ) {
             currentIndex = v; 
             patternObject.update()
-          //}
+          }
         }
       })
 
@@ -376,10 +376,10 @@ const __Identifier = function( Marker ) {
        //Object.defineProperty( patternObject.update, 'value', {
        //  get() { return value },
        //  set(v){ 
-       //    //if( value !== v ) {
+       //    if( value !== v ) {
        //      value = v; 
        //      patternObject.update()
-       //    //}
+       //    }
        //  }
        //})
     }
@@ -478,189 +478,7 @@ module.exports = function( Marker ) {
 }
 
 },{}],7:[function(require,module,exports){
-const Utility = {
-  rndf( min=0, max=1, number, canRepeat=true ) {
-    let out = 0
-  	if( number === undefined ) {
-  		let diff = max - min,
-  		    r = Math.random(),
-  		    rr = diff * r
-
-  		out =  min + rr;
-  	}else{
-      let output = [],
-  		    tmp = []
-
-  		for( let i = 0; i < number; i++ ) {
-  			let num
-        if( canRepeat ) {
-          num = Utility.rndf(min, max)
-        }else{
-          num = Utility.rndf( min, max )
-          while( tmp.indexOf( num ) > -1) {
-            num = Utility.rndf( min, max )
-          }
-          tmp.push( num )
-        }
-  			output.push( num )
-  		}
-
-  		out = output
-  	}
-
-    return out
-  },
-
-  Rndf( _min = 0, _max = 1, quantity, canRepeat=true ) {
-    // have to code gen function to hard code min / max values inside, as closures
-    // or bound values won't be passed through the worklet port.XXX perhaps there should
-    // be a way to transfer a function and its upvalues through the worklet? OTOH,
-    // codegen works fine.
-
-    const fncString = `const min = ${_min}
-    const max = ${_max} 
-    const range = max - min
-    const canRepeat = ${quantity} > range ? true : ${ canRepeat }
-
-    let out
-
-    if( ${quantity} > 1 ) { 
-      out = []
-      for( let i = 0; i < ${quantity}; i++ ) {
-        let num = min + Math.random() * range
-
-        if( canRepeat === false ) {
-          while( out.indexOf( num ) > -1 ) {
-            num = min + Math.random() * range
-          }
-        }
-        out[ i ] = num
-      }
-    }else{
-      out = min + Math.random() * range 
-    }
-
-    return out;`
-    
-    return new Function( fncString )
-  },
-
-  rndi( min = 0, max = 1, number, canRepeat = true ) {
-    let range = max - min,
-        out
-    
-    if( range < number ) canRepeat = true
-
-    if( typeof number === 'undefined' ) {
-      range = max - min
-      out = Math.round( min + Math.random() * range )
-    }else{
-  		let output = [],
-  		    tmp = []
-
-  		for( let i = 0; i < number; i++ ) {
-  			let num
-  			if( canRepeat ) {
-  				num = Utility.rndi( min, max )
-  			}else{
-  				num = Utility.rndi( min, max )
-  				while( tmp.indexOf( num ) > -1 ) {
-  					num = Utility.rndi( min, max )
-  				}
-  				tmp.push( num )
-  			}
-  			output.push( num )
-  		}
-  		out = output
-    }
-    return out
-  },
-
-  Rndi( _min = 0, _max = 1, quantity=1, canRepeat = false ) {
-    // have to code gen function to hard code min / max values inside, as closures
-    // or bound values won't be passed through the worklet port.XXX perhaps there should
-    // be a way to transfer a function and its upvalues through the worklet? OTOH,
-    // codegen works fine.
-
-    const fncString = `const min = ${_min}
-    const max = ${_max} 
-    const range = max - min
-    const canRepeat = ${quantity} > range ? true : ${ canRepeat }
-
-    let out
-
-    if( ${quantity} > 1 ) { 
-      out = []
-      for( let i = 0; i < ${quantity}; i++ ) {
-        let num = min + Math.round( Math.random() * range );
-
-        if( canRepeat === false ) {
-          while( out.indexOf( num ) > -1 ) {
-            num = min + Math.round( Math.random() * range );
-          }
-        }
-        out[ i ] = num
-      }
-    }else{
-      out = min + Math.round( Math.random() * range ); 
-    }
-
-    return out;`
-    
-    return new Function( fncString )
-  },
-
-  btof( beats ) { return 1 / (beats * ( 60 / Gibber.Clock.bpm )) },
-
-  random() {
-    this.randomFlag = true
-    this.randomArgs = Array.prototype.slice.call( arguments, 0 )
-
-    return this
-  },
-
-  elementArray: function( list ) {
-    let out = []
-
-    for( var i = 0; i < list.length; i++ ) {
-      out.push( list.item( i ) )
-    }
-
-    return out
-  },
-  
-  __classListMethods: [ 'toggle', 'add', 'remove' ],
-
-  create( query ) {
-    let elementList = document.querySelectorAll( query ),
-        arr = Utility.elementArray( elementList )
-    
-    for( let method of Utility.__classListMethods ) { 
-      arr[ method ] = style => {
-        for( let element of arr ) { 
-          element.classList[ method ]( style )
-        }
-      } 
-    }
-
-    return arr
-  },
-
-  export( obj ) {
-    obj.rndi = this.rndi
-    obj.rndf = this.rndf
-    obj.Rndi = this.Rndi
-    obj.Rndf = this.Rndf
-    obj.btof = this.btof
-
-    Array.prototype.rnd = this.random
-  }
-}
-
-module.exports = Utility
-
-},{}],8:[function(require,module,exports){
-const Utility = require( './utility.js' )
+const Utility = require('./../../utility.js')
 const $ = Utility.create
 
 module.exports = function( node, cm, track, objectName, state, cb ) {
@@ -711,7 +529,7 @@ module.exports = function( node, cm, track, objectName, state, cb ) {
     }
 
     let spanName = `.step_${patternObject.id}_${currentIdx}`
-      //currentValue = patternObject.update.value.pop() //step.value[ currentIdx ]
+        //currentValue = patternObject.update.value.pop() //step.value[ currentIdx ]
 
     span = $( spanName )
 
@@ -753,9 +571,9 @@ module.exports = function( node, cm, track, objectName, state, cb ) {
 }  
 
 
-},{"./utility.js":12}],9:[function(require,module,exports){
+},{"./../../utility.js":48}],8:[function(require,module,exports){
 
-const Utility = require( './utility.js' )
+const Utility = require('./../../utility.js')
 const $ = Utility.create
 const EuclidAnnotation = require( '../update/euclidAnnotation.js' )
 
@@ -834,9 +652,9 @@ module.exports = function( node, cm, track, objectName, state, cb ) {
 }  
 
 
-},{"../update/euclidAnnotation.js":15,"./utility.js":12}],10:[function(require,module,exports){
+},{"../update/euclidAnnotation.js":13,"./../../utility.js":48}],9:[function(require,module,exports){
 
-const Utility = require( './utility.js' )
+const Utility = require('./../../utility.js')
 const $ = Utility.create
 
 module.exports = function( node, cm, track, objectName, vOffset=0 ) {
@@ -869,8 +687,8 @@ module.exports = function( node, cm, track, objectName, vOffset=0 ) {
   }
 }
 
-},{"./utility.js":12}],11:[function(require,module,exports){
-const Utility = require( './utility.js' )
+},{"./../../utility.js":48}],10:[function(require,module,exports){
+const Utility = require('./../../utility.js')
 const $ = Utility.create
 
 module.exports = function( node, cm, track, objectName, state, cb ) {
@@ -951,9 +769,7 @@ module.exports = function( node, cm, track, objectName, state, cb ) {
 }  
 
 
-},{"./utility.js":12}],12:[function(require,module,exports){
-arguments[4][7][0].apply(exports,arguments)
-},{"dup":7}],13:[function(require,module,exports){
+},{"./../../utility.js":48}],11:[function(require,module,exports){
 module.exports = ( patternObject, marker, className, cm ) => {
   patternObject.commentMarker = marker
   let update = () => {
@@ -993,8 +809,8 @@ module.exports = ( patternObject, marker, className, cm ) => {
 }
 
 
-},{}],14:[function(require,module,exports){
-const Utility = require( './utility.js' )
+},{}],12:[function(require,module,exports){
+const Utility = require('./../../utility.js')
 const $ = Utility.create
 
 module.exports = function( classNamePrefix, patternObject ) {
@@ -1010,6 +826,8 @@ module.exports = function( classNamePrefix, patternObject ) {
     if( patternObject.values.length > 1 || patternObject.type === 'Lookup' || isArray === true ) {
       className += '_' + patternObject.update.currentIndex
     }
+
+    isArray = false 
 
     switch( modCount++ % 4 ) {
       case 1: border = 'right'; break;
@@ -1086,8 +904,8 @@ module.exports = function( classNamePrefix, patternObject ) {
 }
 
 
-},{"./utility.js":17}],15:[function(require,module,exports){
-const Utility = require( './utility.js' )
+},{"./../../utility.js":48}],13:[function(require,module,exports){
+const Utility = require('./../../utility.js')
 const $ = Utility.create
 
 module.exports = ( patternObject, marker, className, cm, track, patternNode, Marker ) => {
@@ -1218,7 +1036,7 @@ module.exports = ( patternObject, marker, className, cm, track, patternNode, Mar
 }
 
 
-},{"./utility.js":17}],16:[function(require,module,exports){
+},{"./../../utility.js":48}],14:[function(require,module,exports){
 module.exports = ( patternObject, marker, className, cm, track, patternNode, patternType, seqNumber ) => {
   Gibber.Environment.codeMarkup.processGen( patternNode, cm, null, patternObject, null, -1 )
 
@@ -1236,9 +1054,7 @@ module.exports = ( patternObject, marker, className, cm, track, patternNode, pat
 }
 
 
-},{}],17:[function(require,module,exports){
-arguments[4][7][0].apply(exports,arguments)
-},{"dup":7}],18:[function(require,module,exports){
+},{}],15:[function(require,module,exports){
 module.exports = function( Marker ) {
 
   const strip = function( unstripped ) {
@@ -1415,6 +1231,11 @@ module.exports = function( Marker ) {
         //console.log( 'marking pattern for seq:', seq )
       }else{
         // XXX need to fix this when we add gen~ expressions back in!!!
+        if( node.callee.object.type !== 'Identifier' && node.callee.property ) {
+          if( node.callee.property.name === 'fade' ) {
+            Marker.processFade( state, node )
+          }
+        }
         cb( node.callee, state )
         //Marker.processGen( node, state.cm, null, null, null, state.indexOf('seq') > -1 ? 0 : -1, state )
       }
@@ -1446,7 +1267,7 @@ module.exports = function( Marker ) {
   return visitors
 }
 
-},{}],19:[function(require,module,exports){
+},{}],16:[function(require,module,exports){
 const COLORS = {
   FILL:'rgba(46,50,53,1)',
   STROKE:'#aaa',
@@ -1492,6 +1313,17 @@ const Waveform = {
     widget.min = 10000
     widget.max = -10000
 
+    let isFade = false
+
+    // is it a fade?
+    if( widget.gen.from !== undefined ) {
+      widget.min = widget.gen.from.value
+      widget.max = widget.gen.to.value
+      isFade = true
+      widget.gen = widget.gen.__wrapped__
+      widget.values = widget.gen.values
+    }
+
     if( widget.gen === null || widget.gen === undefined ) {
       if( node.expression !== undefined && node.expression.type === 'AssignmentExpression' ) {
         isAssignment = true
@@ -1505,7 +1337,7 @@ const Waveform = {
       }else if( node.type === 'CallExpression' ) {
         const state = cm.__state
         
-        if( node.callee.name !== 'Lookup' ) {
+        if( node.callee.name !== 'Lookup' && node.callee.property.name !== 'fade' ) {
           const objName = `${state[0]}`
           const track  = window.signals[0]//window[ objName ][ state[1] ]
           let wave
@@ -1544,12 +1376,16 @@ const Waveform = {
       }
     }
 
-    widget.clear = ()=> widget.mark.clear() 
+    widget.clear = ()=> {
+      delete Waveform.widgets[ widget.gen.id ]
+      widget.mark.clear() 
+    }
 
-    if( widget.gen !== null ) {
+    if( widget.gen !== null && widget.gen !== undefined ) {
       //console.log( 'paramID = ', widget.gen.paramID ) 
       Waveform.widgets[ widget.gen.id ] = widget
       widget.gen.widget = widget
+      widget.gen.__onclear = ()=> widget.mark.clear()
     }
     
     if( patternObject !== null ) {
@@ -1557,18 +1393,21 @@ const Waveform = {
       if( patternObject === Gibber.Gen.lastConnected[0] ) Gibber.Gen.lastConnected.shift()
     }
 
-    widget.onclick = ()=> {
-      widget.min = Infinity
-      widget.max = -Infinity
-      widget.storage.length = 0
+    if( !isFade ) {
+      widget.onclick = ()=> {
+        widget.min = Infinity
+        widget.max = -Infinity
+        widget.storage.length = 0
+      }
     }
     
-    widget.gen.__onclear = ()=> widget.mark.clear()
 
     if( this.initialized === false ) {
       this.startAnimationClock()
       this.initialized = true
     }
+
+    widget.isFade = isFade
   },
 
   clear() {
@@ -1635,6 +1474,8 @@ const Waveform = {
 
       const widget = Waveform.widgets[ key ]
 
+      if( widget === undefined ) continue
+
       // ensure that a widget does not get drawn more
       // than once per frame
       if( drawn.indexOf( widget ) !== -1 ) continue
@@ -1663,31 +1504,66 @@ const Waveform = {
         const range = widget.max - widget.min
         const wHeight = (widget.height * .85 + .45) - 1
 
+        // needed for fades
+        let isReversed = false
 
-        for( let i = 0, len = widget.waveWidth; i < len; i++ ) {
-          const data = widget.values[ i ]
-          const shouldDrawDot = typeof data === 'object'
-          const value = shouldDrawDot ? data.value : data
-          const scaledValue = ( value - widget.min ) / range
+        if( widget.isFade !== true ) {
+          for( let i = 0, len = widget.waveWidth; i < len; i++ ) {
+            const data = widget.values[ i ]
+            const shouldDrawDot = typeof data === 'object'
+            const value = shouldDrawDot ? data.value : data
+            const scaledValue = ( value - widget.min ) / range
 
-          const yValue = scaledValue * (wHeight) - 1.5 
-          
-          if( shouldDrawDot === true ) {
-            widget.ctx.fillStyle = COLORS.DOT
-            widget.ctx.lineTo( i + widget.padding + .5, wHeight - yValue )
-            widget.ctx.fillRect( i + widget.padding - 1, wHeight - yValue - 1.5, 3, 3)
-          }else{
-            widget.ctx.lineTo( i + widget.padding + .5, wHeight - yValue )
+            const yValue = scaledValue * (wHeight) - 1.5 
+            
+            if( shouldDrawDot === true ) {
+              widget.ctx.fillStyle = COLORS.DOT
+              widget.ctx.lineTo( i + widget.padding + .5, wHeight - yValue )
+              widget.ctx.fillRect( i + widget.padding - 1, wHeight - yValue - 1.5, 3, 3)
+            }else{
+              widget.ctx.lineTo( i + widget.padding + .5, wHeight - yValue )
+            }
           }
+        }else{
+          isReversed = ( widget.gen.from > widget.gen.to )
+
+          if( !isReversed ) {
+            widget.ctx.moveTo( widget.padding, widget.height )
+            widget.ctx.lineTo( widget.padding + widget.waveWidth, 0 )
+          }else{
+            widget.ctx.moveTo( widget.padding, 0 )
+            widget.ctx.lineTo( widget.padding + widget.waveWidth, widget.height )
+          }
+
+          const value = widget.values[0]
+          let percent = isReversed === true ? Math.abs( value / range ) : value / range
+
+          if( !isReversed ) {
+            widget.ctx.moveTo( widget.padding + ( Math.abs( percent ) * widget.waveWidth ), widget.height )
+            widget.ctx.lineTo( widget.padding + ( Math.abs( percent ) * widget.waveWidth ), 0 )
+          }else{
+            widget.ctx.moveTo( widget.padding + ( (1-percent) * widget.waveWidth ), widget.height )
+            widget.ctx.lineTo( widget.padding + ( (1-percent) * widget.waveWidth ), 0 )
+          }
+
+          if( isReversed === true ) {
+            if( percent <= 0.001) widget.gen.finalize()
+          }else{
+            if( percent > 1 ) widget.gen.finalize()
+          }
+
         }
         widget.ctx.stroke()
+
+        const __min = isReversed === false ? widget.min.toFixed(2) : widget.max.toFixed(2)
+        const __max = isReversed === false ? widget.max.toFixed(2) : widget.min.toFixed(2)
 
         // draw min/max
         widget.ctx.fillStyle = COLORS.STROKE
         widget.ctx.textAlign = 'right'
-        widget.ctx.fillText( widget.min.toFixed(2), widget.padding - 2, widget.height )
+        widget.ctx.fillText( __min, widget.padding - 2, widget.height )
         widget.ctx.textAlign = 'left'
-        widget.ctx.fillText( widget.max.toFixed(2), widget.waveWidth + widget.padding + 2, widget.height / 2 )
+        widget.ctx.fillText( __max, widget.waveWidth + widget.padding + 2, widget.height / 2 )
 
         // draw corners
         widget.ctx.beginPath()
@@ -1721,9 +1597,10 @@ module.exports = function( __Gibber ) {
   return Waveform
 }
 
-},{}],20:[function(require,module,exports){
+},{}],17:[function(require,module,exports){
+
 const acorn = require( 'acorn' )
-const walk  = require( 'acorn/dist/walk' )
+const walk  = require( 'acorn-walk' )
 //const Utility = require( '../js/utility.js' )
 
 module.exports = function( Gibber ) {
@@ -1748,6 +1625,7 @@ const Marker = {
         this.patternMarkupFunctions[ key.slice(2) ] = this.patternMarkupFunctions[ key ]( this )
       }
     }
+
     this.visitors = this.__visitors( this )
 
     Gibber.subscribe( 'clear', this.clear )
@@ -1787,6 +1665,7 @@ const Marker = {
   },
   
 
+  // STARTING POINT FOR PARSING / MARKUP
   process( code, position, codemirror, track ) {
     // store position offset from top of code editor
     // to use when marking patterns, since acorn will produce
@@ -1902,6 +1781,58 @@ const Marker = {
 
     }
     
+  },
+
+  processFade( state, node ) { 
+    let ch = node.loc.end.column, 
+        line = Marker.offset.vertical + node.loc.start.line - 1, 
+        closeParenStart = ch, 
+        end = node.end
+
+    // check to see if a given object is a proxy that already has
+    // a widget created; if so, don't make another one!
+    const seqExpression = node
+
+    const gen = window[ state[0] ][ state[ 1 ] ].value
+    Marker.waveform.createWaveformWidget( line, closeParenStart, ch-1, false, node, state.cm, gen, null, false, state )
+    //seqExpression.arguments.forEach( function( seqArgument ) {
+    //  if( seqArgument.type === 'CallExpression' ) {
+    //    const idx = Gibber.Gen.names.indexOf( seqArgument.callee.name )
+        
+    //    // not a gen, markup will happen elsewhere
+    //    if( idx === -1 ) return
+
+        
+    //    ch = seqArgument.loc.end.ch || seqArgument.loc.end.column
+    //    // XXX why don't I need the Marker offset here?
+    //    line = seqArgument.loc.end.line + lineMod
+
+    //    // for some reason arguments to .seq() include the offset,
+    //    // so we only want to add the offset in if we this is a gen~
+    //    // assignment via function call. lineMod will !== 0 if this
+    //    // is the case.
+    //    if( lineMod !== 0 ) line += Marker.offset.vertical
+
+    //    closeParenStart = ch - 1
+    //    isAssignment = false
+    //    node.processed = true
+    //    //debugger
+    //    Marker.waveform.createWaveformWidget( line, closeParenStart, ch, isAssignment, node, cm, patternObject, track, lineMod === 0, state )
+    //  } else if( seqArgument.type === 'ArrayExpression' ) {
+    //    //console.log( 'WavePattern array' )
+    //  }else if( seqArgument.type === 'Identifier' ) {
+    //    // handles 'Identifier' when pre-declared variables are passed to methods
+    //    ch = seqArgument.loc.end.ch || seqArgument.loc.end.column
+    //    line = seqArgument.loc.end.line + lineMod
+    //    isAssignment = false
+    //    node.processsed = true
+
+    //    if( lineMod !== 0 ) line += Marker.offset.vertical
+    //    if( window[ seqArgument.name ].widget === undefined ) {
+    //      Marker.waveform.createWaveformWidget( line, closeParenStart, ch, isAssignment, node, cm, patternObject, track, lineMod === 0 )
+    //    }
+    //  }
+    //})
   },
 
   _createBorderCycleFunction: require( './annotations/update/createBorderCycle.js' ),
@@ -2064,7 +1995,8 @@ const Marker = {
           marker = track.markup.textMarkers[ patternClassName ][ i ]
 
           const itemClass = document.querySelector('.' + marker.className.split(' ')[0] )
-          itemClass.innerText = pattern.values[ i ]
+          if( itemClass !== null )
+            itemClass.innerText = pattern.values[ i ]
         }
       }else{
         if( Array.isArray( pattern.values[0] ) ) {
@@ -2086,7 +2018,8 @@ const Marker = {
           marker = track.markup.textMarkers[ patternClassName ]
 
           const itemClass = document.querySelector('.' + marker.className.split(' ')[0] )
-          itemClass.innerText = pattern.values[ 0 ]
+          if( itemClass !== null )
+            itemClass.innerText = pattern.values[ 0 ]
 
           //marker.doc.replaceRange( '' + pattern.values[ 0 ], pos.from, pos.to )
           // newMarker = marker.doc.markText( pos.from, pos.to, { className: patternClassName + ' annotation-border' } )
@@ -2167,8 +2100,11 @@ return Marker
 
 }
 
-},{"./annotations/markup/arrayExpression.js":1,"./annotations/markup/binaryExpression.js":2,"./annotations/markup/callExpression.js":3,"./annotations/markup/identifier.js":4,"./annotations/markup/literal.js":5,"./annotations/markup/unaryExpression.js":6,"./annotations/standalone/drumsAnnotation.js":8,"./annotations/standalone/hexStepsAnnotations.js":9,"./annotations/standalone/scoreAnnotation.js":10,"./annotations/standalone/stepsAnnotation.js":11,"./annotations/update/anonymousAnnotation.js":13,"./annotations/update/createBorderCycle.js":14,"./annotations/update/euclidAnnotation.js":15,"./annotations/update/lookupAnnotation.js":16,"./annotations/visitors.js":18,"./annotations/waveform.js":19,"acorn":22,"acorn/dist/walk":23}],21:[function(require,module,exports){
+
+
+},{"./annotations/markup/arrayExpression.js":1,"./annotations/markup/binaryExpression.js":2,"./annotations/markup/callExpression.js":3,"./annotations/markup/identifier.js":4,"./annotations/markup/literal.js":5,"./annotations/markup/unaryExpression.js":6,"./annotations/standalone/drumsAnnotation.js":7,"./annotations/standalone/hexStepsAnnotations.js":8,"./annotations/standalone/scoreAnnotation.js":9,"./annotations/standalone/stepsAnnotation.js":10,"./annotations/update/anonymousAnnotation.js":11,"./annotations/update/createBorderCycle.js":12,"./annotations/update/euclidAnnotation.js":13,"./annotations/update/lookupAnnotation.js":14,"./annotations/visitors.js":15,"./annotations/waveform.js":16,"acorn":39,"acorn-walk":38}],18:[function(require,module,exports){
 const codeMarkup = require( './codeMarkup.js' )
+const sac = require( 'standardized-audio-context' )
 
 let cm, cmconsole, exampleCode, 
     isStereo = false,
@@ -2295,6 +2231,7 @@ const createEditor = function( selector, shouldAnnotate = true ) {
   play.innerText = 'play'
   play.classList.add( 'float-right' )
   play.onclick = ()=> {
+    console.log( 'initialized:', Gibber.initialized )
     if( Gibber.initialized === true ) {
       playCode( cm, shouldAnnotate )
     }else{
@@ -2320,8 +2257,9 @@ const playCode = function( cm, shouldAnnotate=true ) {
 }
 
 window.onload = function() {
+  window.sac = sac
   const workletPath = 'gibberish_worklet.js' 
-  Gibber.init( workletPath )
+  Gibber.init( workletPath, new sac.AudioContext() )
 
   environment.editor = cm
   window.Environment = environment
@@ -2357,6 +2295,7 @@ window.onload = function() {
   createEditor( '#full' )
   createEditor( '#sparklines1' )
   createEditor( '#sparklines2' )
+  createEditor( '#fade' )
 
 }
 
@@ -2649,7 +2588,718 @@ var flash = function(cm, pos) {
   window.setTimeout(cb, 250);
 }
 
-},{"./codeMarkup.js":20}],22:[function(require,module,exports){
+},{"./codeMarkup.js":17,"standardized-audio-context":46}],19:[function(require,module,exports){
+function _arrayWithHoles(arr) {
+  if (Array.isArray(arr)) return arr;
+}
+
+module.exports = _arrayWithHoles;
+},{}],20:[function(require,module,exports){
+function _arrayWithoutHoles(arr) {
+  if (Array.isArray(arr)) {
+    for (var i = 0, arr2 = new Array(arr.length); i < arr.length; i++) {
+      arr2[i] = arr[i];
+    }
+
+    return arr2;
+  }
+}
+
+module.exports = _arrayWithoutHoles;
+},{}],21:[function(require,module,exports){
+function _assertThisInitialized(self) {
+  if (self === void 0) {
+    throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
+  }
+
+  return self;
+}
+
+module.exports = _assertThisInitialized;
+},{}],22:[function(require,module,exports){
+function asyncGeneratorStep(gen, resolve, reject, _next, _throw, key, arg) {
+  try {
+    var info = gen[key](arg);
+    var value = info.value;
+  } catch (error) {
+    reject(error);
+    return;
+  }
+
+  if (info.done) {
+    resolve(value);
+  } else {
+    Promise.resolve(value).then(_next, _throw);
+  }
+}
+
+function _asyncToGenerator(fn) {
+  return function () {
+    var self = this,
+        args = arguments;
+    return new Promise(function (resolve, reject) {
+      var gen = fn.apply(self, args);
+
+      function _next(value) {
+        asyncGeneratorStep(gen, resolve, reject, _next, _throw, "next", value);
+      }
+
+      function _throw(err) {
+        asyncGeneratorStep(gen, resolve, reject, _next, _throw, "throw", err);
+      }
+
+      _next(undefined);
+    });
+  };
+}
+
+module.exports = _asyncToGenerator;
+},{}],23:[function(require,module,exports){
+function _classCallCheck(instance, Constructor) {
+  if (!(instance instanceof Constructor)) {
+    throw new TypeError("Cannot call a class as a function");
+  }
+}
+
+module.exports = _classCallCheck;
+},{}],24:[function(require,module,exports){
+function _defineProperties(target, props) {
+  for (var i = 0; i < props.length; i++) {
+    var descriptor = props[i];
+    descriptor.enumerable = descriptor.enumerable || false;
+    descriptor.configurable = true;
+    if ("value" in descriptor) descriptor.writable = true;
+    Object.defineProperty(target, descriptor.key, descriptor);
+  }
+}
+
+function _createClass(Constructor, protoProps, staticProps) {
+  if (protoProps) _defineProperties(Constructor.prototype, protoProps);
+  if (staticProps) _defineProperties(Constructor, staticProps);
+  return Constructor;
+}
+
+module.exports = _createClass;
+},{}],25:[function(require,module,exports){
+function _defineProperty(obj, key, value) {
+  if (key in obj) {
+    Object.defineProperty(obj, key, {
+      value: value,
+      enumerable: true,
+      configurable: true,
+      writable: true
+    });
+  } else {
+    obj[key] = value;
+  }
+
+  return obj;
+}
+
+module.exports = _defineProperty;
+},{}],26:[function(require,module,exports){
+function _getPrototypeOf(o) {
+  module.exports = _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function _getPrototypeOf(o) {
+    return o.__proto__ || Object.getPrototypeOf(o);
+  };
+  return _getPrototypeOf(o);
+}
+
+module.exports = _getPrototypeOf;
+},{}],27:[function(require,module,exports){
+var setPrototypeOf = require("./setPrototypeOf");
+
+function _inherits(subClass, superClass) {
+  if (typeof superClass !== "function" && superClass !== null) {
+    throw new TypeError("Super expression must either be null or a function");
+  }
+
+  subClass.prototype = Object.create(superClass && superClass.prototype, {
+    constructor: {
+      value: subClass,
+      writable: true,
+      configurable: true
+    }
+  });
+  if (superClass) setPrototypeOf(subClass, superClass);
+}
+
+module.exports = _inherits;
+},{"./setPrototypeOf":33}],28:[function(require,module,exports){
+function _iterableToArray(iter) {
+  if (Symbol.iterator in Object(iter) || Object.prototype.toString.call(iter) === "[object Arguments]") return Array.from(iter);
+}
+
+module.exports = _iterableToArray;
+},{}],29:[function(require,module,exports){
+function _iterableToArrayLimit(arr, i) {
+  var _arr = [];
+  var _n = true;
+  var _d = false;
+  var _e = undefined;
+
+  try {
+    for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) {
+      _arr.push(_s.value);
+
+      if (i && _arr.length === i) break;
+    }
+  } catch (err) {
+    _d = true;
+    _e = err;
+  } finally {
+    try {
+      if (!_n && _i["return"] != null) _i["return"]();
+    } finally {
+      if (_d) throw _e;
+    }
+  }
+
+  return _arr;
+}
+
+module.exports = _iterableToArrayLimit;
+},{}],30:[function(require,module,exports){
+function _nonIterableRest() {
+  throw new TypeError("Invalid attempt to destructure non-iterable instance");
+}
+
+module.exports = _nonIterableRest;
+},{}],31:[function(require,module,exports){
+function _nonIterableSpread() {
+  throw new TypeError("Invalid attempt to spread non-iterable instance");
+}
+
+module.exports = _nonIterableSpread;
+},{}],32:[function(require,module,exports){
+var _typeof = require("../helpers/typeof");
+
+var assertThisInitialized = require("./assertThisInitialized");
+
+function _possibleConstructorReturn(self, call) {
+  if (call && (_typeof(call) === "object" || typeof call === "function")) {
+    return call;
+  }
+
+  return assertThisInitialized(self);
+}
+
+module.exports = _possibleConstructorReturn;
+},{"../helpers/typeof":36,"./assertThisInitialized":21}],33:[function(require,module,exports){
+function _setPrototypeOf(o, p) {
+  module.exports = _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) {
+    o.__proto__ = p;
+    return o;
+  };
+
+  return _setPrototypeOf(o, p);
+}
+
+module.exports = _setPrototypeOf;
+},{}],34:[function(require,module,exports){
+var arrayWithHoles = require("./arrayWithHoles");
+
+var iterableToArrayLimit = require("./iterableToArrayLimit");
+
+var nonIterableRest = require("./nonIterableRest");
+
+function _slicedToArray(arr, i) {
+  return arrayWithHoles(arr) || iterableToArrayLimit(arr, i) || nonIterableRest();
+}
+
+module.exports = _slicedToArray;
+},{"./arrayWithHoles":19,"./iterableToArrayLimit":29,"./nonIterableRest":30}],35:[function(require,module,exports){
+var arrayWithoutHoles = require("./arrayWithoutHoles");
+
+var iterableToArray = require("./iterableToArray");
+
+var nonIterableSpread = require("./nonIterableSpread");
+
+function _toConsumableArray(arr) {
+  return arrayWithoutHoles(arr) || iterableToArray(arr) || nonIterableSpread();
+}
+
+module.exports = _toConsumableArray;
+},{"./arrayWithoutHoles":20,"./iterableToArray":28,"./nonIterableSpread":31}],36:[function(require,module,exports){
+function _typeof2(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof2 = function _typeof2(obj) { return typeof obj; }; } else { _typeof2 = function _typeof2(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof2(obj); }
+
+function _typeof(obj) {
+  if (typeof Symbol === "function" && _typeof2(Symbol.iterator) === "symbol") {
+    module.exports = _typeof = function _typeof(obj) {
+      return _typeof2(obj);
+    };
+  } else {
+    module.exports = _typeof = function _typeof(obj) {
+      return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : _typeof2(obj);
+    };
+  }
+
+  return _typeof(obj);
+}
+
+module.exports = _typeof;
+},{}],37:[function(require,module,exports){
+module.exports = require("regenerator-runtime");
+
+},{"regenerator-runtime":44}],38:[function(require,module,exports){
+(function (global, factory) {
+	typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports) :
+	typeof define === 'function' && define.amd ? define(['exports'], factory) :
+	(factory((global.acorn = global.acorn || {}, global.acorn.walk = {})));
+}(this, (function (exports) { 'use strict';
+
+// AST walker module for Mozilla Parser API compatible trees
+
+// A simple walk is one where you simply specify callbacks to be
+// called on specific nodes. The last two arguments are optional. A
+// simple use would be
+//
+//     walk.simple(myTree, {
+//         Expression: function(node) { ... }
+//     });
+//
+// to do something with all expressions. All Parser API node types
+// can be used to identify node types, as well as Expression and
+// Statement, which denote categories of nodes.
+//
+// The base argument can be used to pass a custom (recursive)
+// walker, and state can be used to give this walked an initial
+// state.
+
+function simple(node, visitors, baseVisitor, state, override) {
+  if (!baseVisitor) { baseVisitor = base
+  ; }(function c(node, st, override) {
+    var type = override || node.type, found = visitors[type];
+    baseVisitor[type](node, st, c);
+    if (found) { found(node, st); }
+  })(node, state, override);
+}
+
+// An ancestor walk keeps an array of ancestor nodes (including the
+// current node) and passes them to the callback as third parameter
+// (and also as state parameter when no other state is present).
+function ancestor(node, visitors, baseVisitor, state) {
+  var ancestors = [];
+  if (!baseVisitor) { baseVisitor = base
+  ; }(function c(node, st, override) {
+    var type = override || node.type, found = visitors[type];
+    var isNew = node !== ancestors[ancestors.length - 1];
+    if (isNew) { ancestors.push(node); }
+    baseVisitor[type](node, st, c);
+    if (found) { found(node, st || ancestors, ancestors); }
+    if (isNew) { ancestors.pop(); }
+  })(node, state);
+}
+
+// A recursive walk is one where your functions override the default
+// walkers. They can modify and replace the state parameter that's
+// threaded through the walk, and can opt how and whether to walk
+// their child nodes (by calling their third argument on these
+// nodes).
+function recursive(node, state, funcs, baseVisitor, override) {
+  var visitor = funcs ? make(funcs, baseVisitor || undefined) : baseVisitor;(function c(node, st, override) {
+    visitor[override || node.type](node, st, c);
+  })(node, state, override);
+}
+
+function makeTest(test) {
+  if (typeof test === "string")
+    { return function (type) { return type === test; } }
+  else if (!test)
+    { return function () { return true; } }
+  else
+    { return test }
+}
+
+var Found = function Found(node, state) { this.node = node; this.state = state; };
+
+// A full walk triggers the callback on each node
+function full(node, callback, baseVisitor, state, override) {
+  if (!baseVisitor) { baseVisitor = base
+  ; }(function c(node, st, override) {
+    var type = override || node.type;
+    baseVisitor[type](node, st, c);
+    if (!override) { callback(node, st, type); }
+  })(node, state, override);
+}
+
+// An fullAncestor walk is like an ancestor walk, but triggers
+// the callback on each node
+function fullAncestor(node, callback, baseVisitor, state) {
+  if (!baseVisitor) { baseVisitor = base; }
+  var ancestors = [];(function c(node, st, override) {
+    var type = override || node.type;
+    var isNew = node !== ancestors[ancestors.length - 1];
+    if (isNew) { ancestors.push(node); }
+    baseVisitor[type](node, st, c);
+    if (!override) { callback(node, st || ancestors, ancestors, type); }
+    if (isNew) { ancestors.pop(); }
+  })(node, state);
+}
+
+// Find a node with a given start, end, and type (all are optional,
+// null can be used as wildcard). Returns a {node, state} object, or
+// undefined when it doesn't find a matching node.
+function findNodeAt(node, start, end, test, baseVisitor, state) {
+  if (!baseVisitor) { baseVisitor = base; }
+  test = makeTest(test);
+  try {
+    (function c(node, st, override) {
+      var type = override || node.type;
+      if ((start == null || node.start <= start) &&
+          (end == null || node.end >= end))
+        { baseVisitor[type](node, st, c); }
+      if ((start == null || node.start === start) &&
+          (end == null || node.end === end) &&
+          test(type, node))
+        { throw new Found(node, st) }
+    })(node, state);
+  } catch (e) {
+    if (e instanceof Found) { return e }
+    throw e
+  }
+}
+
+// Find the innermost node of a given type that contains the given
+// position. Interface similar to findNodeAt.
+function findNodeAround(node, pos, test, baseVisitor, state) {
+  test = makeTest(test);
+  if (!baseVisitor) { baseVisitor = base; }
+  try {
+    (function c(node, st, override) {
+      var type = override || node.type;
+      if (node.start > pos || node.end < pos) { return }
+      baseVisitor[type](node, st, c);
+      if (test(type, node)) { throw new Found(node, st) }
+    })(node, state);
+  } catch (e) {
+    if (e instanceof Found) { return e }
+    throw e
+  }
+}
+
+// Find the outermost matching node after a given position.
+function findNodeAfter(node, pos, test, baseVisitor, state) {
+  test = makeTest(test);
+  if (!baseVisitor) { baseVisitor = base; }
+  try {
+    (function c(node, st, override) {
+      if (node.end < pos) { return }
+      var type = override || node.type;
+      if (node.start >= pos && test(type, node)) { throw new Found(node, st) }
+      baseVisitor[type](node, st, c);
+    })(node, state);
+  } catch (e) {
+    if (e instanceof Found) { return e }
+    throw e
+  }
+}
+
+// Find the outermost matching node before a given position.
+function findNodeBefore(node, pos, test, baseVisitor, state) {
+  test = makeTest(test);
+  if (!baseVisitor) { baseVisitor = base; }
+  var max;(function c(node, st, override) {
+    if (node.start > pos) { return }
+    var type = override || node.type;
+    if (node.end <= pos && (!max || max.node.end < node.end) && test(type, node))
+      { max = new Found(node, st); }
+    baseVisitor[type](node, st, c);
+  })(node, state);
+  return max
+}
+
+// Fallback to an Object.create polyfill for older environments.
+var create = Object.create || function(proto) {
+  function Ctor() {}
+  Ctor.prototype = proto;
+  return new Ctor
+};
+
+// Used to create a custom walker. Will fill in all missing node
+// type properties with the defaults.
+function make(funcs, baseVisitor) {
+  var visitor = create(baseVisitor || base);
+  for (var type in funcs) { visitor[type] = funcs[type]; }
+  return visitor
+}
+
+function skipThrough(node, st, c) { c(node, st); }
+function ignore(_node, _st, _c) {}
+
+// Node walkers.
+
+var base = {};
+
+base.Program = base.BlockStatement = function (node, st, c) {
+  for (var i = 0, list = node.body; i < list.length; i += 1)
+    {
+    var stmt = list[i];
+
+    c(stmt, st, "Statement");
+  }
+};
+base.Statement = skipThrough;
+base.EmptyStatement = ignore;
+base.ExpressionStatement = base.ParenthesizedExpression =
+  function (node, st, c) { return c(node.expression, st, "Expression"); };
+base.IfStatement = function (node, st, c) {
+  c(node.test, st, "Expression");
+  c(node.consequent, st, "Statement");
+  if (node.alternate) { c(node.alternate, st, "Statement"); }
+};
+base.LabeledStatement = function (node, st, c) { return c(node.body, st, "Statement"); };
+base.BreakStatement = base.ContinueStatement = ignore;
+base.WithStatement = function (node, st, c) {
+  c(node.object, st, "Expression");
+  c(node.body, st, "Statement");
+};
+base.SwitchStatement = function (node, st, c) {
+  c(node.discriminant, st, "Expression");
+  for (var i = 0, list = node.cases; i < list.length; i += 1) {
+    var cs = list[i];
+
+    if (cs.test) { c(cs.test, st, "Expression"); }
+    for (var i$1 = 0, list$1 = cs.consequent; i$1 < list$1.length; i$1 += 1)
+      {
+      var cons = list$1[i$1];
+
+      c(cons, st, "Statement");
+    }
+  }
+};
+base.SwitchCase = function (node, st, c) {
+  if (node.test) { c(node.test, st, "Expression"); }
+  for (var i = 0, list = node.consequent; i < list.length; i += 1)
+    {
+    var cons = list[i];
+
+    c(cons, st, "Statement");
+  }
+};
+base.ReturnStatement = base.YieldExpression = base.AwaitExpression = function (node, st, c) {
+  if (node.argument) { c(node.argument, st, "Expression"); }
+};
+base.ThrowStatement = base.SpreadElement =
+  function (node, st, c) { return c(node.argument, st, "Expression"); };
+base.TryStatement = function (node, st, c) {
+  c(node.block, st, "Statement");
+  if (node.handler) { c(node.handler, st); }
+  if (node.finalizer) { c(node.finalizer, st, "Statement"); }
+};
+base.CatchClause = function (node, st, c) {
+  if (node.param) { c(node.param, st, "Pattern"); }
+  c(node.body, st, "Statement");
+};
+base.WhileStatement = base.DoWhileStatement = function (node, st, c) {
+  c(node.test, st, "Expression");
+  c(node.body, st, "Statement");
+};
+base.ForStatement = function (node, st, c) {
+  if (node.init) { c(node.init, st, "ForInit"); }
+  if (node.test) { c(node.test, st, "Expression"); }
+  if (node.update) { c(node.update, st, "Expression"); }
+  c(node.body, st, "Statement");
+};
+base.ForInStatement = base.ForOfStatement = function (node, st, c) {
+  c(node.left, st, "ForInit");
+  c(node.right, st, "Expression");
+  c(node.body, st, "Statement");
+};
+base.ForInit = function (node, st, c) {
+  if (node.type === "VariableDeclaration") { c(node, st); }
+  else { c(node, st, "Expression"); }
+};
+base.DebuggerStatement = ignore;
+
+base.FunctionDeclaration = function (node, st, c) { return c(node, st, "Function"); };
+base.VariableDeclaration = function (node, st, c) {
+  for (var i = 0, list = node.declarations; i < list.length; i += 1)
+    {
+    var decl = list[i];
+
+    c(decl, st);
+  }
+};
+base.VariableDeclarator = function (node, st, c) {
+  c(node.id, st, "Pattern");
+  if (node.init) { c(node.init, st, "Expression"); }
+};
+
+base.Function = function (node, st, c) {
+  if (node.id) { c(node.id, st, "Pattern"); }
+  for (var i = 0, list = node.params; i < list.length; i += 1)
+    {
+    var param = list[i];
+
+    c(param, st, "Pattern");
+  }
+  c(node.body, st, node.expression ? "Expression" : "Statement");
+};
+
+base.Pattern = function (node, st, c) {
+  if (node.type === "Identifier")
+    { c(node, st, "VariablePattern"); }
+  else if (node.type === "MemberExpression")
+    { c(node, st, "MemberPattern"); }
+  else
+    { c(node, st); }
+};
+base.VariablePattern = ignore;
+base.MemberPattern = skipThrough;
+base.RestElement = function (node, st, c) { return c(node.argument, st, "Pattern"); };
+base.ArrayPattern = function (node, st, c) {
+  for (var i = 0, list = node.elements; i < list.length; i += 1) {
+    var elt = list[i];
+
+    if (elt) { c(elt, st, "Pattern"); }
+  }
+};
+base.ObjectPattern = function (node, st, c) {
+  for (var i = 0, list = node.properties; i < list.length; i += 1) {
+    var prop = list[i];
+
+    if (prop.type === "Property") {
+      if (prop.computed) { c(prop.key, st, "Expression"); }
+      c(prop.value, st, "Pattern");
+    } else if (prop.type === "RestElement") {
+      c(prop.argument, st, "Pattern");
+    }
+  }
+};
+
+base.Expression = skipThrough;
+base.ThisExpression = base.Super = base.MetaProperty = ignore;
+base.ArrayExpression = function (node, st, c) {
+  for (var i = 0, list = node.elements; i < list.length; i += 1) {
+    var elt = list[i];
+
+    if (elt) { c(elt, st, "Expression"); }
+  }
+};
+base.ObjectExpression = function (node, st, c) {
+  for (var i = 0, list = node.properties; i < list.length; i += 1)
+    {
+    var prop = list[i];
+
+    c(prop, st);
+  }
+};
+base.FunctionExpression = base.ArrowFunctionExpression = base.FunctionDeclaration;
+base.SequenceExpression = function (node, st, c) {
+  for (var i = 0, list = node.expressions; i < list.length; i += 1)
+    {
+    var expr = list[i];
+
+    c(expr, st, "Expression");
+  }
+};
+base.TemplateLiteral = function (node, st, c) {
+  for (var i = 0, list = node.quasis; i < list.length; i += 1)
+    {
+    var quasi = list[i];
+
+    c(quasi, st);
+  }
+
+  for (var i$1 = 0, list$1 = node.expressions; i$1 < list$1.length; i$1 += 1)
+    {
+    var expr = list$1[i$1];
+
+    c(expr, st, "Expression");
+  }
+};
+base.TemplateElement = ignore;
+base.UnaryExpression = base.UpdateExpression = function (node, st, c) {
+  c(node.argument, st, "Expression");
+};
+base.BinaryExpression = base.LogicalExpression = function (node, st, c) {
+  c(node.left, st, "Expression");
+  c(node.right, st, "Expression");
+};
+base.AssignmentExpression = base.AssignmentPattern = function (node, st, c) {
+  c(node.left, st, "Pattern");
+  c(node.right, st, "Expression");
+};
+base.ConditionalExpression = function (node, st, c) {
+  c(node.test, st, "Expression");
+  c(node.consequent, st, "Expression");
+  c(node.alternate, st, "Expression");
+};
+base.NewExpression = base.CallExpression = function (node, st, c) {
+  c(node.callee, st, "Expression");
+  if (node.arguments)
+    { for (var i = 0, list = node.arguments; i < list.length; i += 1)
+      {
+        var arg = list[i];
+
+        c(arg, st, "Expression");
+      } }
+};
+base.MemberExpression = function (node, st, c) {
+  c(node.object, st, "Expression");
+  if (node.computed) { c(node.property, st, "Expression"); }
+};
+base.ExportNamedDeclaration = base.ExportDefaultDeclaration = function (node, st, c) {
+  if (node.declaration)
+    { c(node.declaration, st, node.type === "ExportNamedDeclaration" || node.declaration.id ? "Statement" : "Expression"); }
+  if (node.source) { c(node.source, st, "Expression"); }
+};
+base.ExportAllDeclaration = function (node, st, c) {
+  c(node.source, st, "Expression");
+};
+base.ImportDeclaration = function (node, st, c) {
+  for (var i = 0, list = node.specifiers; i < list.length; i += 1)
+    {
+    var spec = list[i];
+
+    c(spec, st);
+  }
+  c(node.source, st, "Expression");
+};
+base.ImportSpecifier = base.ImportDefaultSpecifier = base.ImportNamespaceSpecifier = base.Identifier = base.Literal = ignore;
+
+base.TaggedTemplateExpression = function (node, st, c) {
+  c(node.tag, st, "Expression");
+  c(node.quasi, st, "Expression");
+};
+base.ClassDeclaration = base.ClassExpression = function (node, st, c) { return c(node, st, "Class"); };
+base.Class = function (node, st, c) {
+  if (node.id) { c(node.id, st, "Pattern"); }
+  if (node.superClass) { c(node.superClass, st, "Expression"); }
+  c(node.body, st);
+};
+base.ClassBody = function (node, st, c) {
+  for (var i = 0, list = node.body; i < list.length; i += 1)
+    {
+    var elt = list[i];
+
+    c(elt, st);
+  }
+};
+base.MethodDefinition = base.Property = function (node, st, c) {
+  if (node.computed) { c(node.key, st, "Expression"); }
+  c(node.value, st, "Expression");
+};
+
+exports.simple = simple;
+exports.ancestor = ancestor;
+exports.recursive = recursive;
+exports.full = full;
+exports.fullAncestor = fullAncestor;
+exports.findNodeAt = findNodeAt;
+exports.findNodeAround = findNodeAround;
+exports.findNodeAfter = findNodeAfter;
+exports.findNodeBefore = findNodeBefore;
+exports.make = make;
+exports.base = base;
+
+Object.defineProperty(exports, '__esModule', { value: true });
+
+})));
+
+
+},{}],39:[function(require,module,exports){
 (function (global, factory) {
 	typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports) :
 	typeof define === 'function' && define.amd ? define(['exports'], factory) :
@@ -2965,11 +3615,12 @@ function getLineInfo(input, offset) {
 // the parser process. These options are recognized:
 
 var defaultOptions = {
-  // `ecmaVersion` indicates the ECMAScript version to parse. Must
-  // be either 3, 5, 6 (2015), 7 (2016), or 8 (2017). This influences support
-  // for strict mode, the set of reserved words, and support for
-  // new syntax features. The default is 7.
-  ecmaVersion: 7,
+  // `ecmaVersion` indicates the ECMAScript version to parse. Must be
+  // either 3, 5, 6 (2015), 7 (2016), 8 (2017), 9 (2018), or 10
+  // (2019). This influences support for strict mode, the set of
+  // reserved words, and support for new syntax features. The default
+  // is 9.
+  ecmaVersion: 9,
   // `sourceType` indicates the mode the code should be parsed in.
   // Can be either `"script"` or `"module"`. This influences global
   // strict mode and parsing of `import` and `export` declarations.
@@ -3045,8 +3696,7 @@ var defaultOptions = {
   directSourceFile: null,
   // When enabled, parenthesized expressions are represented by
   // (non-standard) ParenthesizedExpression nodes
-  preserveParens: false,
-  plugins: {}
+  preserveParens: false
 };
 
 // Interpret and default an options object
@@ -3089,8 +3739,26 @@ function pushComment(options, array) {
   }
 }
 
-// Registered plugins
-var plugins = {};
+// Each scope gets a bitset that may contain these flags
+var SCOPE_TOP = 1;
+var SCOPE_FUNCTION = 2;
+var SCOPE_VAR = SCOPE_TOP | SCOPE_FUNCTION;
+var SCOPE_ASYNC = 4;
+var SCOPE_GENERATOR = 8;
+var SCOPE_ARROW = 16;
+var SCOPE_SIMPLE_CATCH = 32;
+
+function functionFlags(async, generator) {
+  return SCOPE_FUNCTION | (async ? SCOPE_ASYNC : 0) | (generator ? SCOPE_GENERATOR : 0)
+}
+
+// Used in checkLVal and declareName to determine the type of a binding
+var BIND_NONE = 0;
+var BIND_VAR = 1;
+var BIND_LEXICAL = 2;
+var BIND_FUNCTION = 3;
+var BIND_SIMPLE_CATCH = 4;
+var BIND_OUTSIDE = 5; // Special case for function names as bound inside the function
 
 function keywordRegexp(words) {
   return new RegExp("^(?:" + words.replace(/ /g, "|") + ")$")
@@ -3116,9 +3784,6 @@ var Parser = function Parser(options, input, startPos) {
   // contained any escape sequences. This is needed because words with
   // escape sequences must not be interpreted as keywords.
   this.containsEsc = false;
-
-  // Load plugins
-  this.loadPlugins(options.plugins);
 
   // Set up token state
 
@@ -3160,8 +3825,6 @@ var Parser = function Parser(options, input, startPos) {
   // Used to signify the start of a potential arrow function
   this.potentialArrowAt = -1;
 
-  // Flags to track whether we are in a function, a generator, an async function.
-  this.inFunction = this.inGenerator = this.inAsync = false;
   // Positions to delayed-check that yield/await does not exist in default parameters.
   this.yieldPos = this.awaitPos = 0;
   // Labels in scope.
@@ -3173,35 +3836,48 @@ var Parser = function Parser(options, input, startPos) {
 
   // Scope tracking for duplicate variable names (see scope.js)
   this.scopeStack = [];
-  this.enterFunctionScope();
+  this.enterScope(SCOPE_TOP);
 
   // For RegExp validation
   this.regexpState = null;
 };
 
-// DEPRECATED Kept for backwards compatibility until 3.0 in case a plugin uses them
-Parser.prototype.isKeyword = function isKeyword (word) { return this.keywords.test(word) };
-Parser.prototype.isReservedWord = function isReservedWord (word) { return this.reservedWords.test(word) };
-
-Parser.prototype.extend = function extend (name, f) {
-  this[name] = f(this[name]);
-};
-
-Parser.prototype.loadPlugins = function loadPlugins (pluginConfigs) {
-    var this$1 = this;
-
-  for (var name in pluginConfigs) {
-    var plugin = plugins[name];
-    if (!plugin) { throw new Error("Plugin '" + name + "' not found") }
-    plugin(this$1, pluginConfigs[name]);
-  }
-};
+var prototypeAccessors = { inFunction: { configurable: true },inGenerator: { configurable: true },inAsync: { configurable: true } };
 
 Parser.prototype.parse = function parse () {
   var node = this.options.program || this.startNode();
   this.nextToken();
   return this.parseTopLevel(node)
 };
+
+prototypeAccessors.inFunction.get = function () { return (this.currentVarScope().flags & SCOPE_FUNCTION) > 0 };
+prototypeAccessors.inGenerator.get = function () { return (this.currentVarScope().flags & SCOPE_GENERATOR) > 0 };
+prototypeAccessors.inAsync.get = function () { return (this.currentVarScope().flags & SCOPE_ASYNC) > 0 };
+
+Parser.extend = function extend () {
+    var plugins = [], len = arguments.length;
+    while ( len-- ) plugins[ len ] = arguments[ len ];
+
+  var cls = this;
+  for (var i = 0; i < plugins.length; i++) { cls = plugins[i](cls); }
+  return cls
+};
+
+Parser.parse = function parse (input, options) {
+  return new this(options, input).parse()
+};
+
+Parser.parseExpressionAt = function parseExpressionAt (input, pos, options) {
+  var parser = new this(options, input, pos);
+  parser.nextToken();
+  return parser.parseExpression()
+};
+
+Parser.tokenizer = function tokenizer (input, options) {
+  return new this(options, input)
+};
+
+Object.defineProperties( Parser.prototype, prototypeAccessors );
 
 var pp = Parser.prototype;
 
@@ -3355,7 +4031,7 @@ pp$1.parseTopLevel = function(node) {
   var exports = {};
   if (!node.body) { node.body = []; }
   while (this.type !== types.eof) {
-    var stmt = this$1.parseStatement(true, true, exports);
+    var stmt = this$1.parseStatement(null, true, exports);
     node.body.push(stmt);
   }
   this.adaptDirectivePrologue(node.body);
@@ -3406,7 +4082,7 @@ pp$1.isAsyncFunction = function() {
 // `if (foo) /blah/.exec(foo)`, where looking at the previous token
 // does not help.
 
-pp$1.parseStatement = function(declaration, topLevel, exports) {
+pp$1.parseStatement = function(context, topLevel, exports) {
   var starttype = this.type, node = this.startNode(), kind;
 
   if (this.isLet()) {
@@ -3424,10 +4100,10 @@ pp$1.parseStatement = function(declaration, topLevel, exports) {
   case types._do: return this.parseDoStatement(node)
   case types._for: return this.parseForStatement(node)
   case types._function:
-    if (!declaration && this.options.ecmaVersion >= 6) { this.unexpected(); }
-    return this.parseFunctionStatement(node, false)
+    if ((context && (this.strict || context !== "if")) && this.options.ecmaVersion >= 6) { this.unexpected(); }
+    return this.parseFunctionStatement(node, false, !context)
   case types._class:
-    if (!declaration) { this.unexpected(); }
+    if (context) { this.unexpected(); }
     return this.parseClass(node, true)
   case types._if: return this.parseIfStatement(node)
   case types._return: return this.parseReturnStatement(node)
@@ -3436,11 +4112,11 @@ pp$1.parseStatement = function(declaration, topLevel, exports) {
   case types._try: return this.parseTryStatement(node)
   case types._const: case types._var:
     kind = kind || this.value;
-    if (!declaration && kind !== "var") { this.unexpected(); }
+    if (context && kind !== "var") { this.unexpected(); }
     return this.parseVarStatement(node, kind)
   case types._while: return this.parseWhileStatement(node)
   case types._with: return this.parseWithStatement(node)
-  case types.braceL: return this.parseBlock()
+  case types.braceL: return this.parseBlock(true, node)
   case types.semi: return this.parseEmptyStatement(node)
   case types._export:
   case types._import:
@@ -3459,14 +4135,14 @@ pp$1.parseStatement = function(declaration, topLevel, exports) {
     // Identifier node, we switch to interpreting it as a label.
   default:
     if (this.isAsyncFunction()) {
-      if (!declaration) { this.unexpected(); }
+      if (context) { this.unexpected(); }
       this.next();
-      return this.parseFunctionStatement(node, true)
+      return this.parseFunctionStatement(node, true, !context)
     }
 
     var maybeName = this.value, expr = this.parseExpression();
     if (starttype === types.name && expr.type === "Identifier" && this.eat(types.colon))
-      { return this.parseLabeledStatement(node, maybeName, expr) }
+      { return this.parseLabeledStatement(node, maybeName, expr, context) }
     else { return this.parseExpressionStatement(node, expr) }
   }
 };
@@ -3506,7 +4182,7 @@ pp$1.parseDebuggerStatement = function(node) {
 pp$1.parseDoStatement = function(node) {
   this.next();
   this.labels.push(loopLabel);
-  node.body = this.parseStatement(false);
+  node.body = this.parseStatement("do");
   this.labels.pop();
   this.expect(types._while);
   node.test = this.parseParenExpression();
@@ -3527,9 +4203,9 @@ pp$1.parseDoStatement = function(node) {
 
 pp$1.parseForStatement = function(node) {
   this.next();
-  var awaitAt = (this.options.ecmaVersion >= 9 && this.inAsync && this.eatContextual("await")) ? this.lastTokStart : -1;
+  var awaitAt = (this.options.ecmaVersion >= 9 && (this.inAsync || (!this.inFunction && this.options.allowAwaitOutsideFunction)) && this.eatContextual("await")) ? this.lastTokStart : -1;
   this.labels.push(loopLabel);
-  this.enterLexicalScope();
+  this.enterScope(0);
   this.expect(types.parenL);
   if (this.type === types.semi) {
     if (awaitAt > -1) { this.unexpected(awaitAt); }
@@ -3571,17 +4247,17 @@ pp$1.parseForStatement = function(node) {
   return this.parseFor(node, init)
 };
 
-pp$1.parseFunctionStatement = function(node, isAsync) {
+pp$1.parseFunctionStatement = function(node, isAsync, declarationPosition) {
   this.next();
-  return this.parseFunction(node, true, false, isAsync)
+  return this.parseFunction(node, FUNC_STATEMENT | (declarationPosition ? 0 : FUNC_HANGING_STATEMENT), false, isAsync)
 };
 
 pp$1.parseIfStatement = function(node) {
   this.next();
   node.test = this.parseParenExpression();
   // allow function declarations in branches, but only in non-strict mode
-  node.consequent = this.parseStatement(!this.strict && this.type === types._function);
-  node.alternate = this.eat(types._else) ? this.parseStatement(!this.strict && this.type === types._function) : null;
+  node.consequent = this.parseStatement("if");
+  node.alternate = this.eat(types._else) ? this.parseStatement("if") : null;
   return this.finishNode(node, "IfStatement")
 };
 
@@ -3607,7 +4283,7 @@ pp$1.parseSwitchStatement = function(node) {
   node.cases = [];
   this.expect(types.braceL);
   this.labels.push(switchLabel);
-  this.enterLexicalScope();
+  this.enterScope(0);
 
   // Statements under must be grouped (by label) in SwitchCase
   // nodes. `cur` is used to keep the node that we are currently
@@ -3631,10 +4307,10 @@ pp$1.parseSwitchStatement = function(node) {
       this$1.expect(types.colon);
     } else {
       if (!cur) { this$1.unexpected(); }
-      cur.consequent.push(this$1.parseStatement(true));
+      cur.consequent.push(this$1.parseStatement(null));
     }
   }
-  this.exitLexicalScope();
+  this.exitScope();
   if (cur) { this.finishNode(cur, "SwitchCase"); }
   this.next(); // Closing brace
   this.labels.pop();
@@ -3663,16 +4339,17 @@ pp$1.parseTryStatement = function(node) {
     this.next();
     if (this.eat(types.parenL)) {
       clause.param = this.parseBindingAtom();
-      this.enterLexicalScope();
-      this.checkLVal(clause.param, "let");
+      var simple = clause.param.type === "Identifier";
+      this.enterScope(simple ? SCOPE_SIMPLE_CATCH : 0);
+      this.checkLVal(clause.param, simple ? BIND_SIMPLE_CATCH : BIND_LEXICAL);
       this.expect(types.parenR);
     } else {
       if (this.options.ecmaVersion < 10) { this.unexpected(); }
       clause.param = null;
-      this.enterLexicalScope();
+      this.enterScope(0);
     }
     clause.body = this.parseBlock(false);
-    this.exitLexicalScope();
+    this.exitScope();
     node.handler = this.finishNode(clause, "CatchClause");
   }
   node.finalizer = this.eat(types._finally) ? this.parseBlock() : null;
@@ -3692,7 +4369,7 @@ pp$1.parseWhileStatement = function(node) {
   this.next();
   node.test = this.parseParenExpression();
   this.labels.push(loopLabel);
-  node.body = this.parseStatement(false);
+  node.body = this.parseStatement("while");
   this.labels.pop();
   return this.finishNode(node, "WhileStatement")
 };
@@ -3701,7 +4378,7 @@ pp$1.parseWithStatement = function(node) {
   if (this.strict) { this.raise(this.start, "'with' in strict mode"); }
   this.next();
   node.object = this.parseParenExpression();
-  node.body = this.parseStatement(false);
+  node.body = this.parseStatement("with");
   return this.finishNode(node, "WithStatement")
 };
 
@@ -3710,7 +4387,7 @@ pp$1.parseEmptyStatement = function(node) {
   return this.finishNode(node, "EmptyStatement")
 };
 
-pp$1.parseLabeledStatement = function(node, maybeName, expr) {
+pp$1.parseLabeledStatement = function(node, maybeName, expr, context) {
   var this$1 = this;
 
   for (var i$1 = 0, list = this$1.labels; i$1 < list.length; i$1 += 1)
@@ -3730,10 +4407,10 @@ pp$1.parseLabeledStatement = function(node, maybeName, expr) {
     } else { break }
   }
   this.labels.push({name: maybeName, kind: kind, statementStart: this.start});
-  node.body = this.parseStatement(true);
+  node.body = this.parseStatement(context);
   if (node.body.type === "ClassDeclaration" ||
       node.body.type === "VariableDeclaration" && node.body.kind !== "var" ||
-      node.body.type === "FunctionDeclaration" && (this.strict || node.body.generator))
+      node.body.type === "FunctionDeclaration" && (this.strict || node.body.generator || node.body.async))
     { this.raiseRecoverable(node.body.start, "Invalid labeled declaration"); }
   this.labels.pop();
   node.label = expr;
@@ -3750,23 +4427,19 @@ pp$1.parseExpressionStatement = function(node, expr) {
 // strict"` declarations when `allowStrict` is true (used for
 // function bodies).
 
-pp$1.parseBlock = function(createNewLexicalScope) {
+pp$1.parseBlock = function(createNewLexicalScope, node) {
   var this$1 = this;
   if ( createNewLexicalScope === void 0 ) createNewLexicalScope = true;
+  if ( node === void 0 ) node = this.startNode();
 
-  var node = this.startNode();
   node.body = [];
   this.expect(types.braceL);
-  if (createNewLexicalScope) {
-    this.enterLexicalScope();
-  }
+  if (createNewLexicalScope) { this.enterScope(0); }
   while (!this.eat(types.braceR)) {
-    var stmt = this$1.parseStatement(true);
+    var stmt = this$1.parseStatement(null);
     node.body.push(stmt);
   }
-  if (createNewLexicalScope) {
-    this.exitLexicalScope();
-  }
+  if (createNewLexicalScope) { this.exitScope(); }
   return this.finishNode(node, "BlockStatement")
 };
 
@@ -3781,8 +4454,8 @@ pp$1.parseFor = function(node, init) {
   this.expect(types.semi);
   node.update = this.type === types.parenR ? null : this.parseExpression();
   this.expect(types.parenR);
-  this.exitLexicalScope();
-  node.body = this.parseStatement(false);
+  this.exitScope();
+  node.body = this.parseStatement("for");
   this.labels.pop();
   return this.finishNode(node, "ForStatement")
 };
@@ -3802,8 +4475,8 @@ pp$1.parseForIn = function(node, init) {
   node.left = init;
   node.right = type === "ForInStatement" ? this.parseExpression() : this.parseMaybeAssign();
   this.expect(types.parenR);
-  this.exitLexicalScope();
-  node.body = this.parseStatement(false);
+  this.exitScope();
+  node.body = this.parseStatement("for");
   this.labels.pop();
   return this.finishNode(node, type)
 };
@@ -3835,47 +4508,43 @@ pp$1.parseVar = function(node, isFor, kind) {
 
 pp$1.parseVarId = function(decl, kind) {
   decl.id = this.parseBindingAtom(kind);
-  this.checkLVal(decl.id, kind, false);
+  this.checkLVal(decl.id, kind === "var" ? BIND_VAR : BIND_LEXICAL, false);
 };
+
+var FUNC_STATEMENT = 1;
+var FUNC_HANGING_STATEMENT = 2;
+var FUNC_NULLABLE_ID = 4;
 
 // Parse a function declaration or literal (depending on the
 // `isStatement` parameter).
 
-pp$1.parseFunction = function(node, isStatement, allowExpressionBody, isAsync) {
+pp$1.parseFunction = function(node, statement, allowExpressionBody, isAsync) {
   this.initFunction(node);
   if (this.options.ecmaVersion >= 9 || this.options.ecmaVersion >= 6 && !isAsync)
     { node.generator = this.eat(types.star); }
   if (this.options.ecmaVersion >= 8)
     { node.async = !!isAsync; }
 
-  if (isStatement) {
-    node.id = isStatement === "nullableID" && this.type !== types.name ? null : this.parseIdent();
-    if (node.id) {
-      this.checkLVal(node.id, "var");
-    }
+  if (statement & FUNC_STATEMENT) {
+    node.id = (statement & FUNC_NULLABLE_ID) && this.type !== types.name ? null : this.parseIdent();
+    if (node.id && !(statement & FUNC_HANGING_STATEMENT))
+      { this.checkLVal(node.id, this.inModule && !this.inFunction ? BIND_LEXICAL : BIND_FUNCTION); }
   }
 
-  var oldInGen = this.inGenerator, oldInAsync = this.inAsync,
-      oldYieldPos = this.yieldPos, oldAwaitPos = this.awaitPos, oldInFunc = this.inFunction;
-  this.inGenerator = node.generator;
-  this.inAsync = node.async;
+  var oldYieldPos = this.yieldPos, oldAwaitPos = this.awaitPos;
   this.yieldPos = 0;
   this.awaitPos = 0;
-  this.inFunction = true;
-  this.enterFunctionScope();
+  this.enterScope(functionFlags(node.async, node.generator));
 
-  if (!isStatement)
+  if (!(statement & FUNC_STATEMENT))
     { node.id = this.type === types.name ? this.parseIdent() : null; }
 
   this.parseFunctionParams(node);
   this.parseFunctionBody(node, allowExpressionBody);
 
-  this.inGenerator = oldInGen;
-  this.inAsync = oldInAsync;
   this.yieldPos = oldYieldPos;
   this.awaitPos = oldAwaitPos;
-  this.inFunction = oldInFunc;
-  return this.finishNode(node, isStatement ? "FunctionDeclaration" : "FunctionExpression")
+  return this.finishNode(node, (statement & FUNC_STATEMENT) ? "FunctionDeclaration" : "FunctionExpression")
 };
 
 pp$1.parseFunctionParams = function(node) {
@@ -3899,17 +4568,20 @@ pp$1.parseClass = function(node, isStatement) {
   classBody.body = [];
   this.expect(types.braceL);
   while (!this.eat(types.braceR)) {
-    var member = this$1.parseClassMember(classBody);
-    if (member && member.type === "MethodDefinition" && member.kind === "constructor") {
-      if (hadConstructor) { this$1.raise(member.start, "Duplicate constructor in the same class"); }
-      hadConstructor = true;
+    var element = this$1.parseClassElement();
+    if (element) {
+      classBody.body.push(element);
+      if (element.type === "MethodDefinition" && element.kind === "constructor") {
+        if (hadConstructor) { this$1.raise(element.start, "Duplicate constructor in the same class"); }
+        hadConstructor = true;
+      }
     }
   }
   node.body = this.finishNode(classBody, "ClassBody");
   return this.finishNode(node, isStatement ? "ClassDeclaration" : "ClassExpression")
 };
 
-pp$1.parseClassMember = function(classBody) {
+pp$1.parseClassElement = function() {
   var this$1 = this;
 
   if (this.eat(types.semi)) { return null }
@@ -3954,7 +4626,7 @@ pp$1.parseClassMember = function(classBody) {
   } else if (method.static && key.type === "Identifier" && key.name === "prototype") {
     this.raise(key.start, "Classes may not have a static property named prototype");
   }
-  this.parseClassMethod(classBody, method, isGenerator, isAsync);
+  this.parseClassMethod(method, isGenerator, isAsync);
   if (method.kind === "get" && method.value.params.length !== 0)
     { this.raiseRecoverable(method.value.start, "getter should have no params"); }
   if (method.kind === "set" && method.value.params.length !== 1)
@@ -3964,9 +4636,9 @@ pp$1.parseClassMember = function(classBody) {
   return method
 };
 
-pp$1.parseClassMethod = function(classBody, method, isGenerator, isAsync) {
+pp$1.parseClassMethod = function(method, isGenerator, isAsync) {
   method.value = this.parseMethod(isGenerator, isAsync);
-  classBody.body.push(this.finishNode(method, "MethodDefinition"));
+  return this.finishNode(method, "MethodDefinition")
 };
 
 pp$1.parseClassId = function(node, isStatement) {
@@ -3998,7 +4670,7 @@ pp$1.parseExport = function(node, exports) {
       var fNode = this.startNode();
       this.next();
       if (isAsync) { this.next(); }
-      node.declaration = this.parseFunction(fNode, "nullableID", false, isAsync);
+      node.declaration = this.parseFunction(fNode, FUNC_STATEMENT | FUNC_NULLABLE_ID, false, isAsync, true);
     } else if (this.type === types._class) {
       var cNode = this.startNode();
       node.declaration = this.parseClass(cNode, "nullableID");
@@ -4010,7 +4682,7 @@ pp$1.parseExport = function(node, exports) {
   }
   // export var|const|let|function|class ...
   if (this.shouldParseExportStatement()) {
-    node.declaration = this.parseStatement(true);
+    node.declaration = this.parseStatement(null);
     if (node.declaration.type === "VariableDeclaration")
       { this.checkVariableExport(exports, node.declaration.declarations); }
     else
@@ -4145,7 +4817,7 @@ pp$1.parseImportSpecifiers = function() {
     // import defaultObj, { x, y as z } from '...'
     var node = this.startNode();
     node.local = this.parseIdent();
-    this.checkLVal(node.local, "let");
+    this.checkLVal(node.local, BIND_LEXICAL);
     nodes.push(this.finishNode(node, "ImportDefaultSpecifier"));
     if (!this.eat(types.comma)) { return nodes }
   }
@@ -4154,7 +4826,7 @@ pp$1.parseImportSpecifiers = function() {
     this.next();
     this.expectContextual("as");
     node$1.local = this.parseIdent();
-    this.checkLVal(node$1.local, "let");
+    this.checkLVal(node$1.local, BIND_LEXICAL);
     nodes.push(this.finishNode(node$1, "ImportNamespaceSpecifier"));
     return nodes
   }
@@ -4173,7 +4845,7 @@ pp$1.parseImportSpecifiers = function() {
       this$1.checkUnreserved(node$2.imported);
       node$2.local = node$2.imported;
     }
-    this$1.checkLVal(node$2.local, "let");
+    this$1.checkLVal(node$2.local, BIND_LEXICAL);
     nodes.push(this$1.finishNode(node$2, "ImportSpecifier"));
   }
   return nodes
@@ -4388,6 +5060,7 @@ pp$2.parseMaybeDefault = function(startPos, startLoc, left) {
 
 pp$2.checkLVal = function(expr, bindingType, checkClashes) {
   var this$1 = this;
+  if ( bindingType === void 0 ) bindingType = BIND_NONE;
 
   switch (expr.type) {
   case "Identifier":
@@ -4398,19 +5071,7 @@ pp$2.checkLVal = function(expr, bindingType, checkClashes) {
         { this.raiseRecoverable(expr.start, "Argument name clash"); }
       checkClashes[expr.name] = true;
     }
-    if (bindingType && bindingType !== "none") {
-      if (
-        bindingType === "var" && !this.canDeclareVarName(expr.name) ||
-        bindingType !== "var" && !this.canDeclareLexicalName(expr.name)
-      ) {
-        this.raiseRecoverable(expr.start, ("Identifier '" + (expr.name) + "' has already been declared"));
-      }
-      if (bindingType === "var") {
-        this.declareVarName(expr.name);
-      } else {
-        this.declareLexicalName(expr.name);
-      }
-    }
+    if (bindingType !== BIND_NONE && bindingType !== BIND_OUTSIDE) { this.declareName(expr.name, bindingType, expr.start); }
     break
 
   case "MemberExpression":
@@ -4559,13 +5220,19 @@ pp$3.parseExpression = function(noIn, refDestructuringErrors) {
 // operators like `+=`.
 
 pp$3.parseMaybeAssign = function(noIn, refDestructuringErrors, afterLeftParse) {
-  if (this.inGenerator && this.isContextual("yield")) { return this.parseYield() }
+  if (this.isContextual("yield")) {
+    if (this.inGenerator) { return this.parseYield() }
+    // The tokenizer will assume an expression is allowed after
+    // `yield`, but this isn't that kind of yield
+    else { this.exprAllowed = false; }
+  }
 
-  var ownDestructuringErrors = false, oldParenAssign = -1, oldTrailingComma = -1;
+  var ownDestructuringErrors = false, oldParenAssign = -1, oldTrailingComma = -1, oldShorthandAssign = -1;
   if (refDestructuringErrors) {
     oldParenAssign = refDestructuringErrors.parenthesizedAssign;
     oldTrailingComma = refDestructuringErrors.trailingComma;
-    refDestructuringErrors.parenthesizedAssign = refDestructuringErrors.trailingComma = -1;
+    oldShorthandAssign = refDestructuringErrors.shorthandAssign;
+    refDestructuringErrors.parenthesizedAssign = refDestructuringErrors.trailingComma = refDestructuringErrors.shorthandAssign = -1;
   } else {
     refDestructuringErrors = new DestructuringErrors;
     ownDestructuringErrors = true;
@@ -4591,6 +5258,7 @@ pp$3.parseMaybeAssign = function(noIn, refDestructuringErrors, afterLeftParse) {
   }
   if (oldParenAssign > -1) { refDestructuringErrors.parenthesizedAssign = oldParenAssign; }
   if (oldTrailingComma > -1) { refDestructuringErrors.trailingComma = oldTrailingComma; }
+  if (oldShorthandAssign > -1) { refDestructuringErrors.shorthandAssign = oldShorthandAssign; }
   return left
 };
 
@@ -4782,7 +5450,7 @@ pp$3.parseExprAtom = function(refDestructuringErrors) {
     var startPos = this.start, startLoc = this.startLoc, containsEsc = this.containsEsc;
     var id = this.parseIdent(this.type !== types.name);
     if (this.options.ecmaVersion >= 8 && !containsEsc && id.name === "async" && !this.canInsertSemicolon() && this.eat(types._function))
-      { return this.parseFunction(this.startNodeAt(startPos, startLoc), false, false, true) }
+      { return this.parseFunction(this.startNodeAt(startPos, startLoc), 0, false, true) }
     if (canBeArrow && !this.canInsertSemicolon()) {
       if (this.eat(types.arrow))
         { return this.parseArrowExpression(this.startNodeAt(startPos, startLoc), [id], false) }
@@ -4833,7 +5501,7 @@ pp$3.parseExprAtom = function(refDestructuringErrors) {
   case types._function:
     node = this.startNode();
     this.next();
-    return this.parseFunction(node, false)
+    return this.parseFunction(node, 0)
 
   case types._class:
     return this.parseClass(this.startNode(), false)
@@ -4952,7 +5620,7 @@ pp$3.parseNew = function() {
     node.property = this.parseIdent(true);
     if (node.property.name !== "target" || containsEsc)
       { this.raiseRecoverable(node.property.start, "The only valid meta property for new is new.target"); }
-    if (!this.inFunction)
+    if (!this.inNonArrowFunction())
       { this.raiseRecoverable(node.start, "new.target can only be used in functions"); }
     return this.finishNode(node, "MetaProperty")
   }
@@ -4999,6 +5667,7 @@ pp$3.parseTemplate = function(ref) {
   var curElt = this.parseTemplateElement({isTagged: isTagged});
   node.quasis = [curElt];
   while (!curElt.tail) {
+    if (this$1.type === types.eof) { this$1.raise(this$1.pos, "Unterminated template literal"); }
     this$1.expect(types.dollarBraceL);
     node.expressions.push(this$1.parseExpression());
     this$1.expect(types.braceR);
@@ -5151,19 +5820,14 @@ pp$3.parsePropertyName = function(prop) {
 
 pp$3.initFunction = function(node) {
   node.id = null;
-  if (this.options.ecmaVersion >= 6) {
-    node.generator = false;
-    node.expression = false;
-  }
-  if (this.options.ecmaVersion >= 8)
-    { node.async = false; }
+  if (this.options.ecmaVersion >= 6) { node.generator = node.expression = false; }
+  if (this.options.ecmaVersion >= 8) { node.async = false; }
 };
 
 // Parse object or class method.
 
 pp$3.parseMethod = function(isGenerator, isAsync) {
-  var node = this.startNode(), oldInGen = this.inGenerator, oldInAsync = this.inAsync,
-      oldYieldPos = this.yieldPos, oldAwaitPos = this.awaitPos, oldInFunc = this.inFunction;
+  var node = this.startNode(), oldYieldPos = this.yieldPos, oldAwaitPos = this.awaitPos;
 
   this.initFunction(node);
   if (this.options.ecmaVersion >= 6)
@@ -5171,51 +5835,37 @@ pp$3.parseMethod = function(isGenerator, isAsync) {
   if (this.options.ecmaVersion >= 8)
     { node.async = !!isAsync; }
 
-  this.inGenerator = node.generator;
-  this.inAsync = node.async;
   this.yieldPos = 0;
   this.awaitPos = 0;
-  this.inFunction = true;
-  this.enterFunctionScope();
+  this.enterScope(functionFlags(isAsync, node.generator));
 
   this.expect(types.parenL);
   node.params = this.parseBindingList(types.parenR, false, this.options.ecmaVersion >= 8);
   this.checkYieldAwaitInDefaultParams();
   this.parseFunctionBody(node, false);
 
-  this.inGenerator = oldInGen;
-  this.inAsync = oldInAsync;
   this.yieldPos = oldYieldPos;
   this.awaitPos = oldAwaitPos;
-  this.inFunction = oldInFunc;
   return this.finishNode(node, "FunctionExpression")
 };
 
 // Parse arrow function expression with given parameters.
 
 pp$3.parseArrowExpression = function(node, params, isAsync) {
-  var oldInGen = this.inGenerator, oldInAsync = this.inAsync,
-      oldYieldPos = this.yieldPos, oldAwaitPos = this.awaitPos, oldInFunc = this.inFunction;
+  var oldYieldPos = this.yieldPos, oldAwaitPos = this.awaitPos;
 
-  this.enterFunctionScope();
+  this.enterScope(functionFlags(isAsync, false) | SCOPE_ARROW);
   this.initFunction(node);
-  if (this.options.ecmaVersion >= 8)
-    { node.async = !!isAsync; }
+  if (this.options.ecmaVersion >= 8) { node.async = !!isAsync; }
 
-  this.inGenerator = false;
-  this.inAsync = node.async;
   this.yieldPos = 0;
   this.awaitPos = 0;
-  this.inFunction = true;
 
   node.params = this.toAssignableList(params, true);
   this.parseFunctionBody(node, true);
 
-  this.inGenerator = oldInGen;
-  this.inAsync = oldInAsync;
   this.yieldPos = oldYieldPos;
   this.awaitPos = oldAwaitPos;
-  this.inFunction = oldInFunc;
   return this.finishNode(node, "ArrowFunctionExpression")
 };
 
@@ -5253,12 +5903,10 @@ pp$3.parseFunctionBody = function(node, isArrowFunction) {
     this.adaptDirectivePrologue(node.body.body);
     this.labels = oldLabels;
   }
-  this.exitFunctionScope();
+  this.exitScope();
 
-  if (this.strict && node.id) {
-    // Ensure the function name isn't a forbidden identifier in strict mode, e.g. 'eval'
-    this.checkLVal(node.id, "none");
-  }
+  // Ensure the function name isn't a forbidden identifier in strict mode, e.g. 'eval'
+  if (this.strict && node.id) { this.checkLVal(node.id, BIND_OUTSIDE); }
   this.strict = oldStrict;
 };
 
@@ -5283,7 +5931,7 @@ pp$3.checkParams = function(node, allowDuplicates) {
     {
     var param = list[i];
 
-    this$1.checkLVal(param, "var", allowDuplicates ? null : nameHash);
+    this$1.checkLVal(param, BIND_VAR, allowDuplicates ? null : nameHash);
   }
 };
 
@@ -5327,7 +5975,7 @@ pp$3.checkUnreserved = function(ref) {
     { this.raiseRecoverable(start, "Can not use 'yield' as identifier inside a generator"); }
   if (this.inAsync && name === "await")
     { this.raiseRecoverable(start, "Can not use 'await' as identifier inside an async function"); }
-  if (this.isKeyword(name))
+  if (this.keywords.test(name))
     { this.raise(start, ("Unexpected keyword '" + name + "'")); }
   if (this.options.ecmaVersion < 6 &&
     this.input.slice(start, end).indexOf("\\") !== -1) { return }
@@ -5420,79 +6068,69 @@ pp$4.curPosition = function() {
 
 var pp$5 = Parser.prototype;
 
-// Object.assign polyfill
-var assign = Object.assign || function(target) {
-  var sources = [], len = arguments.length - 1;
-  while ( len-- > 0 ) sources[ len ] = arguments[ len + 1 ];
-
-  for (var i = 0, list = sources; i < list.length; i += 1) {
-    var source = list[i];
-
-    for (var key in source) {
-      if (has(source, key)) {
-        target[key] = source[key];
-      }
-    }
-  }
-  return target
+var Scope = function Scope(flags) {
+  this.flags = flags;
+  // A list of var-declared names in the current lexical scope
+  this.var = [];
+  // A list of lexically-declared names in the current lexical scope
+  this.lexical = [];
 };
 
 // The functions in this module keep track of declared variables in the current scope in order to detect duplicate variable names.
 
-pp$5.enterFunctionScope = function() {
-  // var: a hash of var-declared names in the current lexical scope
-  // lexical: a hash of lexically-declared names in the current lexical scope
-  // childVar: a hash of var-declared names in all child lexical scopes of the current lexical scope (within the current function scope)
-  // parentLexical: a hash of lexically-declared names in all parent lexical scopes of the current lexical scope (within the current function scope)
-  this.scopeStack.push({var: {}, lexical: {}, childVar: {}, parentLexical: {}});
+pp$5.enterScope = function(flags) {
+  this.scopeStack.push(new Scope(flags));
 };
 
-pp$5.exitFunctionScope = function() {
+pp$5.exitScope = function() {
   this.scopeStack.pop();
 };
 
-pp$5.enterLexicalScope = function() {
-  var parentScope = this.scopeStack[this.scopeStack.length - 1];
-  var childScope = {var: {}, lexical: {}, childVar: {}, parentLexical: {}};
+pp$5.declareName = function(name, bindingType, pos) {
+  var this$1 = this;
 
-  this.scopeStack.push(childScope);
-  assign(childScope.parentLexical, parentScope.lexical, parentScope.parentLexical);
+  var redeclared = false;
+  if (bindingType === BIND_LEXICAL) {
+    var scope = this.currentScope();
+    redeclared = scope.lexical.indexOf(name) > -1 || scope.var.indexOf(name) > -1;
+    scope.lexical.push(name);
+  } else if (bindingType === BIND_SIMPLE_CATCH) {
+    var scope$1 = this.currentScope();
+    scope$1.lexical.push(name);
+  } else if (bindingType === BIND_FUNCTION) {
+    var scope$2 = this.currentScope();
+    redeclared = scope$2.lexical.indexOf(name) > -1;
+    scope$2.var.push(name);
+  } else {
+    for (var i = this.scopeStack.length - 1; i >= 0; --i) {
+      var scope$3 = this$1.scopeStack[i];
+      if (scope$3.lexical.indexOf(name) > -1 && !(scope$3.flags & SCOPE_SIMPLE_CATCH) && scope$3.lexical[0] === name) { redeclared = true; }
+      scope$3.var.push(name);
+      if (scope$3.flags & SCOPE_VAR) { break }
+    }
+  }
+  if (redeclared) { this.raiseRecoverable(pos, ("Identifier '" + name + "' has already been declared")); }
 };
 
-pp$5.exitLexicalScope = function() {
-  var childScope = this.scopeStack.pop();
-  var parentScope = this.scopeStack[this.scopeStack.length - 1];
-
-  assign(parentScope.childVar, childScope.var, childScope.childVar);
+pp$5.currentScope = function() {
+  return this.scopeStack[this.scopeStack.length - 1]
 };
 
-/**
- * A name can be declared with `var` if there are no variables with the same name declared with `let`/`const`
- * in the current lexical scope or any of the parent lexical scopes in this function.
- */
-pp$5.canDeclareVarName = function(name) {
-  var currentScope = this.scopeStack[this.scopeStack.length - 1];
+pp$5.currentVarScope = function() {
+  var this$1 = this;
 
-  return !has(currentScope.lexical, name) && !has(currentScope.parentLexical, name)
+  for (var i = this.scopeStack.length - 1;; i--) {
+    var scope = this$1.scopeStack[i];
+    if (scope.flags & SCOPE_VAR) { return scope }
+  }
 };
 
-/**
- * A name can be declared with `let`/`const` if there are no variables with the same name declared with `let`/`const`
- * in the current scope, and there are no variables with the same name declared with `var` in the current scope or in
- * any child lexical scopes in this function.
- */
-pp$5.canDeclareLexicalName = function(name) {
-  var currentScope = this.scopeStack[this.scopeStack.length - 1];
+pp$5.inNonArrowFunction = function() {
+  var this$1 = this;
 
-  return !has(currentScope.lexical, name) && !has(currentScope.var, name) && !has(currentScope.childVar, name)
-};
-
-pp$5.declareVarName = function(name) {
-  this.scopeStack[this.scopeStack.length - 1].var[name] = true;
-};
-
-pp$5.declareLexicalName = function(name) {
-  this.scopeStack[this.scopeStack.length - 1].lexical[name] = true;
+  for (var i = this.scopeStack.length - 1; i >= 0; i--)
+    { if (this$1.scopeStack[i].flags & SCOPE_FUNCTION && !(this$1.scopeStack[i].flags & SCOPE_ARROW)) { return true } }
+  return false
 };
 
 var Node = function Node(parser, pos, loc) {
@@ -5678,7 +6316,7 @@ types.star.updateContext = function(prevType) {
 
 types.name.updateContext = function(prevType) {
   var allowed = false;
-  if (this.options.ecmaVersion >= 6) {
+  if (this.options.ecmaVersion >= 6 && prevType !== types.dot) {
     if (this.value === "of" && !this.exprAllowed ||
         this.value === "yield" && this.inGeneratorContext())
       { allowed = true; }
@@ -7919,14 +8557,9 @@ pp$8.readWord = function() {
 //
 // [ghbt]: https://github.com/acornjs/acorn/issues
 //
-// This file defines the main parser interface. The library also comes
-// with a [error-tolerant parser][dammit] and an
-// [abstract syntax tree walker][walk], defined in other files.
-//
-// [dammit]: acorn_loose.js
 // [walk]: util/walk.js
 
-var version = "5.7.1";
+var version = "6.0.2";
 
 // The main exported interface (under `self.acorn` when in the
 // browser) is a `parse` function that takes a code string and
@@ -7936,7 +8569,7 @@ var version = "5.7.1";
 // [api]: https://developer.mozilla.org/en-US/docs/SpiderMonkey/Parser_API
 
 function parse(input, options) {
-  return new Parser(options, input).parse()
+  return Parser.parse(input, options)
 }
 
 // This function tries to parse a single expression at a given
@@ -7944,35 +8577,21 @@ function parse(input, options) {
 // that embed JavaScript expressions.
 
 function parseExpressionAt(input, pos, options) {
-  var p = new Parser(options, input, pos);
-  p.nextToken();
-  return p.parseExpression()
+  return Parser.parseExpressionAt(input, pos, options)
 }
 
 // Acorn is organized as a tokenizer and a recursive-descent parser.
 // The `tokenizer` export provides an interface to the tokenizer.
 
 function tokenizer(input, options) {
-  return new Parser(options, input)
-}
-
-// This is a terrible kludge to support the existing, pre-ES6
-// interface where the loose parser module retroactively adds exports
-// to this module.
- // eslint-disable-line camelcase
-function addLooseExports(parse, Parser$$1, plugins$$1) {
-  exports.parse_dammit = parse; // eslint-disable-line camelcase
-  exports.LooseParser = Parser$$1;
-  exports.pluginsLoose = plugins$$1;
+  return Parser.tokenizer(input, options)
 }
 
 exports.version = version;
 exports.parse = parse;
 exports.parseExpressionAt = parseExpressionAt;
 exports.tokenizer = tokenizer;
-exports.addLooseExports = addLooseExports;
 exports.Parser = Parser;
-exports.plugins = plugins;
 exports.defaultOptions = defaultOptions;
 exports.Position = Position;
 exports.SourceLocation = SourceLocation;
@@ -7995,449 +8614,8813 @@ Object.defineProperty(exports, '__esModule', { value: true });
 
 })));
 
-},{}],23:[function(require,module,exports){
+
+},{}],40:[function(require,module,exports){
 (function (global, factory) {
-	typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports) :
-	typeof define === 'function' && define.amd ? define(['exports'], factory) :
-	(factory((global.acorn = global.acorn || {}, global.acorn.walk = {})));
-}(this, (function (exports) { 'use strict';
+    typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports, require('@babel/runtime/regenerator'), require('@babel/runtime/helpers/asyncToGenerator'), require('broker-factory')) :
+    typeof define === 'function' && define.amd ? define(['exports', '@babel/runtime/regenerator', '@babel/runtime/helpers/asyncToGenerator', 'broker-factory'], factory) :
+    (factory((global.asyncArrayBufferBroker = {}),global._regeneratorRuntime,global._asyncToGenerator,global.brokerFactory));
+}(this, (function (exports,_regeneratorRuntime,_asyncToGenerator,brokerFactory) { 'use strict';
 
-// AST walker module for Mozilla Parser API compatible trees
+    _regeneratorRuntime = _regeneratorRuntime && _regeneratorRuntime.hasOwnProperty('default') ? _regeneratorRuntime['default'] : _regeneratorRuntime;
+    _asyncToGenerator = _asyncToGenerator && _asyncToGenerator.hasOwnProperty('default') ? _asyncToGenerator['default'] : _asyncToGenerator;
 
-// A simple walk is one where you simply specify callbacks to be
-// called on specific nodes. The last two arguments are optional. A
-// simple use would be
-//
-//     walk.simple(myTree, {
-//         Expression: function(node) { ... }
-//     });
-//
-// to do something with all expressions. All Parser API node types
-// can be used to identify node types, as well as Expression,
-// Statement, and ScopeBody, which denote categories of nodes.
-//
-// The base argument can be used to pass a custom (recursive)
-// walker, and state can be used to give this walked an initial
-// state.
+    var wrap = brokerFactory.createBroker({
+      allocate: function allocate(_ref) {
+        var call = _ref.call;
+        return (
+          /*#__PURE__*/
+          function () {
+            var _ref2 = _asyncToGenerator(
+            /*#__PURE__*/
+            _regeneratorRuntime.mark(function _callee(length) {
+              return _regeneratorRuntime.wrap(function _callee$(_context) {
+                while (1) {
+                  switch (_context.prev = _context.next) {
+                    case 0:
+                      return _context.abrupt("return", call('allocate', {
+                        length: length
+                      }));
 
-function simple(node, visitors, baseVisitor, state, override) {
-  if (!baseVisitor) { baseVisitor = base
-  ; }(function c(node, st, override) {
-    var type = override || node.type, found = visitors[type];
-    baseVisitor[type](node, st, c);
-    if (found) { found(node, st); }
-  })(node, state, override);
-}
+                    case 1:
+                    case "end":
+                      return _context.stop();
+                  }
+                }
+              }, _callee, this);
+            }));
 
-// An ancestor walk keeps an array of ancestor nodes (including the
-// current node) and passes them to the callback as third parameter
-// (and also as state parameter when no other state is present).
-function ancestor(node, visitors, baseVisitor, state) {
-  var ancestors = [];
-  if (!baseVisitor) { baseVisitor = base
-  ; }(function c(node, st, override) {
-    var type = override || node.type, found = visitors[type];
-    var isNew = node !== ancestors[ancestors.length - 1];
-    if (isNew) { ancestors.push(node); }
-    baseVisitor[type](node, st, c);
-    if (found) { found(node, st || ancestors, ancestors); }
-    if (isNew) { ancestors.pop(); }
-  })(node, state);
-}
+            return function (_x) {
+              return _ref2.apply(this, arguments);
+            };
+          }()
+        );
+      },
+      deallocate: function deallocate(_ref3) {
+        var notify = _ref3.notify;
+        return function (arrayBuffer) {
+          notify('deallocate', {
+            arrayBuffer: arrayBuffer
+          }, [arrayBuffer]);
+        };
+      }
+    });
+    var load = function load(url) {
+      var worker = new Worker(url);
+      return wrap(worker);
+    };
 
-// A recursive walk is one where your functions override the default
-// walkers. They can modify and replace the state parameter that's
-// threaded through the walk, and can opt how and whether to walk
-// their child nodes (by calling their third argument on these
-// nodes).
-function recursive(node, state, funcs, baseVisitor, override) {
-  var visitor = funcs ? make(funcs, baseVisitor || undefined) : baseVisitor;(function c(node, st, override) {
-    visitor[override || node.type](node, st, c);
-  })(node, state, override);
-}
+    exports.wrap = wrap;
+    exports.load = load;
 
-function makeTest(test) {
-  if (typeof test === "string")
-    { return function (type) { return type === test; } }
-  else if (!test)
-    { return function () { return true; } }
-  else
-    { return test }
-}
-
-var Found = function Found(node, state) { this.node = node; this.state = state; };
-
-// A full walk triggers the callback on each node
-function full(node, callback, baseVisitor, state, override) {
-  if (!baseVisitor) { baseVisitor = base
-  ; }(function c(node, st, override) {
-    var type = override || node.type;
-    baseVisitor[type](node, st, c);
-    if (!override) { callback(node, st, type); }
-  })(node, state, override);
-}
-
-// An fullAncestor walk is like an ancestor walk, but triggers
-// the callback on each node
-function fullAncestor(node, callback, baseVisitor, state) {
-  if (!baseVisitor) { baseVisitor = base; }
-  var ancestors = [];(function c(node, st, override) {
-    var type = override || node.type;
-    var isNew = node !== ancestors[ancestors.length - 1];
-    if (isNew) { ancestors.push(node); }
-    baseVisitor[type](node, st, c);
-    if (!override) { callback(node, st || ancestors, ancestors, type); }
-    if (isNew) { ancestors.pop(); }
-  })(node, state);
-}
-
-// Find a node with a given start, end, and type (all are optional,
-// null can be used as wildcard). Returns a {node, state} object, or
-// undefined when it doesn't find a matching node.
-function findNodeAt(node, start, end, test, baseVisitor, state) {
-  if (!baseVisitor) { baseVisitor = base; }
-  test = makeTest(test);
-  try {
-    (function c(node, st, override) {
-      var type = override || node.type;
-      if ((start == null || node.start <= start) &&
-          (end == null || node.end >= end))
-        { baseVisitor[type](node, st, c); }
-      if ((start == null || node.start === start) &&
-          (end == null || node.end === end) &&
-          test(type, node))
-        { throw new Found(node, st) }
-    })(node, state);
-  } catch (e) {
-    if (e instanceof Found) { return e }
-    throw e
-  }
-}
-
-// Find the innermost node of a given type that contains the given
-// position. Interface similar to findNodeAt.
-function findNodeAround(node, pos, test, baseVisitor, state) {
-  test = makeTest(test);
-  if (!baseVisitor) { baseVisitor = base; }
-  try {
-    (function c(node, st, override) {
-      var type = override || node.type;
-      if (node.start > pos || node.end < pos) { return }
-      baseVisitor[type](node, st, c);
-      if (test(type, node)) { throw new Found(node, st) }
-    })(node, state);
-  } catch (e) {
-    if (e instanceof Found) { return e }
-    throw e
-  }
-}
-
-// Find the outermost matching node after a given position.
-function findNodeAfter(node, pos, test, baseVisitor, state) {
-  test = makeTest(test);
-  if (!baseVisitor) { baseVisitor = base; }
-  try {
-    (function c(node, st, override) {
-      if (node.end < pos) { return }
-      var type = override || node.type;
-      if (node.start >= pos && test(type, node)) { throw new Found(node, st) }
-      baseVisitor[type](node, st, c);
-    })(node, state);
-  } catch (e) {
-    if (e instanceof Found) { return e }
-    throw e
-  }
-}
-
-// Find the outermost matching node before a given position.
-function findNodeBefore(node, pos, test, baseVisitor, state) {
-  test = makeTest(test);
-  if (!baseVisitor) { baseVisitor = base; }
-  var max;(function c(node, st, override) {
-    if (node.start > pos) { return }
-    var type = override || node.type;
-    if (node.end <= pos && (!max || max.node.end < node.end) && test(type, node))
-      { max = new Found(node, st); }
-    baseVisitor[type](node, st, c);
-  })(node, state);
-  return max
-}
-
-// Fallback to an Object.create polyfill for older environments.
-var create = Object.create || function(proto) {
-  function Ctor() {}
-  Ctor.prototype = proto;
-  return new Ctor
-};
-
-// Used to create a custom walker. Will fill in all missing node
-// type properties with the defaults.
-function make(funcs, baseVisitor) {
-  var visitor = create(baseVisitor || base);
-  for (var type in funcs) { visitor[type] = funcs[type]; }
-  return visitor
-}
-
-function skipThrough(node, st, c) { c(node, st); }
-function ignore(_node, _st, _c) {}
-
-// Node walkers.
-
-var base = {};
-
-base.Program = base.BlockStatement = function (node, st, c) {
-  for (var i = 0, list = node.body; i < list.length; i += 1)
-    {
-    var stmt = list[i];
-
-    c(stmt, st, "Statement");
-  }
-};
-base.Statement = skipThrough;
-base.EmptyStatement = ignore;
-base.ExpressionStatement = base.ParenthesizedExpression =
-  function (node, st, c) { return c(node.expression, st, "Expression"); };
-base.IfStatement = function (node, st, c) {
-  c(node.test, st, "Expression");
-  c(node.consequent, st, "Statement");
-  if (node.alternate) { c(node.alternate, st, "Statement"); }
-};
-base.LabeledStatement = function (node, st, c) { return c(node.body, st, "Statement"); };
-base.BreakStatement = base.ContinueStatement = ignore;
-base.WithStatement = function (node, st, c) {
-  c(node.object, st, "Expression");
-  c(node.body, st, "Statement");
-};
-base.SwitchStatement = function (node, st, c) {
-  c(node.discriminant, st, "Expression");
-  for (var i = 0, list = node.cases; i < list.length; i += 1) {
-    var cs = list[i];
-
-    if (cs.test) { c(cs.test, st, "Expression"); }
-    for (var i$1 = 0, list$1 = cs.consequent; i$1 < list$1.length; i$1 += 1)
-      {
-      var cons = list$1[i$1];
-
-      c(cons, st, "Statement");
-    }
-  }
-};
-base.SwitchCase = function (node, st, c) {
-  if (node.test) { c(node.test, st, "Expression"); }
-  for (var i = 0, list = node.consequent; i < list.length; i += 1)
-    {
-    var cons = list[i];
-
-    c(cons, st, "Statement");
-  }
-};
-base.ReturnStatement = base.YieldExpression = base.AwaitExpression = function (node, st, c) {
-  if (node.argument) { c(node.argument, st, "Expression"); }
-};
-base.ThrowStatement = base.SpreadElement =
-  function (node, st, c) { return c(node.argument, st, "Expression"); };
-base.TryStatement = function (node, st, c) {
-  c(node.block, st, "Statement");
-  if (node.handler) { c(node.handler, st); }
-  if (node.finalizer) { c(node.finalizer, st, "Statement"); }
-};
-base.CatchClause = function (node, st, c) {
-  if (node.param) { c(node.param, st, "Pattern"); }
-  c(node.body, st, "ScopeBody");
-};
-base.WhileStatement = base.DoWhileStatement = function (node, st, c) {
-  c(node.test, st, "Expression");
-  c(node.body, st, "Statement");
-};
-base.ForStatement = function (node, st, c) {
-  if (node.init) { c(node.init, st, "ForInit"); }
-  if (node.test) { c(node.test, st, "Expression"); }
-  if (node.update) { c(node.update, st, "Expression"); }
-  c(node.body, st, "Statement");
-};
-base.ForInStatement = base.ForOfStatement = function (node, st, c) {
-  c(node.left, st, "ForInit");
-  c(node.right, st, "Expression");
-  c(node.body, st, "Statement");
-};
-base.ForInit = function (node, st, c) {
-  if (node.type === "VariableDeclaration") { c(node, st); }
-  else { c(node, st, "Expression"); }
-};
-base.DebuggerStatement = ignore;
-
-base.FunctionDeclaration = function (node, st, c) { return c(node, st, "Function"); };
-base.VariableDeclaration = function (node, st, c) {
-  for (var i = 0, list = node.declarations; i < list.length; i += 1)
-    {
-    var decl = list[i];
-
-    c(decl, st);
-  }
-};
-base.VariableDeclarator = function (node, st, c) {
-  c(node.id, st, "Pattern");
-  if (node.init) { c(node.init, st, "Expression"); }
-};
-
-base.Function = function (node, st, c) {
-  if (node.id) { c(node.id, st, "Pattern"); }
-  for (var i = 0, list = node.params; i < list.length; i += 1)
-    {
-    var param = list[i];
-
-    c(param, st, "Pattern");
-  }
-  c(node.body, st, node.expression ? "ScopeExpression" : "ScopeBody");
-};
-// FIXME drop these node types in next major version
-// (They are awkward, and in ES6 every block can be a scope.)
-base.ScopeBody = function (node, st, c) { return c(node, st, "Statement"); };
-base.ScopeExpression = function (node, st, c) { return c(node, st, "Expression"); };
-
-base.Pattern = function (node, st, c) {
-  if (node.type === "Identifier")
-    { c(node, st, "VariablePattern"); }
-  else if (node.type === "MemberExpression")
-    { c(node, st, "MemberPattern"); }
-  else
-    { c(node, st); }
-};
-base.VariablePattern = ignore;
-base.MemberPattern = skipThrough;
-base.RestElement = function (node, st, c) { return c(node.argument, st, "Pattern"); };
-base.ArrayPattern = function (node, st, c) {
-  for (var i = 0, list = node.elements; i < list.length; i += 1) {
-    var elt = list[i];
-
-    if (elt) { c(elt, st, "Pattern"); }
-  }
-};
-base.ObjectPattern = function (node, st, c) {
-  for (var i = 0, list = node.properties; i < list.length; i += 1) {
-    var prop = list[i];
-
-    if (prop.type === "Property") {
-      if (prop.computed) { c(prop.key, st, "Expression"); }
-      c(prop.value, st, "Pattern");
-    } else if (prop.type === "RestElement") {
-      c(prop.argument, st, "Pattern");
-    }
-  }
-};
-
-base.Expression = skipThrough;
-base.ThisExpression = base.Super = base.MetaProperty = ignore;
-base.ArrayExpression = function (node, st, c) {
-  for (var i = 0, list = node.elements; i < list.length; i += 1) {
-    var elt = list[i];
-
-    if (elt) { c(elt, st, "Expression"); }
-  }
-};
-base.ObjectExpression = function (node, st, c) {
-  for (var i = 0, list = node.properties; i < list.length; i += 1)
-    {
-    var prop = list[i];
-
-    c(prop, st);
-  }
-};
-base.FunctionExpression = base.ArrowFunctionExpression = base.FunctionDeclaration;
-base.SequenceExpression = base.TemplateLiteral = function (node, st, c) {
-  for (var i = 0, list = node.expressions; i < list.length; i += 1)
-    {
-    var expr = list[i];
-
-    c(expr, st, "Expression");
-  }
-};
-base.UnaryExpression = base.UpdateExpression = function (node, st, c) {
-  c(node.argument, st, "Expression");
-};
-base.BinaryExpression = base.LogicalExpression = function (node, st, c) {
-  c(node.left, st, "Expression");
-  c(node.right, st, "Expression");
-};
-base.AssignmentExpression = base.AssignmentPattern = function (node, st, c) {
-  c(node.left, st, "Pattern");
-  c(node.right, st, "Expression");
-};
-base.ConditionalExpression = function (node, st, c) {
-  c(node.test, st, "Expression");
-  c(node.consequent, st, "Expression");
-  c(node.alternate, st, "Expression");
-};
-base.NewExpression = base.CallExpression = function (node, st, c) {
-  c(node.callee, st, "Expression");
-  if (node.arguments)
-    { for (var i = 0, list = node.arguments; i < list.length; i += 1)
-      {
-        var arg = list[i];
-
-        c(arg, st, "Expression");
-      } }
-};
-base.MemberExpression = function (node, st, c) {
-  c(node.object, st, "Expression");
-  if (node.computed) { c(node.property, st, "Expression"); }
-};
-base.ExportNamedDeclaration = base.ExportDefaultDeclaration = function (node, st, c) {
-  if (node.declaration)
-    { c(node.declaration, st, node.type === "ExportNamedDeclaration" || node.declaration.id ? "Statement" : "Expression"); }
-  if (node.source) { c(node.source, st, "Expression"); }
-};
-base.ExportAllDeclaration = function (node, st, c) {
-  c(node.source, st, "Expression");
-};
-base.ImportDeclaration = function (node, st, c) {
-  for (var i = 0, list = node.specifiers; i < list.length; i += 1)
-    {
-    var spec = list[i];
-
-    c(spec, st);
-  }
-  c(node.source, st, "Expression");
-};
-base.ImportSpecifier = base.ImportDefaultSpecifier = base.ImportNamespaceSpecifier = base.Identifier = base.Literal = ignore;
-
-base.TaggedTemplateExpression = function (node, st, c) {
-  c(node.tag, st, "Expression");
-  c(node.quasi, st, "Expression");
-};
-base.ClassDeclaration = base.ClassExpression = function (node, st, c) { return c(node, st, "Class"); };
-base.Class = function (node, st, c) {
-  if (node.id) { c(node.id, st, "Pattern"); }
-  if (node.superClass) { c(node.superClass, st, "Expression"); }
-  c(node.body, st);
-};
-base.ClassBody = function (node, st, c) {
-  for (var i = 0, list = node.body; i < list.length; i += 1)
-    {
-    var elt = list[i];
-
-    c(elt, st);
-  }
-};
-base.MethodDefinition = base.Property = function (node, st, c) {
-  if (node.computed) { c(node.key, st, "Expression"); }
-  c(node.value, st, "Expression");
-};
-
-exports.simple = simple;
-exports.ancestor = ancestor;
-exports.recursive = recursive;
-exports.full = full;
-exports.fullAncestor = fullAncestor;
-exports.findNodeAt = findNodeAt;
-exports.findNodeAround = findNodeAround;
-exports.findNodeAfter = findNodeAfter;
-exports.findNodeBefore = findNodeBefore;
-exports.make = make;
-exports.base = base;
-
-Object.defineProperty(exports, '__esModule', { value: true });
+    Object.defineProperty(exports, '__esModule', { value: true });
 
 })));
 
-},{}]},{},[21]);
+},{"@babel/runtime/helpers/asyncToGenerator":22,"@babel/runtime/regenerator":37,"broker-factory":42}],41:[function(require,module,exports){
+(function (global, factory) {
+	typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports, require('async-array-buffer-broker')) :
+	typeof define === 'function' && define.amd ? define(['exports', 'async-array-buffer-broker'], factory) :
+	(factory((global.asyncArrayBuffer = {}),global.asyncArrayBufferBroker));
+}(this, (function (exports,asyncArrayBufferBroker) { 'use strict';
+
+	// tslint:disable-next-line:max-line-length
+	var worker = "!function(r){var n={};function o(e){if(n[e])return n[e].exports;var t=n[e]={i:e,l:!1,exports:{}};return r[e].call(t.exports,t,t.exports,o),t.l=!0,t.exports}o.m=r,o.c=n,o.d=function(e,t,r){o.o(e,t)||Object.defineProperty(e,t,{enumerable:!0,get:r})},o.r=function(e){\"undefined\"!=typeof Symbol&&Symbol.toStringTag&&Object.defineProperty(e,Symbol.toStringTag,{value:\"Module\"}),Object.defineProperty(e,\"__esModule\",{value:!0})},o.t=function(t,e){if(1&e&&(t=o(t)),8&e)return t;if(4&e&&\"object\"==typeof t&&t&&t.__esModule)return t;var r=Object.create(null);if(o.r(r),Object.defineProperty(r,\"default\",{enumerable:!0,value:t}),2&e&&\"string\"!=typeof t)for(var n in t)o.d(r,n,function(e){return t[e]}.bind(null,n));return r},o.n=function(e){var t=e&&e.__esModule?function(){return e.default}:function(){return e};return o.d(t,\"a\",t),t},o.o=function(e,t){return Object.prototype.hasOwnProperty.call(e,t)},o.p=\"\",o(o.s=0)}([function(e,t,r){\"use strict\";r.r(t);r(1)},function(e,t,r){!function(e){\"use strict\";e.createWorker(self,{allocate:function(e){var t=e.length,r=new ArrayBuffer(t);return{result:r,transferables:[r]}},deallocate:function(){return{result:void 0}}})}(r(2))},function(e,t,r){!function(e,t,g,l,h){\"use strict\";g=g&&g.hasOwnProperty(\"default\")?g.default:g,l=l&&l.hasOwnProperty(\"default\")?l.default:l;var r={INTERNAL_ERROR:-32603,INVALID_PARAMS:-32602,METHOD_NOT_FOUND:-32601},y=t.compile({message:'The requested method called \"${method}\" is not supported.',status:r.METHOD_NOT_FOUND}),w=t.compile({message:'The handler of the method called \"${method}\" returned no required result.',status:r.INTERNAL_ERROR}),x=t.compile({message:'The handler of the method called \"${method}\" returned an unexpected result.',status:r.INTERNAL_ERROR}),d=t.compile({message:'The specified parameter called \"portId\" with the given value \"${portId}\" does not identify a port connected to this worker.',status:r.INVALID_PARAMS}),p=function(){return new Promise(function(r){var e=new ArrayBuffer(0),t=new MessageChannel,n=t.port1,o=t.port2;n.onmessage=function(e){var t=e.data;return r(null!==t)},o.postMessage(e,[e])})},b=new Map;e.createWorker=function e(t,r){var n,v,m,o,i,a,u,c=2<arguments.length&&void 0!==arguments[2]?arguments[2]:function(){return!0},s=(o=e,i=r,a=c,Object.assign({},i,{connect:function(e){var t=e.port;t.start();var r=o(t,i),n=h.generateUniqueNumber(b);return b.set(n,function(){r(),t.close(),b.delete(n)}),{result:n}},disconnect:function(e){var t=e.portId,r=b.get(t);if(void 0===r)throw d({portId:t.toString()});return r(),{result:null}},isSupported:(u=l(g.mark(function e(){var t,r;return g.wrap(function(e){for(;;)switch(e.prev=e.next){case 0:return e.next=2,p();case 2:if(!e.sent){e.next=14;break}if((t=a())instanceof Promise)return e.next=8,t;e.next=11;break;case 8:e.t0=e.sent,e.next=12;break;case 11:e.t0=t;case 12:return r=e.t0,e.abrupt(\"return\",{result:r});case 14:return e.abrupt(\"return\",{result:!1});case 15:case\"end\":return e.stop()}},e,this)})),function(){return u.apply(this,arguments)})})),f=(v=t,m=s,n=l(g.mark(function e(t){var r,n,o,i,a,u,c,s,f,l,h,d,p;return g.wrap(function(e){for(;;)switch(e.prev=e.next){case 0:if(r=t.data,n=r.id,o=r.method,i=r.params,a=m[o],e.prev=2,void 0===a)throw y({method:o});e.next=5;break;case 5:if(void 0===(u=void 0===i?a():a(i)))throw w({method:o});e.next=8;break;case 8:if(u instanceof Promise)return e.next=11,u;e.next=14;break;case 11:e.t0=e.sent,e.next=15;break;case 14:e.t0=u;case 15:if(c=e.t0,null!==n){e.next=21;break}if(void 0!==c.result)throw x({method:o});e.next=19;break;case 19:e.next=25;break;case 21:if(void 0===c.result)throw x({method:o});e.next=23;break;case 23:s=c.result,f=c.transferables,l=void 0===f?[]:f,v.postMessage({id:n,result:s},l);case 25:e.next=31;break;case 27:e.prev=27,e.t1=e.catch(2),h=e.t1.message,d=e.t1.status,p=void 0===d?-32603:d,v.postMessage({error:{code:p,message:h},id:n});case 31:case\"end\":return e.stop()}},e,this,[[2,27]])})),function(e){return n.apply(this,arguments)});return t.addEventListener(\"message\",f),function(){return t.removeEventListener(\"message\",f)}},e.isSupported=p,Object.defineProperty(e,\"__esModule\",{value:!0})}(t,r(3),r(10),r(13),r(14))},function(e,t,r){!function(e,s,o,i){\"use strict\";s=s&&s.hasOwnProperty(\"default\")?s.default:s,o=o&&o.hasOwnProperty(\"default\")?o.default:o,i=i&&i.hasOwnProperty(\"default\")?i.default:i;var f=function(e,t){return void 0===t?e:t.reduce(function(e,t){if(\"capitalize\"!==t)return\"dashify\"===t?o(e):\"prependIndefiniteArticle\"===t?\"\".concat(i(e),\" \").concat(e):e;var r=e.charAt(0).toUpperCase(),n=e.slice(1);return\"\".concat(r).concat(n)},e)},r=function(e,o){for(var t=/\\${([^.}]+)((\\.[^(]+\\(\\))*)}/g,r=[],n=t.exec(e);null!==n;){var i={modifiers:[],name:n[1]};if(void 0!==n[3])for(var a=/\\.[^(]+\\(\\)/g,u=a.exec(n[2]);null!==u;)i.modifiers.push(u[0].slice(1,-2)),u=a.exec(n[2]);r.push(i),n=t.exec(e)}var c=r.reduce(function(e,n){return e.map(function(e){return\"string\"==typeof e?e.split((t=n,r=t.name+t.modifiers.map(function(e){return\"\\\\.\".concat(e,\"\\\\(\\\\)\")}).join(\"\"),new RegExp(\"\\\\$\\\\{\".concat(r,\"}\"),\"g\"))).reduce(function(e,t,r){return 0===r?[t]:n.name in o?s(e).concat([f(o[n.name],n.modifiers),t]):s(e).concat([function(e){return f(e[n.name],n.modifiers)},t])},[]):[e];var t,r}).reduce(function(e,t){return s(e).concat(s(t))},[])},[e]);return function(r){return c.reduce(function(e,t){return\"string\"==typeof t?s(e).concat([t]):s(e).concat([t(r)])},[]).join(\"\")}};e.compile=function(a){var e=1<arguments.length&&void 0!==arguments[1]?arguments[1]:{},u=void 0===a.code?void 0:r(a.code,e),c=void 0===a.message?void 0:r(a.message,e);function t(){var e=0<arguments.length&&void 0!==arguments[0]?arguments[0]:{},t=1<arguments.length?arguments[1]:void 0,r=void 0===t&&(e instanceof Error||void 0!==e.code&&\"Exception\"===e.code.slice(-9))?{cause:e,missingParameters:{}}:{cause:t,missingParameters:e},n=r.cause,o=r.missingParameters,i=void 0===c?new Error:new Error(c(o));return null!==n&&(i.cause=n),void 0!==u&&(i.code=u(o)),void 0!==a.status&&(i.status=a.status),i}return t},Object.defineProperty(e,\"__esModule\",{value:!0})}(t,r(4),r(8),r(9))},function(e,t,r){var n=r(5),o=r(6),i=r(7);e.exports=function(e){return n(e)||o(e)||i()}},function(e,t){e.exports=function(e){if(Array.isArray(e)){for(var t=0,r=new Array(e.length);t<e.length;t++)r[t]=e[t];return r}}},function(e,t){e.exports=function(e){if(Symbol.iterator in Object(e)||\"[object Arguments]\"===Object.prototype.toString.call(e))return Array.from(e)}},function(e,t){e.exports=function(){throw new TypeError(\"Invalid attempt to spread non-iterable instance\")}},function(e,t,r){\"use strict\";e.exports=function(e,t){if(\"string\"!=typeof e)throw new TypeError(\"expected a string\");return e.trim().replace(/([a-z])([A-Z])/g,\"$1-$2\").replace(/\\W/g,function(e){return/[\xC0-\u017E]/.test(e)?e:\"-\"}).replace(/^-+|-+$/g,\"\").replace(/-{2,}/g,function(e){return t&&t.condense?\"-\":e}).toLowerCase()}},function(e,t){var r=function(e){var t,r,n=/\\w+/.exec(e);if(!n)return\"an\";var o=(r=n[0]).toLowerCase(),i=[\"honest\",\"hour\",\"hono\"];for(t in i)if(0==o.indexOf(i[t]))return\"an\";if(1==o.length)return 0<=\"aedhilmnorsx\".indexOf(o)?\"an\":\"a\";if(r.match(/(?!FJO|[HLMNS]Y.|RY[EO]|SQU|(F[LR]?|[HL]|MN?|N|RH?|S[CHKLMNPTVW]?|X(YL)?)[AEIOU])[FHLMNRSX][A-Z]/))return\"an\";var a=[/^e[uw]/,/^onc?e\\b/,/^uni([^nmd]|mo)/,/^u[bcfhjkqrst][aeiou]/];for(t=0;t<a.length;t++)if(o.match(a[t]))return\"a\";return r.match(/^U[NK][AIEO]/)?\"a\":r==r.toUpperCase()?0<=\"aedhilmnorsx\".indexOf(o[0])?\"an\":\"a\":0<=\"aeiou\".indexOf(o[0])?\"an\":o.match(/^y(b[lor]|cl[ea]|fere|gg|p[ios]|rou|tt)/)?\"an\":\"a\"};void 0!==e&&void 0!==e.exports?e.exports=r:window.indefiniteArticle=r},function(e,t,r){e.exports=r(11)},function(e,t,r){var n=function(){return this||\"object\"==typeof self&&self}()||Function(\"return this\")(),o=n.regeneratorRuntime&&0<=Object.getOwnPropertyNames(n).indexOf(\"regeneratorRuntime\"),i=o&&n.regeneratorRuntime;if(n.regeneratorRuntime=void 0,e.exports=r(12),o)n.regeneratorRuntime=i;else try{delete n.regeneratorRuntime}catch(e){n.regeneratorRuntime=void 0}},function(M,e){!function(e){\"use strict\";var c,t=Object.prototype,s=t.hasOwnProperty,r=\"function\"==typeof Symbol?Symbol:{},o=r.iterator||\"@@iterator\",n=r.asyncIterator||\"@@asyncIterator\",i=r.toStringTag||\"@@toStringTag\",a=\"object\"==typeof M,u=e.regeneratorRuntime;if(u)a&&(M.exports=u);else{(u=e.regeneratorRuntime=a?M.exports:{}).wrap=w;var l=\"suspendedStart\",h=\"suspendedYield\",d=\"executing\",p=\"completed\",v={},f={};f[o]=function(){return this};var m=Object.getPrototypeOf,g=m&&m(m(k([])));g&&g!==t&&s.call(g,o)&&(f=g);var y=E.prototype=b.prototype=Object.create(f);O.prototype=y.constructor=E,E.constructor=O,E[i]=O.displayName=\"GeneratorFunction\",u.isGeneratorFunction=function(e){var t=\"function\"==typeof e&&e.constructor;return!!t&&(t===O||\"GeneratorFunction\"===(t.displayName||t.name))},u.mark=function(e){return Object.setPrototypeOf?Object.setPrototypeOf(e,E):(e.__proto__=E,i in e||(e[i]=\"GeneratorFunction\")),e.prototype=Object.create(y),e},u.awrap=function(e){return{__await:e}},L(_.prototype),_.prototype[n]=function(){return this},u.AsyncIterator=_,u.async=function(e,t,r,n){var o=new _(w(e,t,r,n));return u.isGeneratorFunction(t)?o:o.next().then(function(e){return e.done?e.value:o.next()})},L(y),y[i]=\"Generator\",y[o]=function(){return this},y.toString=function(){return\"[object Generator]\"},u.keys=function(r){var n=[];for(var e in r)n.push(e);return n.reverse(),function e(){for(;n.length;){var t=n.pop();if(t in r)return e.value=t,e.done=!1,e}return e.done=!0,e}},u.values=k,R.prototype={constructor:R,reset:function(e){if(this.prev=0,this.next=0,this.sent=this._sent=c,this.done=!1,this.delegate=null,this.method=\"next\",this.arg=c,this.tryEntries.forEach(j),!e)for(var t in this)\"t\"===t.charAt(0)&&s.call(this,t)&&!isNaN(+t.slice(1))&&(this[t]=c)},stop:function(){this.done=!0;var e=this.tryEntries[0].completion;if(\"throw\"===e.type)throw e.arg;return this.rval},dispatchException:function(r){if(this.done)throw r;var n=this;function e(e,t){return i.type=\"throw\",i.arg=r,n.next=e,t&&(n.method=\"next\",n.arg=c),!!t}for(var t=this.tryEntries.length-1;0<=t;--t){var o=this.tryEntries[t],i=o.completion;if(\"root\"===o.tryLoc)return e(\"end\");if(o.tryLoc<=this.prev){var a=s.call(o,\"catchLoc\"),u=s.call(o,\"finallyLoc\");if(a&&u){if(this.prev<o.catchLoc)return e(o.catchLoc,!0);if(this.prev<o.finallyLoc)return e(o.finallyLoc)}else if(a){if(this.prev<o.catchLoc)return e(o.catchLoc,!0)}else{if(!u)throw new Error(\"try statement without catch or finally\");if(this.prev<o.finallyLoc)return e(o.finallyLoc)}}}},abrupt:function(e,t){for(var r=this.tryEntries.length-1;0<=r;--r){var n=this.tryEntries[r];if(n.tryLoc<=this.prev&&s.call(n,\"finallyLoc\")&&this.prev<n.finallyLoc){var o=n;break}}o&&(\"break\"===e||\"continue\"===e)&&o.tryLoc<=t&&t<=o.finallyLoc&&(o=null);var i=o?o.completion:{};return i.type=e,i.arg=t,o?(this.method=\"next\",this.next=o.finallyLoc,v):this.complete(i)},complete:function(e,t){if(\"throw\"===e.type)throw e.arg;return\"break\"===e.type||\"continue\"===e.type?this.next=e.arg:\"return\"===e.type?(this.rval=this.arg=e.arg,this.method=\"return\",this.next=\"end\"):\"normal\"===e.type&&t&&(this.next=t),v},finish:function(e){for(var t=this.tryEntries.length-1;0<=t;--t){var r=this.tryEntries[t];if(r.finallyLoc===e)return this.complete(r.completion,r.afterLoc),j(r),v}},catch:function(e){for(var t=this.tryEntries.length-1;0<=t;--t){var r=this.tryEntries[t];if(r.tryLoc===e){var n=r.completion;if(\"throw\"===n.type){var o=n.arg;j(r)}return o}}throw new Error(\"illegal catch attempt\")},delegateYield:function(e,t,r){return this.delegate={iterator:k(e),resultName:t,nextLoc:r},\"next\"===this.method&&(this.arg=c),v}}}function w(e,t,r,n){var i,a,u,c,o=t&&t.prototype instanceof b?t:b,s=Object.create(o.prototype),f=new R(n||[]);return s._invoke=(i=e,a=r,u=f,c=l,function(e,t){if(c===d)throw new Error(\"Generator is already running\");if(c===p){if(\"throw\"===e)throw t;return A()}for(u.method=e,u.arg=t;;){var r=u.delegate;if(r){var n=N(r,u);if(n){if(n===v)continue;return n}}if(\"next\"===u.method)u.sent=u._sent=u.arg;else if(\"throw\"===u.method){if(c===l)throw c=p,u.arg;u.dispatchException(u.arg)}else\"return\"===u.method&&u.abrupt(\"return\",u.arg);c=d;var o=x(i,a,u);if(\"normal\"===o.type){if(c=u.done?p:h,o.arg===v)continue;return{value:o.arg,done:u.done}}\"throw\"===o.type&&(c=p,u.method=\"throw\",u.arg=o.arg)}}),s}function x(e,t,r){try{return{type:\"normal\",arg:e.call(t,r)}}catch(e){return{type:\"throw\",arg:e}}}function b(){}function O(){}function E(){}function L(e){[\"next\",\"throw\",\"return\"].forEach(function(t){e[t]=function(e){return this._invoke(t,e)}})}function _(c){var t;this._invoke=function(r,n){function e(){return new Promise(function(e,t){!function t(e,r,n,o){var i=x(c[e],c,r);if(\"throw\"!==i.type){var a=i.arg,u=a.value;return u&&\"object\"==typeof u&&s.call(u,\"__await\")?Promise.resolve(u.__await).then(function(e){t(\"next\",e,n,o)},function(e){t(\"throw\",e,n,o)}):Promise.resolve(u).then(function(e){a.value=e,n(a)},function(e){return t(\"throw\",e,n,o)})}o(i.arg)}(r,n,e,t)})}return t=t?t.then(e,e):e()}}function N(e,t){var r=e.iterator[t.method];if(r===c){if(t.delegate=null,\"throw\"===t.method){if(e.iterator.return&&(t.method=\"return\",t.arg=c,N(e,t),\"throw\"===t.method))return v;t.method=\"throw\",t.arg=new TypeError(\"The iterator does not provide a 'throw' method\")}return v}var n=x(r,e.iterator,t.arg);if(\"throw\"===n.type)return t.method=\"throw\",t.arg=n.arg,t.delegate=null,v;var o=n.arg;return o?o.done?(t[e.resultName]=o.value,t.next=e.nextLoc,\"return\"!==t.method&&(t.method=\"next\",t.arg=c),t.delegate=null,v):o:(t.method=\"throw\",t.arg=new TypeError(\"iterator result is not an object\"),t.delegate=null,v)}function P(e){var t={tryLoc:e[0]};1 in e&&(t.catchLoc=e[1]),2 in e&&(t.finallyLoc=e[2],t.afterLoc=e[3]),this.tryEntries.push(t)}function j(e){var t=e.completion||{};t.type=\"normal\",delete t.arg,e.completion=t}function R(e){this.tryEntries=[{tryLoc:\"root\"}],e.forEach(P,this),this.reset(!0)}function k(t){if(t){var e=t[o];if(e)return e.call(t);if(\"function\"==typeof t.next)return t;if(!isNaN(t.length)){var r=-1,n=function e(){for(;++r<t.length;)if(s.call(t,r))return e.value=t[r],e.done=!1,e;return e.value=c,e.done=!0,e};return n.next=n}}return{next:A}}function A(){return{value:c,done:!0}}}(function(){return this||\"object\"==typeof self&&self}()||Function(\"return this\")())},function(e,t){function c(e,t,r,n,o,i,a){try{var u=e[i](a),c=u.value}catch(e){return void r(e)}u.done?t(c):Promise.resolve(c).then(n,o)}e.exports=function(u){return function(){var e=this,a=arguments;return new Promise(function(t,r){var n=u.apply(e,a);function o(e){c(n,t,r,o,i,\"next\",e)}function i(e){c(n,t,r,o,i,\"throw\",e)}o(void 0)})}}},function(e,t,r){!function(e){\"use strict\";var n=new WeakMap,o=Number.MAX_SAFE_INTEGER||9007199254740991,i=function(e,t){return n.set(e,t),t},r=function(e){var t=n.get(e),r=void 0===t?e.size:2147483648<t?0:t+1;if(!e.has(r))return i(e,r);if(e.size<1073741824){for(;e.has(r);)r=Math.floor(2147483648*Math.random());return i(e,r)}if(e.size>o)throw new Error(\"Congratulations, you created a collection of unique numbers which uses all available integers!\");for(;e.has(r);)r=Math.floor(Math.random()*o);return i(e,r)};e.addUniqueNumber=function(e){var t=r(e);return e.add(t),t},e.generateUniqueNumber=r,Object.defineProperty(e,\"__esModule\",{value:!0})}(t)}]);";
+
+	var blob = new Blob([worker], {
+	  type: 'application/javascript; charset=utf-8'
+	});
+	var url = URL.createObjectURL(blob);
+	var asyncArrayBuffer = asyncArrayBufferBroker.load(url);
+	var allocate = asyncArrayBuffer.allocate;
+	var connect = asyncArrayBuffer.connect;
+	var deallocate = asyncArrayBuffer.deallocate;
+	var disconnect = asyncArrayBuffer.disconnect;
+	var isSupported = asyncArrayBuffer.isSupported;
+	URL.revokeObjectURL(url);
+
+	exports.allocate = allocate;
+	exports.connect = connect;
+	exports.deallocate = deallocate;
+	exports.disconnect = disconnect;
+	exports.isSupported = isSupported;
+
+	Object.defineProperty(exports, '__esModule', { value: true });
+
+})));
+
+},{"async-array-buffer-broker":40}],42:[function(require,module,exports){
+(function (global, factory) {
+    typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports, require('@babel/runtime/regenerator'), require('@babel/runtime/helpers/asyncToGenerator'), require('@babel/runtime/helpers/defineProperty'), require('@babel/runtime/helpers/slicedToArray'), require('fast-unique-numbers')) :
+    typeof define === 'function' && define.amd ? define(['exports', '@babel/runtime/regenerator', '@babel/runtime/helpers/asyncToGenerator', '@babel/runtime/helpers/defineProperty', '@babel/runtime/helpers/slicedToArray', 'fast-unique-numbers'], factory) :
+    (factory((global.brokerFactory = {}),global._regeneratorRuntime,global._asyncToGenerator,global._defineProperty,global._slicedToArray,global.fastUniqueNumbers));
+}(this, (function (exports,_regeneratorRuntime,_asyncToGenerator,_defineProperty,_slicedToArray,fastUniqueNumbers) { 'use strict';
+
+    _regeneratorRuntime = _regeneratorRuntime && _regeneratorRuntime.hasOwnProperty('default') ? _regeneratorRuntime['default'] : _regeneratorRuntime;
+    _asyncToGenerator = _asyncToGenerator && _asyncToGenerator.hasOwnProperty('default') ? _asyncToGenerator['default'] : _asyncToGenerator;
+    _defineProperty = _defineProperty && _defineProperty.hasOwnProperty('default') ? _defineProperty['default'] : _defineProperty;
+    _slicedToArray = _slicedToArray && _slicedToArray.hasOwnProperty('default') ? _slicedToArray['default'] : _slicedToArray;
+
+    var isMessagePort = function isMessagePort(sender) {
+      return typeof sender.start === 'function';
+    };
+
+    var PORT_MAP = new WeakMap();
+
+    var extendBrokerImplementation = function extendBrokerImplementation(partialBrokerImplementation) {
+      return Object.assign({}, partialBrokerImplementation, {
+        connect: function connect(_ref) {
+          var call = _ref.call;
+          return (
+            /*#__PURE__*/
+            _asyncToGenerator(
+            /*#__PURE__*/
+            _regeneratorRuntime.mark(function _callee() {
+              var _ref3, port1, port2, portId;
+
+              return _regeneratorRuntime.wrap(function _callee$(_context) {
+                while (1) {
+                  switch (_context.prev = _context.next) {
+                    case 0:
+                      _ref3 = new MessageChannel(), port1 = _ref3.port1, port2 = _ref3.port2;
+                      _context.next = 3;
+                      return call('connect', {
+                        port: port1
+                      }, [port1]);
+
+                    case 3:
+                      portId = _context.sent;
+                      PORT_MAP.set(port2, portId);
+                      return _context.abrupt("return", port2);
+
+                    case 6:
+                    case "end":
+                      return _context.stop();
+                  }
+                }
+              }, _callee, this);
+            }))
+          );
+        },
+        disconnect: function disconnect(_ref4) {
+          var call = _ref4.call;
+          return (
+            /*#__PURE__*/
+            function () {
+              var _ref5 = _asyncToGenerator(
+              /*#__PURE__*/
+              _regeneratorRuntime.mark(function _callee2(port) {
+                var portId;
+                return _regeneratorRuntime.wrap(function _callee2$(_context2) {
+                  while (1) {
+                    switch (_context2.prev = _context2.next) {
+                      case 0:
+                        portId = PORT_MAP.get(port);
+
+                        if (!(portId === undefined)) {
+                          _context2.next = 3;
+                          break;
+                        }
+
+                        throw new Error('The given port is not connected.');
+
+                      case 3:
+                        _context2.next = 5;
+                        return call('disconnect', {
+                          portId: portId
+                        });
+
+                      case 5:
+                      case "end":
+                        return _context2.stop();
+                    }
+                  }
+                }, _callee2, this);
+              }));
+
+              return function (_x) {
+                return _ref5.apply(this, arguments);
+              };
+            }()
+          );
+        },
+        isSupported: function isSupported(_ref6) {
+          var call = _ref6.call;
+          return function () {
+            return call('isSupported');
+          };
+        }
+      });
+    };
+
+    var ONGOING_REQUESTS = new WeakMap();
+
+    var createOrGetOngoingRequests = function createOrGetOngoingRequests(sender) {
+      if (ONGOING_REQUESTS.has(sender)) {
+        // @todo TypeScript needs to be convinced that has() works as expected.
+        return ONGOING_REQUESTS.get(sender);
+      }
+
+      var ongoingRequests = new Map();
+      ONGOING_REQUESTS.set(sender, ongoingRequests);
+      return ongoingRequests;
+    };
+
+    var createBroker = function createBroker(brokerImplementation) {
+      var fullBrokerImplementation = extendBrokerImplementation(brokerImplementation);
+      return function (sender) {
+        var ongoingRequests = createOrGetOngoingRequests(sender);
+        sender.addEventListener('message', function (_ref) {
+          var message = _ref.data;
+          var id = message.id;
+
+          if (id !== null && ongoingRequests.has(id)) {
+            var _ongoingRequests$get = ongoingRequests.get(id),
+                reject = _ongoingRequests$get.reject,
+                resolve = _ongoingRequests$get.resolve;
+
+            ongoingRequests.delete(id);
+
+            if (message.error === undefined) {
+              resolve(message.result);
+            } else {
+              reject(new Error(message.error.message));
+            }
+          }
+        });
+
+        if (isMessagePort(sender)) {
+          sender.start();
+        }
+
+        var call = function call(method) {
+          var params = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
+          var transferables = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : [];
+          return new Promise(function (resolve, reject) {
+            var id = fastUniqueNumbers.generateUniqueNumber(ongoingRequests);
+            ongoingRequests.set(id, {
+              reject: reject,
+              resolve: resolve
+            });
+
+            if (params === null) {
+              sender.postMessage({
+                id: id,
+                method: method
+              }, transferables);
+            } else {
+              sender.postMessage({
+                id: id,
+                method: method,
+                params: params
+              }, transferables);
+            }
+          });
+        };
+
+        var notify = function notify(method, params) {
+          var transferables = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : [];
+          sender.postMessage({
+            id: null,
+            method: method,
+            params: params
+          }, transferables);
+        };
+
+        var functions = {};
+
+        var _arr = Object.entries(fullBrokerImplementation);
+
+        for (var _i = 0; _i < _arr.length; _i++) {
+          var _arr$_i = _slicedToArray(_arr[_i], 2),
+              key = _arr$_i[0],
+              handler = _arr$_i[1];
+
+          functions = Object.assign({}, functions, _defineProperty({}, key, handler({
+            call: call,
+            notify: notify
+          })));
+        }
+
+        return Object.assign({}, functions);
+      };
+    };
+
+    exports.createBroker = createBroker;
+
+    Object.defineProperty(exports, '__esModule', { value: true });
+
+})));
+
+},{"@babel/runtime/helpers/asyncToGenerator":22,"@babel/runtime/helpers/defineProperty":25,"@babel/runtime/helpers/slicedToArray":34,"@babel/runtime/regenerator":37,"fast-unique-numbers":43}],43:[function(require,module,exports){
+(function (global, factory) {
+    typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports) :
+    typeof define === 'function' && define.amd ? define(['exports'], factory) :
+    (factory((global.fastUniqueNumbers = {})));
+}(this, (function (exports) { 'use strict';
+
+    var LAST_NUMBER_WEAK_MAP = new WeakMap();
+    /*
+     * The value of the constant Number.MAX_SAFE_INTEGER equals (2 ** 53 - 1) but it
+     * is fairly new.
+     */
+
+    var MAX_SAFE_INTEGER = Number.MAX_SAFE_INTEGER || 9007199254740991;
+
+    var cache = function cache(collection, nextNumber) {
+      LAST_NUMBER_WEAK_MAP.set(collection, nextNumber);
+      return nextNumber;
+    };
+
+    var generateUniqueNumber = function generateUniqueNumber(collection) {
+      var lastNumber = LAST_NUMBER_WEAK_MAP.get(collection);
+      /*
+       * Let's try the cheapest algorithm first. It might fail to produce a new
+       * number, but it is so cheap that it is okay to take the risk. Just
+       * increase the last number by one or reset it to 0 if we reached the upper
+       * bound of SMIs (which stands for small integers). When the last number is
+       * unknown it is assumed that the collection contains zero based consecutive
+       * numbers.
+       */
+
+      var nextNumber = lastNumber === undefined ? collection.size : lastNumber > 2147483648 ? 0 : lastNumber + 1;
+
+      if (!collection.has(nextNumber)) {
+        return cache(collection, nextNumber);
+      }
+      /*
+       * If there are less than half of 2 ** 31 numbers stored in the collection,
+       * the chance to generate a new random number in the range from 0 to 2 ** 31
+       * is at least 50%. It's benifitial to use only SMIs because they perform
+       * much better in any environment based on V8.
+       */
+
+
+      if (collection.size < 1073741824) {
+        while (collection.has(nextNumber)) {
+          nextNumber = Math.floor(Math.random() * 2147483648);
+        }
+
+        return cache(collection, nextNumber);
+      } // Quickly check if there is a theoretical chance to generate a new number.
+
+
+      if (collection.size > MAX_SAFE_INTEGER) {
+        throw new Error('Congratulations, you created a collection of unique numbers which uses all available integers!');
+      } // Otherwise use the full scale of safely usable integers.
+
+
+      while (collection.has(nextNumber)) {
+        nextNumber = Math.floor(Math.random() * MAX_SAFE_INTEGER);
+      }
+
+      return cache(collection, nextNumber);
+    };
+
+    var addUniqueNumber = function addUniqueNumber(set) {
+      var number = generateUniqueNumber(set);
+      set.add(number);
+      return number;
+    };
+
+    exports.addUniqueNumber = addUniqueNumber;
+    exports.generateUniqueNumber = generateUniqueNumber;
+
+    Object.defineProperty(exports, '__esModule', { value: true });
+
+})));
+
+},{}],44:[function(require,module,exports){
+/**
+ * Copyright (c) 2014-present, Facebook, Inc.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ */
+
+// This method of obtaining a reference to the global object needs to be
+// kept identical to the way it is obtained in runtime.js
+var g = (function() {
+  return this || (typeof self === "object" && self);
+})() || Function("return this")();
+
+// Use `getOwnPropertyNames` because not all browsers support calling
+// `hasOwnProperty` on the global `self` object in a worker. See #183.
+var hadRuntime = g.regeneratorRuntime &&
+  Object.getOwnPropertyNames(g).indexOf("regeneratorRuntime") >= 0;
+
+// Save the old regeneratorRuntime in case it needs to be restored later.
+var oldRuntime = hadRuntime && g.regeneratorRuntime;
+
+// Force reevalutation of runtime.js.
+g.regeneratorRuntime = undefined;
+
+module.exports = require("./runtime");
+
+if (hadRuntime) {
+  // Restore the original runtime.
+  g.regeneratorRuntime = oldRuntime;
+} else {
+  // Remove the global property added by runtime.js.
+  try {
+    delete g.regeneratorRuntime;
+  } catch(e) {
+    g.regeneratorRuntime = undefined;
+  }
+}
+
+},{"./runtime":45}],45:[function(require,module,exports){
+/**
+ * Copyright (c) 2014-present, Facebook, Inc.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ */
+
+!(function(global) {
+  "use strict";
+
+  var Op = Object.prototype;
+  var hasOwn = Op.hasOwnProperty;
+  var undefined; // More compressible than void 0.
+  var $Symbol = typeof Symbol === "function" ? Symbol : {};
+  var iteratorSymbol = $Symbol.iterator || "@@iterator";
+  var asyncIteratorSymbol = $Symbol.asyncIterator || "@@asyncIterator";
+  var toStringTagSymbol = $Symbol.toStringTag || "@@toStringTag";
+
+  var inModule = typeof module === "object";
+  var runtime = global.regeneratorRuntime;
+  if (runtime) {
+    if (inModule) {
+      // If regeneratorRuntime is defined globally and we're in a module,
+      // make the exports object identical to regeneratorRuntime.
+      module.exports = runtime;
+    }
+    // Don't bother evaluating the rest of this file if the runtime was
+    // already defined globally.
+    return;
+  }
+
+  // Define the runtime globally (as expected by generated code) as either
+  // module.exports (if we're in a module) or a new, empty object.
+  runtime = global.regeneratorRuntime = inModule ? module.exports : {};
+
+  function wrap(innerFn, outerFn, self, tryLocsList) {
+    // If outerFn provided and outerFn.prototype is a Generator, then outerFn.prototype instanceof Generator.
+    var protoGenerator = outerFn && outerFn.prototype instanceof Generator ? outerFn : Generator;
+    var generator = Object.create(protoGenerator.prototype);
+    var context = new Context(tryLocsList || []);
+
+    // The ._invoke method unifies the implementations of the .next,
+    // .throw, and .return methods.
+    generator._invoke = makeInvokeMethod(innerFn, self, context);
+
+    return generator;
+  }
+  runtime.wrap = wrap;
+
+  // Try/catch helper to minimize deoptimizations. Returns a completion
+  // record like context.tryEntries[i].completion. This interface could
+  // have been (and was previously) designed to take a closure to be
+  // invoked without arguments, but in all the cases we care about we
+  // already have an existing method we want to call, so there's no need
+  // to create a new function object. We can even get away with assuming
+  // the method takes exactly one argument, since that happens to be true
+  // in every case, so we don't have to touch the arguments object. The
+  // only additional allocation required is the completion record, which
+  // has a stable shape and so hopefully should be cheap to allocate.
+  function tryCatch(fn, obj, arg) {
+    try {
+      return { type: "normal", arg: fn.call(obj, arg) };
+    } catch (err) {
+      return { type: "throw", arg: err };
+    }
+  }
+
+  var GenStateSuspendedStart = "suspendedStart";
+  var GenStateSuspendedYield = "suspendedYield";
+  var GenStateExecuting = "executing";
+  var GenStateCompleted = "completed";
+
+  // Returning this object from the innerFn has the same effect as
+  // breaking out of the dispatch switch statement.
+  var ContinueSentinel = {};
+
+  // Dummy constructor functions that we use as the .constructor and
+  // .constructor.prototype properties for functions that return Generator
+  // objects. For full spec compliance, you may wish to configure your
+  // minifier not to mangle the names of these two functions.
+  function Generator() {}
+  function GeneratorFunction() {}
+  function GeneratorFunctionPrototype() {}
+
+  // This is a polyfill for %IteratorPrototype% for environments that
+  // don't natively support it.
+  var IteratorPrototype = {};
+  IteratorPrototype[iteratorSymbol] = function () {
+    return this;
+  };
+
+  var getProto = Object.getPrototypeOf;
+  var NativeIteratorPrototype = getProto && getProto(getProto(values([])));
+  if (NativeIteratorPrototype &&
+      NativeIteratorPrototype !== Op &&
+      hasOwn.call(NativeIteratorPrototype, iteratorSymbol)) {
+    // This environment has a native %IteratorPrototype%; use it instead
+    // of the polyfill.
+    IteratorPrototype = NativeIteratorPrototype;
+  }
+
+  var Gp = GeneratorFunctionPrototype.prototype =
+    Generator.prototype = Object.create(IteratorPrototype);
+  GeneratorFunction.prototype = Gp.constructor = GeneratorFunctionPrototype;
+  GeneratorFunctionPrototype.constructor = GeneratorFunction;
+  GeneratorFunctionPrototype[toStringTagSymbol] =
+    GeneratorFunction.displayName = "GeneratorFunction";
+
+  // Helper for defining the .next, .throw, and .return methods of the
+  // Iterator interface in terms of a single ._invoke method.
+  function defineIteratorMethods(prototype) {
+    ["next", "throw", "return"].forEach(function(method) {
+      prototype[method] = function(arg) {
+        return this._invoke(method, arg);
+      };
+    });
+  }
+
+  runtime.isGeneratorFunction = function(genFun) {
+    var ctor = typeof genFun === "function" && genFun.constructor;
+    return ctor
+      ? ctor === GeneratorFunction ||
+        // For the native GeneratorFunction constructor, the best we can
+        // do is to check its .name property.
+        (ctor.displayName || ctor.name) === "GeneratorFunction"
+      : false;
+  };
+
+  runtime.mark = function(genFun) {
+    if (Object.setPrototypeOf) {
+      Object.setPrototypeOf(genFun, GeneratorFunctionPrototype);
+    } else {
+      genFun.__proto__ = GeneratorFunctionPrototype;
+      if (!(toStringTagSymbol in genFun)) {
+        genFun[toStringTagSymbol] = "GeneratorFunction";
+      }
+    }
+    genFun.prototype = Object.create(Gp);
+    return genFun;
+  };
+
+  // Within the body of any async function, `await x` is transformed to
+  // `yield regeneratorRuntime.awrap(x)`, so that the runtime can test
+  // `hasOwn.call(value, "__await")` to determine if the yielded value is
+  // meant to be awaited.
+  runtime.awrap = function(arg) {
+    return { __await: arg };
+  };
+
+  function AsyncIterator(generator) {
+    function invoke(method, arg, resolve, reject) {
+      var record = tryCatch(generator[method], generator, arg);
+      if (record.type === "throw") {
+        reject(record.arg);
+      } else {
+        var result = record.arg;
+        var value = result.value;
+        if (value &&
+            typeof value === "object" &&
+            hasOwn.call(value, "__await")) {
+          return Promise.resolve(value.__await).then(function(value) {
+            invoke("next", value, resolve, reject);
+          }, function(err) {
+            invoke("throw", err, resolve, reject);
+          });
+        }
+
+        return Promise.resolve(value).then(function(unwrapped) {
+          // When a yielded Promise is resolved, its final value becomes
+          // the .value of the Promise<{value,done}> result for the
+          // current iteration.
+          result.value = unwrapped;
+          resolve(result);
+        }, function(error) {
+          // If a rejected Promise was yielded, throw the rejection back
+          // into the async generator function so it can be handled there.
+          return invoke("throw", error, resolve, reject);
+        });
+      }
+    }
+
+    var previousPromise;
+
+    function enqueue(method, arg) {
+      function callInvokeWithMethodAndArg() {
+        return new Promise(function(resolve, reject) {
+          invoke(method, arg, resolve, reject);
+        });
+      }
+
+      return previousPromise =
+        // If enqueue has been called before, then we want to wait until
+        // all previous Promises have been resolved before calling invoke,
+        // so that results are always delivered in the correct order. If
+        // enqueue has not been called before, then it is important to
+        // call invoke immediately, without waiting on a callback to fire,
+        // so that the async generator function has the opportunity to do
+        // any necessary setup in a predictable way. This predictability
+        // is why the Promise constructor synchronously invokes its
+        // executor callback, and why async functions synchronously
+        // execute code before the first await. Since we implement simple
+        // async functions in terms of async generators, it is especially
+        // important to get this right, even though it requires care.
+        previousPromise ? previousPromise.then(
+          callInvokeWithMethodAndArg,
+          // Avoid propagating failures to Promises returned by later
+          // invocations of the iterator.
+          callInvokeWithMethodAndArg
+        ) : callInvokeWithMethodAndArg();
+    }
+
+    // Define the unified helper method that is used to implement .next,
+    // .throw, and .return (see defineIteratorMethods).
+    this._invoke = enqueue;
+  }
+
+  defineIteratorMethods(AsyncIterator.prototype);
+  AsyncIterator.prototype[asyncIteratorSymbol] = function () {
+    return this;
+  };
+  runtime.AsyncIterator = AsyncIterator;
+
+  // Note that simple async functions are implemented on top of
+  // AsyncIterator objects; they just return a Promise for the value of
+  // the final result produced by the iterator.
+  runtime.async = function(innerFn, outerFn, self, tryLocsList) {
+    var iter = new AsyncIterator(
+      wrap(innerFn, outerFn, self, tryLocsList)
+    );
+
+    return runtime.isGeneratorFunction(outerFn)
+      ? iter // If outerFn is a generator, return the full iterator.
+      : iter.next().then(function(result) {
+          return result.done ? result.value : iter.next();
+        });
+  };
+
+  function makeInvokeMethod(innerFn, self, context) {
+    var state = GenStateSuspendedStart;
+
+    return function invoke(method, arg) {
+      if (state === GenStateExecuting) {
+        throw new Error("Generator is already running");
+      }
+
+      if (state === GenStateCompleted) {
+        if (method === "throw") {
+          throw arg;
+        }
+
+        // Be forgiving, per 25.3.3.3.3 of the spec:
+        // https://people.mozilla.org/~jorendorff/es6-draft.html#sec-generatorresume
+        return doneResult();
+      }
+
+      context.method = method;
+      context.arg = arg;
+
+      while (true) {
+        var delegate = context.delegate;
+        if (delegate) {
+          var delegateResult = maybeInvokeDelegate(delegate, context);
+          if (delegateResult) {
+            if (delegateResult === ContinueSentinel) continue;
+            return delegateResult;
+          }
+        }
+
+        if (context.method === "next") {
+          // Setting context._sent for legacy support of Babel's
+          // function.sent implementation.
+          context.sent = context._sent = context.arg;
+
+        } else if (context.method === "throw") {
+          if (state === GenStateSuspendedStart) {
+            state = GenStateCompleted;
+            throw context.arg;
+          }
+
+          context.dispatchException(context.arg);
+
+        } else if (context.method === "return") {
+          context.abrupt("return", context.arg);
+        }
+
+        state = GenStateExecuting;
+
+        var record = tryCatch(innerFn, self, context);
+        if (record.type === "normal") {
+          // If an exception is thrown from innerFn, we leave state ===
+          // GenStateExecuting and loop back for another invocation.
+          state = context.done
+            ? GenStateCompleted
+            : GenStateSuspendedYield;
+
+          if (record.arg === ContinueSentinel) {
+            continue;
+          }
+
+          return {
+            value: record.arg,
+            done: context.done
+          };
+
+        } else if (record.type === "throw") {
+          state = GenStateCompleted;
+          // Dispatch the exception by looping back around to the
+          // context.dispatchException(context.arg) call above.
+          context.method = "throw";
+          context.arg = record.arg;
+        }
+      }
+    };
+  }
+
+  // Call delegate.iterator[context.method](context.arg) and handle the
+  // result, either by returning a { value, done } result from the
+  // delegate iterator, or by modifying context.method and context.arg,
+  // setting context.delegate to null, and returning the ContinueSentinel.
+  function maybeInvokeDelegate(delegate, context) {
+    var method = delegate.iterator[context.method];
+    if (method === undefined) {
+      // A .throw or .return when the delegate iterator has no .throw
+      // method always terminates the yield* loop.
+      context.delegate = null;
+
+      if (context.method === "throw") {
+        if (delegate.iterator.return) {
+          // If the delegate iterator has a return method, give it a
+          // chance to clean up.
+          context.method = "return";
+          context.arg = undefined;
+          maybeInvokeDelegate(delegate, context);
+
+          if (context.method === "throw") {
+            // If maybeInvokeDelegate(context) changed context.method from
+            // "return" to "throw", let that override the TypeError below.
+            return ContinueSentinel;
+          }
+        }
+
+        context.method = "throw";
+        context.arg = new TypeError(
+          "The iterator does not provide a 'throw' method");
+      }
+
+      return ContinueSentinel;
+    }
+
+    var record = tryCatch(method, delegate.iterator, context.arg);
+
+    if (record.type === "throw") {
+      context.method = "throw";
+      context.arg = record.arg;
+      context.delegate = null;
+      return ContinueSentinel;
+    }
+
+    var info = record.arg;
+
+    if (! info) {
+      context.method = "throw";
+      context.arg = new TypeError("iterator result is not an object");
+      context.delegate = null;
+      return ContinueSentinel;
+    }
+
+    if (info.done) {
+      // Assign the result of the finished delegate to the temporary
+      // variable specified by delegate.resultName (see delegateYield).
+      context[delegate.resultName] = info.value;
+
+      // Resume execution at the desired location (see delegateYield).
+      context.next = delegate.nextLoc;
+
+      // If context.method was "throw" but the delegate handled the
+      // exception, let the outer generator proceed normally. If
+      // context.method was "next", forget context.arg since it has been
+      // "consumed" by the delegate iterator. If context.method was
+      // "return", allow the original .return call to continue in the
+      // outer generator.
+      if (context.method !== "return") {
+        context.method = "next";
+        context.arg = undefined;
+      }
+
+    } else {
+      // Re-yield the result returned by the delegate method.
+      return info;
+    }
+
+    // The delegate iterator is finished, so forget it and continue with
+    // the outer generator.
+    context.delegate = null;
+    return ContinueSentinel;
+  }
+
+  // Define Generator.prototype.{next,throw,return} in terms of the
+  // unified ._invoke helper method.
+  defineIteratorMethods(Gp);
+
+  Gp[toStringTagSymbol] = "Generator";
+
+  // A Generator should always return itself as the iterator object when the
+  // @@iterator function is called on it. Some browsers' implementations of the
+  // iterator prototype chain incorrectly implement this, causing the Generator
+  // object to not be returned from this call. This ensures that doesn't happen.
+  // See https://github.com/facebook/regenerator/issues/274 for more details.
+  Gp[iteratorSymbol] = function() {
+    return this;
+  };
+
+  Gp.toString = function() {
+    return "[object Generator]";
+  };
+
+  function pushTryEntry(locs) {
+    var entry = { tryLoc: locs[0] };
+
+    if (1 in locs) {
+      entry.catchLoc = locs[1];
+    }
+
+    if (2 in locs) {
+      entry.finallyLoc = locs[2];
+      entry.afterLoc = locs[3];
+    }
+
+    this.tryEntries.push(entry);
+  }
+
+  function resetTryEntry(entry) {
+    var record = entry.completion || {};
+    record.type = "normal";
+    delete record.arg;
+    entry.completion = record;
+  }
+
+  function Context(tryLocsList) {
+    // The root entry object (effectively a try statement without a catch
+    // or a finally block) gives us a place to store values thrown from
+    // locations where there is no enclosing try statement.
+    this.tryEntries = [{ tryLoc: "root" }];
+    tryLocsList.forEach(pushTryEntry, this);
+    this.reset(true);
+  }
+
+  runtime.keys = function(object) {
+    var keys = [];
+    for (var key in object) {
+      keys.push(key);
+    }
+    keys.reverse();
+
+    // Rather than returning an object with a next method, we keep
+    // things simple and return the next function itself.
+    return function next() {
+      while (keys.length) {
+        var key = keys.pop();
+        if (key in object) {
+          next.value = key;
+          next.done = false;
+          return next;
+        }
+      }
+
+      // To avoid creating an additional object, we just hang the .value
+      // and .done properties off the next function object itself. This
+      // also ensures that the minifier will not anonymize the function.
+      next.done = true;
+      return next;
+    };
+  };
+
+  function values(iterable) {
+    if (iterable) {
+      var iteratorMethod = iterable[iteratorSymbol];
+      if (iteratorMethod) {
+        return iteratorMethod.call(iterable);
+      }
+
+      if (typeof iterable.next === "function") {
+        return iterable;
+      }
+
+      if (!isNaN(iterable.length)) {
+        var i = -1, next = function next() {
+          while (++i < iterable.length) {
+            if (hasOwn.call(iterable, i)) {
+              next.value = iterable[i];
+              next.done = false;
+              return next;
+            }
+          }
+
+          next.value = undefined;
+          next.done = true;
+
+          return next;
+        };
+
+        return next.next = next;
+      }
+    }
+
+    // Return an iterator with no values.
+    return { next: doneResult };
+  }
+  runtime.values = values;
+
+  function doneResult() {
+    return { value: undefined, done: true };
+  }
+
+  Context.prototype = {
+    constructor: Context,
+
+    reset: function(skipTempReset) {
+      this.prev = 0;
+      this.next = 0;
+      // Resetting context._sent for legacy support of Babel's
+      // function.sent implementation.
+      this.sent = this._sent = undefined;
+      this.done = false;
+      this.delegate = null;
+
+      this.method = "next";
+      this.arg = undefined;
+
+      this.tryEntries.forEach(resetTryEntry);
+
+      if (!skipTempReset) {
+        for (var name in this) {
+          // Not sure about the optimal order of these conditions:
+          if (name.charAt(0) === "t" &&
+              hasOwn.call(this, name) &&
+              !isNaN(+name.slice(1))) {
+            this[name] = undefined;
+          }
+        }
+      }
+    },
+
+    stop: function() {
+      this.done = true;
+
+      var rootEntry = this.tryEntries[0];
+      var rootRecord = rootEntry.completion;
+      if (rootRecord.type === "throw") {
+        throw rootRecord.arg;
+      }
+
+      return this.rval;
+    },
+
+    dispatchException: function(exception) {
+      if (this.done) {
+        throw exception;
+      }
+
+      var context = this;
+      function handle(loc, caught) {
+        record.type = "throw";
+        record.arg = exception;
+        context.next = loc;
+
+        if (caught) {
+          // If the dispatched exception was caught by a catch block,
+          // then let that catch block handle the exception normally.
+          context.method = "next";
+          context.arg = undefined;
+        }
+
+        return !! caught;
+      }
+
+      for (var i = this.tryEntries.length - 1; i >= 0; --i) {
+        var entry = this.tryEntries[i];
+        var record = entry.completion;
+
+        if (entry.tryLoc === "root") {
+          // Exception thrown outside of any try block that could handle
+          // it, so set the completion value of the entire function to
+          // throw the exception.
+          return handle("end");
+        }
+
+        if (entry.tryLoc <= this.prev) {
+          var hasCatch = hasOwn.call(entry, "catchLoc");
+          var hasFinally = hasOwn.call(entry, "finallyLoc");
+
+          if (hasCatch && hasFinally) {
+            if (this.prev < entry.catchLoc) {
+              return handle(entry.catchLoc, true);
+            } else if (this.prev < entry.finallyLoc) {
+              return handle(entry.finallyLoc);
+            }
+
+          } else if (hasCatch) {
+            if (this.prev < entry.catchLoc) {
+              return handle(entry.catchLoc, true);
+            }
+
+          } else if (hasFinally) {
+            if (this.prev < entry.finallyLoc) {
+              return handle(entry.finallyLoc);
+            }
+
+          } else {
+            throw new Error("try statement without catch or finally");
+          }
+        }
+      }
+    },
+
+    abrupt: function(type, arg) {
+      for (var i = this.tryEntries.length - 1; i >= 0; --i) {
+        var entry = this.tryEntries[i];
+        if (entry.tryLoc <= this.prev &&
+            hasOwn.call(entry, "finallyLoc") &&
+            this.prev < entry.finallyLoc) {
+          var finallyEntry = entry;
+          break;
+        }
+      }
+
+      if (finallyEntry &&
+          (type === "break" ||
+           type === "continue") &&
+          finallyEntry.tryLoc <= arg &&
+          arg <= finallyEntry.finallyLoc) {
+        // Ignore the finally entry if control is not jumping to a
+        // location outside the try/catch block.
+        finallyEntry = null;
+      }
+
+      var record = finallyEntry ? finallyEntry.completion : {};
+      record.type = type;
+      record.arg = arg;
+
+      if (finallyEntry) {
+        this.method = "next";
+        this.next = finallyEntry.finallyLoc;
+        return ContinueSentinel;
+      }
+
+      return this.complete(record);
+    },
+
+    complete: function(record, afterLoc) {
+      if (record.type === "throw") {
+        throw record.arg;
+      }
+
+      if (record.type === "break" ||
+          record.type === "continue") {
+        this.next = record.arg;
+      } else if (record.type === "return") {
+        this.rval = this.arg = record.arg;
+        this.method = "return";
+        this.next = "end";
+      } else if (record.type === "normal" && afterLoc) {
+        this.next = afterLoc;
+      }
+
+      return ContinueSentinel;
+    },
+
+    finish: function(finallyLoc) {
+      for (var i = this.tryEntries.length - 1; i >= 0; --i) {
+        var entry = this.tryEntries[i];
+        if (entry.finallyLoc === finallyLoc) {
+          this.complete(entry.completion, entry.afterLoc);
+          resetTryEntry(entry);
+          return ContinueSentinel;
+        }
+      }
+    },
+
+    "catch": function(tryLoc) {
+      for (var i = this.tryEntries.length - 1; i >= 0; --i) {
+        var entry = this.tryEntries[i];
+        if (entry.tryLoc === tryLoc) {
+          var record = entry.completion;
+          if (record.type === "throw") {
+            var thrown = record.arg;
+            resetTryEntry(entry);
+          }
+          return thrown;
+        }
+      }
+
+      // The context.catch method must only be called with a location
+      // argument that corresponds to a known catch block.
+      throw new Error("illegal catch attempt");
+    },
+
+    delegateYield: function(iterable, resultName, nextLoc) {
+      this.delegate = {
+        iterator: values(iterable),
+        resultName: resultName,
+        nextLoc: nextLoc
+      };
+
+      if (this.method === "next") {
+        // Deliberately forget the last sent value so that we don't
+        // accidentally pass it on to the delegate.
+        this.arg = undefined;
+      }
+
+      return ContinueSentinel;
+    }
+  };
+})(
+  // In sloppy mode, unbound `this` refers to the global object, fallback to
+  // Function constructor if we're in global strict mode. That is sadly a form
+  // of indirect eval which violates Content Security Policy.
+  (function() {
+    return this || (typeof self === "object" && self);
+  })() || Function("return this")()
+);
+
+},{}],46:[function(require,module,exports){
+(function (global, factory) {
+    typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports, require('@babel/runtime/helpers/typeof'), require('@babel/runtime/helpers/classCallCheck'), require('@babel/runtime/helpers/createClass'), require('@babel/runtime/helpers/possibleConstructorReturn'), require('@babel/runtime/helpers/getPrototypeOf'), require('@babel/runtime/helpers/inherits'), require('@babel/runtime/helpers/toConsumableArray'), require('@babel/runtime/helpers/slicedToArray'), require('@babel/runtime/regenerator'), require('@babel/runtime/helpers/asyncToGenerator'), require('@babel/runtime/helpers/assertThisInitialized'), require('@babel/runtime/helpers/defineProperty'), require('async-array-buffer'), require('tslib')) :
+    typeof define === 'function' && define.amd ? define(['exports', '@babel/runtime/helpers/typeof', '@babel/runtime/helpers/classCallCheck', '@babel/runtime/helpers/createClass', '@babel/runtime/helpers/possibleConstructorReturn', '@babel/runtime/helpers/getPrototypeOf', '@babel/runtime/helpers/inherits', '@babel/runtime/helpers/toConsumableArray', '@babel/runtime/helpers/slicedToArray', '@babel/runtime/regenerator', '@babel/runtime/helpers/asyncToGenerator', '@babel/runtime/helpers/assertThisInitialized', '@babel/runtime/helpers/defineProperty', 'async-array-buffer', 'tslib'], factory) :
+    (factory((global.standardizedAudioContext = {}),global._typeof,global._classCallCheck,global._createClass,global._possibleConstructorReturn,global._getPrototypeOf,global._inherits,global._toConsumableArray,global._slicedToArray,global._regeneratorRuntime,global._asyncToGenerator,global._assertThisInitialized,global._defineProperty,global.asyncArrayBuffer,global.tslib_1));
+}(this, (function (exports,_typeof,_classCallCheck,_createClass,_possibleConstructorReturn,_getPrototypeOf,_inherits,_toConsumableArray,_slicedToArray,_regeneratorRuntime,_asyncToGenerator,_assertThisInitialized,_defineProperty,asyncArrayBuffer,tslib_1) { 'use strict';
+
+    _typeof = _typeof && _typeof.hasOwnProperty('default') ? _typeof['default'] : _typeof;
+    _classCallCheck = _classCallCheck && _classCallCheck.hasOwnProperty('default') ? _classCallCheck['default'] : _classCallCheck;
+    _createClass = _createClass && _createClass.hasOwnProperty('default') ? _createClass['default'] : _createClass;
+    _possibleConstructorReturn = _possibleConstructorReturn && _possibleConstructorReturn.hasOwnProperty('default') ? _possibleConstructorReturn['default'] : _possibleConstructorReturn;
+    _getPrototypeOf = _getPrototypeOf && _getPrototypeOf.hasOwnProperty('default') ? _getPrototypeOf['default'] : _getPrototypeOf;
+    _inherits = _inherits && _inherits.hasOwnProperty('default') ? _inherits['default'] : _inherits;
+    _toConsumableArray = _toConsumableArray && _toConsumableArray.hasOwnProperty('default') ? _toConsumableArray['default'] : _toConsumableArray;
+    _slicedToArray = _slicedToArray && _slicedToArray.hasOwnProperty('default') ? _slicedToArray['default'] : _slicedToArray;
+    _regeneratorRuntime = _regeneratorRuntime && _regeneratorRuntime.hasOwnProperty('default') ? _regeneratorRuntime['default'] : _regeneratorRuntime;
+    _asyncToGenerator = _asyncToGenerator && _asyncToGenerator.hasOwnProperty('default') ? _asyncToGenerator['default'] : _asyncToGenerator;
+    _assertThisInitialized = _assertThisInitialized && _assertThisInitialized.hasOwnProperty('default') ? _assertThisInitialized['default'] : _assertThisInitialized;
+    _defineProperty = _defineProperty && _defineProperty.hasOwnProperty('default') ? _defineProperty['default'] : _defineProperty;
+
+    /*!
+     * modernizr v3.6.0
+     * Build https://modernizr.com/download?-promises-typedarrays-webaudio-dontmin
+     *
+     * Copyright (c)
+     *  Faruk Ates
+     *  Paul Irish
+     *  Alex Sexton
+     *  Ryan Seddon
+     *  Patrick Kettner
+     *  Stu Cox
+     *  Richard Herrera
+
+     * MIT License
+     */
+    var browsernizr = (function (window) {
+      var tests = [];
+      /**
+       *
+       * ModernizrProto is the constructor for Modernizr
+       *
+       * @class
+       * @access public
+       */
+
+      var ModernizrProto = {
+        // The current version, dummy
+        _version: '3.6.0',
+        // Any settings that don't work as separate modules
+        // can go in here as configuration.
+        _config: {
+          'classPrefix': '',
+          'enableClasses': true,
+          'enableJSClass': true,
+          'usePrefixes': true
+        },
+        // Queue of tests
+        _q: [],
+        // Stub these for people who are listening
+        on: function on(test, cb) {
+          // I don't really think people should do this, but we can
+          // safe guard it a bit.
+          // -- NOTE:: this gets WAY overridden in src/addTest for actual async tests.
+          // This is in case people listen to synchronous tests. I would leave it out,
+          // but the code to *disallow* sync tests in the real version of this
+          // function is actually larger than this.
+          var self = this;
+          setTimeout(function () {
+            cb(self[test]);
+          }, 0);
+        },
+        addTest: function addTest(name, fn, options) {
+          tests.push({
+            name: name,
+            fn: fn,
+            options: options
+          });
+        },
+        addAsyncTest: function addAsyncTest(fn) {
+          tests.push({
+            name: null,
+            fn: fn
+          });
+        }
+      }; // Fake some of Object.create so we can force non test results to be non "own" properties.
+
+      var Modernizr = function Modernizr() {};
+
+      Modernizr.prototype = ModernizrProto; // Leak modernizr globally when you `require` it rather than force it here.
+      // Overwrite name so constructor name is nicer :D
+
+      Modernizr = new Modernizr();
+      var classes = [];
+      /**
+       * is returns a boolean if the typeof an obj is exactly type.
+       *
+       * @access private
+       * @function is
+       * @param {*} obj - A thing we want to check the type of
+       * @param {string} type - A string to compare the typeof against
+       * @returns {boolean}
+       */
+
+      function is(obj, type) {
+        return _typeof(obj) === type;
+      }
+      /**
+       * Run through all tests and detect their support in the current UA.
+       *
+       * @access private
+       */
+
+      function testRunner() {
+        var featureNames;
+        var feature;
+        var aliasIdx;
+        var result;
+        var nameIdx;
+        var featureName;
+        var featureNameSplit;
+
+        for (var featureIdx in tests) {
+          if (tests.hasOwnProperty(featureIdx)) {
+            featureNames = [];
+            feature = tests[featureIdx]; // run the test, throw the return value into the Modernizr,
+            // then based on that boolean, define an appropriate className
+            // and push it into an array of classes we'll join later.
+            //
+            // If there is no name, it's an 'async' test that is run,
+            // but not directly added to the object. That should
+            // be done with a post-run addTest call.
+
+            if (feature.name) {
+              featureNames.push(feature.name.toLowerCase());
+
+              if (feature.options && feature.options.aliases && feature.options.aliases.length) {
+                // Add all the aliases into the names list
+                for (aliasIdx = 0; aliasIdx < feature.options.aliases.length; aliasIdx++) {
+                  featureNames.push(feature.options.aliases[aliasIdx].toLowerCase());
+                }
+              }
+            } // Run the test, or use the raw value if it's not a function
+
+
+            result = is(feature.fn, 'function') ? feature.fn() : feature.fn; // Set each of the names on the Modernizr object
+
+            for (nameIdx = 0; nameIdx < featureNames.length; nameIdx++) {
+              featureName = featureNames[nameIdx]; // Support dot properties as sub tests. We don't do checking to make sure
+              // that the implied parent tests have been added. You must call them in
+              // order (either in the test, or make the parent test a dependency).
+              //
+              // Cap it to TWO to make the logic simple and because who needs that kind of subtesting
+              // hashtag famous last words
+
+              featureNameSplit = featureName.split('.');
+
+              if (featureNameSplit.length === 1) {
+                Modernizr[featureNameSplit[0]] = result;
+              } else {
+                // cast to a Boolean, if not one already
+                if (Modernizr[featureNameSplit[0]] && !(Modernizr[featureNameSplit[0]] instanceof Boolean)) {
+                  Modernizr[featureNameSplit[0]] = new Boolean(Modernizr[featureNameSplit[0]]);
+                }
+
+                Modernizr[featureNameSplit[0]][featureNameSplit[1]] = result;
+              }
+
+              classes.push((result ? '' : 'no-') + featureNameSplit.join('-'));
+            }
+          }
+        }
+      }
+      /*!
+      {
+        "name": "ES6 Promises",
+        "property": "promises",
+        "caniuse": "promises",
+        "polyfills": ["es6promises"],
+        "authors": ["Krister Kari", "Jake Archibald"],
+        "tags": ["es6"],
+        "notes": [{
+          "name": "The ES6 promises spec",
+          "href": "https://github.com/domenic/promises-unwrapping"
+        },{
+          "name": "Chromium dashboard - ES6 Promises",
+          "href": "https://www.chromestatus.com/features/5681726336532480"
+        },{
+          "name": "JavaScript Promises: There and back again - HTML5 Rocks",
+          "href": "http://www.html5rocks.com/en/tutorials/es6/promises/"
+        }]
+      }
+      !*/
+
+      /* DOC
+      Check if browser implements ECMAScript 6 Promises per specification.
+      */
+
+      Modernizr.addTest('promises', function () {
+        return 'Promise' in window && // Some of these methods are missing from
+        // Firefox/Chrome experimental implementations
+        'resolve' in window.Promise && 'reject' in window.Promise && 'all' in window.Promise && 'race' in window.Promise && // Older version of the spec had a resolver object
+        // as the arg rather than a function
+        function () {
+          var resolve;
+          new window.Promise(function (r) {
+            resolve = r;
+          });
+          return typeof resolve === 'function';
+        }();
+      });
+      /*!
+      {
+        "name": "Typed arrays",
+        "property": "typedarrays",
+        "caniuse": "typedarrays",
+        "tags": ["js"],
+        "authors": ["Stanley Stuart (@fivetanley)"],
+        "notes": [{
+          "name": "MDN documentation",
+          "href": "https://developer.mozilla.org/en-US/docs/JavaScript_typed_arrays"
+        },{
+          "name": "Kronos spec",
+          "href": "https://www.khronos.org/registry/typedarray/specs/latest/"
+        }],
+        "polyfills": ["joshuabell-polyfill"]
+      }
+      !*/
+
+      /* DOC
+      Detects support for native binary data manipulation via Typed Arrays in JavaScript.
+      
+      Does not check for DataView support; use `Modernizr.dataview` for that.
+      */
+      // Should fail in:
+      // Internet Explorer <= 9
+      // Firefox <= 3.6
+      // Chrome <= 6.0
+      // iOS Safari < 4.2
+      // Safari < 5.1
+      // Opera < 11.6
+      // Opera Mini, <= 7.0
+      // Android Browser < 4.0
+      // Blackberry Browser < 10.0
+
+      Modernizr.addTest('typedarrays', 'ArrayBuffer' in window);
+      /*!
+      {
+        "name": "Web Audio API",
+        "property": "webaudio",
+        "caniuse": "audio-api",
+        "polyfills": ["xaudiojs", "dynamicaudiojs", "audiolibjs"],
+        "tags": ["audio", "media"],
+        "builderAliases": ["audio_webaudio_api"],
+        "authors": ["Addy Osmani"],
+        "notes": [{
+          "name": "W3 Specification",
+          "href": "https://dvcs.w3.org/hg/audio/raw-file/tip/webaudio/specification.html"
+        }]
+      }
+      !*/
+
+      /* DOC
+      Detects the older non standard webaudio API, (as opposed to the standards based AudioContext API)
+      */
+
+      Modernizr.addTest('webaudio', function () {
+        var prefixed = 'webkitAudioContext' in window;
+        var unprefixed = 'AudioContext' in window;
+
+        if (Modernizr._config.usePrefixes) {
+          return prefixed || unprefixed;
+        }
+
+        return unprefixed;
+      }); // Run each test
+
+      testRunner();
+      delete ModernizrProto.addTest;
+      delete ModernizrProto.addAsyncTest; // Run the things that are supposed to run after the tests
+
+      for (var i = 0; i < Modernizr._q.length; i++) {
+        Modernizr._q[i]();
+      } // Leak Modernizr namespace
+
+
+      return Modernizr;
+    })(window);
+
+    var createAbortError = function createAbortError() {
+      try {
+        return new DOMException('', 'AbortError');
+      } catch (err) {
+        err.code = 20;
+        err.name = 'AbortError';
+        return err;
+      }
+    };
+
+    var AUDIO_NODE_STORE = new WeakMap();
+    var AUDIO_GRAPHS = new WeakMap();
+    var AUDIO_PARAM_STORE = new WeakMap();
+    var BACKUP_NATIVE_CONTEXT_STORE = new WeakMap();
+    var CONTEXT_STORE = new WeakMap();
+    var DETACHED_ARRAY_BUFFERS = new WeakSet(); // This clunky name is borrowed from the spec. :-)
+
+    var NODE_NAME_TO_PROCESSOR_DEFINITION_MAPS = new WeakMap();
+    var NODE_TO_PROCESSOR_MAPS = new WeakMap();
+    var TEST_RESULTS = new WeakMap();
+
+    var createInvalidStateError = function createInvalidStateError() {
+      try {
+        return new DOMException('', 'InvalidStateError');
+      } catch (err) {
+        err.code = 11;
+        err.name = 'InvalidStateError';
+        return err;
+      }
+    };
+
+    var getNativeContext = function getNativeContext(context) {
+      var nativeContext = CONTEXT_STORE.get(context);
+
+      if (nativeContext === undefined) {
+        throw createInvalidStateError();
+      }
+
+      return nativeContext;
+    };
+
+    var handler = {
+      construct: function construct() {
+        return handler;
+      }
+    };
+    var isConstructible = function isConstructible(constructible) {
+      try {
+        var proxy = new Proxy(constructible, handler);
+        new proxy(); // tslint:disable-line:no-unused-expression
+      } catch (_a) {
+        return false;
+      }
+
+      return true;
+    };
+
+    var verifyParameterDescriptors = function verifyParameterDescriptors(parameterDescriptors) {
+      if (parameterDescriptors !== undefined && !Array.isArray(parameterDescriptors)) {
+        throw new TypeError('The parameterDescriptors property of given value for processorCtor is not an array.');
+      }
+    };
+
+    var verifyProcessorCtor = function verifyProcessorCtor(processorCtor) {
+      if (!isConstructible(processorCtor)) {
+        throw new TypeError('The given value for processorCtor should be a constructor.');
+      }
+
+      if (processorCtor.prototype === null || _typeof(processorCtor.prototype) !== 'object') {
+        throw new TypeError('The given value for processorCtor should have a prototype.');
+      }
+
+      if (typeof processorCtor.prototype.process !== 'function') {
+        throw new TypeError('The given value for processorCtor should have a callable process() function.');
+      }
+    };
+
+    var ongoingRequests = new WeakMap();
+    var resolvedRequests = new WeakMap();
+    var createAddAudioWorkletModule = function createAddAudioWorkletModule(createAbortError, createNotSupportedError, getBackupNativeContext) {
+      return function (context, moduleURL) {
+        var options = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {
+          credentials: 'omit'
+        };
+        var nativeContext = getNativeContext(context); // Bug #59: Only Chrome & Opera do implement the audioWorklet property.
+        // @todo Define the native interface as part of the native AudioContext.
+
+        if (nativeContext.audioWorklet !== undefined) {
+          return fetch(moduleURL).then(function (response) {
+            if (response.ok) {
+              return response.text();
+            }
+
+            throw createAbortError();
+          }).then(function (source) {
+            /*
+             * Bug #86: Chrome Canary does not invoke the process() function if the corresponding AudioWorkletNode has no output.
+             *
+             * This is the unminified version of the code used below:
+             *
+             * ```js
+             * `((registerProcessor) => {${ source }
+             * })((name, processorCtor) => registerProcessor(name, class extends processorCtor {
+             *
+             *     constructor (options) {
+             *         const { hasNoOutput, ...otherParameterData } = options.parameterData;
+             *
+             *         if (hasNoOutput === 1) {
+             *             super({ ...options, numberOfOutputs: 0, outputChannelCount: [ ], parameterData: otherParameterData });
+             *
+             *             this._hasNoOutput = true;
+             *         } else {
+             *             super(options);
+             *
+             *             this._hasNoOutput = false;
+             *         }
+             *     }
+             *
+             *     process (inputs, outputs, parameters) {
+             *         return super.process(inputs, (this._hasNoOutput) ? [ ] : outputs, parameters);
+             *     }
+             *
+             * }))`
+             * ```
+             */
+            var wrappedSource = "(registerProcessor=>{".concat(source, "\n})((n,p)=>registerProcessor(n,class extends p{constructor(o){const{hasNoOutput,...q}=o.parameterData;if(hasNoOutput===1){super({...o,numberOfOutputs:0,outputChannelCount:[],parameterData:q});this._h=true}else{super(o);this._h=false}}process(i,o,p){return super.process(i,(this._h)?[]:o,p)}}))"); // tslint:disable-line:max-line-length
+
+            var blob = new Blob([wrappedSource], {
+              type: 'application/javascript; charset=utf-8'
+            });
+            var url = URL.createObjectURL(blob);
+            var backupNativeContext = getBackupNativeContext(nativeContext);
+            var nativeContextOrBackupNativeContext = backupNativeContext !== null ? backupNativeContext : nativeContext;
+            return nativeContextOrBackupNativeContext.audioWorklet.addModule(url, options).then(function () {
+              return URL.revokeObjectURL(url);
+            });
+          });
+        } else {
+          var resolvedRequestsOfContext = resolvedRequests.get(context);
+
+          if (resolvedRequestsOfContext !== undefined && resolvedRequestsOfContext.has(moduleURL)) {
+            return Promise.resolve();
+          }
+
+          var ongoingRequestsOfContext = ongoingRequests.get(context);
+
+          if (ongoingRequestsOfContext !== undefined) {
+            var promiseOfOngoingRequest = ongoingRequestsOfContext.get(moduleURL);
+
+            if (promiseOfOngoingRequest !== undefined) {
+              return promiseOfOngoingRequest;
+            }
+          }
+
+          var promise = fetch(moduleURL).then(function (response) {
+            if (response.ok) {
+              return response.text();
+            }
+
+            throw createAbortError();
+          }).then(function (source) {
+            var fn = new Function('AudioWorkletProcessor', 'currentFrame', 'currentTime', 'global', 'registerProcessor', 'sampleRate', 'self', 'window', source);
+            var globalScope = Object.create(null, {
+              currentFrame: {
+                get: function get() {
+                  return nativeContext.currentTime * nativeContext.sampleRate;
+                }
+              },
+              currentTime: {
+                get: function get() {
+                  return nativeContext.currentTime;
+                }
+              },
+              sampleRate: {
+                get: function get() {
+                  return nativeContext.sampleRate;
+                }
+              }
+            }); // @todo Evaluating the given source code is a possible security problem.
+
+            fn(function AudioWorkletProcessor() {
+              _classCallCheck(this, AudioWorkletProcessor);
+            }, globalScope.currentFrame, globalScope.currentTime, undefined, function (name, processorCtor) {
+              if (name.trim() === '') {
+                throw createNotSupportedError();
+              }
+
+              var nodeNameToProcessorDefinitionMap = NODE_NAME_TO_PROCESSOR_DEFINITION_MAPS.get(nativeContext);
+
+              if (nodeNameToProcessorDefinitionMap !== undefined) {
+                if (nodeNameToProcessorDefinitionMap.has(name)) {
+                  throw createNotSupportedError();
+                }
+
+                verifyProcessorCtor(processorCtor);
+                verifyParameterDescriptors(processorCtor.parameterDescriptors);
+                nodeNameToProcessorDefinitionMap.set(name, processorCtor);
+              } else {
+                verifyProcessorCtor(processorCtor);
+                verifyParameterDescriptors(processorCtor.parameterDescriptors);
+                NODE_NAME_TO_PROCESSOR_DEFINITION_MAPS.set(nativeContext, new Map([[name, processorCtor]]));
+              }
+            }, globalScope.sampleRate, undefined, undefined);
+          }).catch(function (err) {
+            if (err.name === 'SyntaxError') {
+              throw createAbortError();
+            }
+
+            throw err; // tslint:disable-line:rxjs-throw-error
+          });
+
+          if (ongoingRequestsOfContext === undefined) {
+            ongoingRequests.set(context, new Map([[moduleURL, promise]]));
+          } else {
+            ongoingRequestsOfContext.set(moduleURL, promise);
+          }
+
+          promise.then(function () {
+            var rslvdRqstsFCntxt = resolvedRequests.get(context);
+
+            if (rslvdRqstsFCntxt === undefined) {
+              resolvedRequests.set(context, new Set([moduleURL]));
+            } else {
+              rslvdRqstsFCntxt.add(moduleURL);
+            }
+          }).catch(function () {}) // tslint:disable-line:no-empty
+          // @todo Use finally when it becomes available in all supported browsers.
+          .then(function () {
+            var ngngRqstsFCntxt = ongoingRequests.get(context);
+
+            if (ngngRqstsFCntxt !== undefined) {
+              ngngRqstsFCntxt.delete(moduleURL);
+            }
+          });
+          return promise;
+        }
+      };
+    };
+
+    var DEFAULT_OPTIONS = {
+      channelCount: 2,
+      channelCountMode: 'max',
+      channelInterpretation: 'speakers',
+      fftSize: 2048,
+      maxDecibels: -30,
+      minDecibels: -100,
+      smoothingTimeConstant: 0.8
+    };
+    var createAnalyserNodeConstructor = function createAnalyserNodeConstructor(createAnalyserNodeRenderer, createNativeAnalyserNode, isNativeOfflineAudioContext, noneAudioDestinationNodeConstructor) {
+      return (
+        /*#__PURE__*/
+        function (_noneAudioDestination) {
+          _inherits(AnalyserNode, _noneAudioDestination);
+
+          function AnalyserNode(context) {
+            var _this;
+
+            var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : DEFAULT_OPTIONS;
+
+            _classCallCheck(this, AnalyserNode);
+
+            var nativeContext = getNativeContext(context);
+            var mergedOptions = Object.assign({}, DEFAULT_OPTIONS, options);
+            var nativeAnalyserNode = createNativeAnalyserNode(nativeContext, mergedOptions);
+            var analyserNodeRenderer = isNativeOfflineAudioContext(nativeContext) ? createAnalyserNodeRenderer() : null;
+            _this = _possibleConstructorReturn(this, _getPrototypeOf(AnalyserNode).call(this, context, nativeAnalyserNode, analyserNodeRenderer));
+            _this._nativeAnalyserNode = nativeAnalyserNode;
+            return _this;
+          }
+
+          _createClass(AnalyserNode, [{
+            key: "getByteFrequencyData",
+            value: function getByteFrequencyData(array) {
+              this._nativeAnalyserNode.getByteFrequencyData(array);
+            }
+          }, {
+            key: "getByteTimeDomainData",
+            value: function getByteTimeDomainData(array) {
+              this._nativeAnalyserNode.getByteTimeDomainData(array);
+            }
+          }, {
+            key: "getFloatFrequencyData",
+            value: function getFloatFrequencyData(array) {
+              this._nativeAnalyserNode.getFloatFrequencyData(array);
+            }
+          }, {
+            key: "getFloatTimeDomainData",
+            value: function getFloatTimeDomainData(array) {
+              this._nativeAnalyserNode.getFloatTimeDomainData(array);
+            }
+          }, {
+            key: "fftSize",
+            get: function get() {
+              return this._nativeAnalyserNode.fftSize;
+            },
+            set: function set(value) {
+              this._nativeAnalyserNode.fftSize = value;
+            }
+          }, {
+            key: "frequencyBinCount",
+            get: function get() {
+              return this._nativeAnalyserNode.frequencyBinCount;
+            }
+          }, {
+            key: "maxDecibels",
+            get: function get() {
+              return this._nativeAnalyserNode.maxDecibels;
+            },
+            set: function set(value) {
+              this._nativeAnalyserNode.maxDecibels = value;
+            }
+          }, {
+            key: "minDecibels",
+            get: function get() {
+              return this._nativeAnalyserNode.minDecibels;
+            },
+            set: function set(value) {
+              this._nativeAnalyserNode.minDecibels = value;
+            }
+          }, {
+            key: "smoothingTimeConstant",
+            get: function get() {
+              return this._nativeAnalyserNode.smoothingTimeConstant;
+            },
+            set: function set(value) {
+              this._nativeAnalyserNode.smoothingTimeConstant = value;
+            }
+          }]);
+
+          return AnalyserNode;
+        }(noneAudioDestinationNodeConstructor)
+      );
+    };
+
+    var getNativeAudioNode = function getNativeAudioNode(audioNode) {
+      var nativeAudioNode = AUDIO_NODE_STORE.get(audioNode);
+
+      if (nativeAudioNode === undefined) {
+        throw new Error('The associated nativeAudioNode is missing.');
+      }
+
+      return nativeAudioNode;
+    };
+
+    var isOwnedByContext = function isOwnedByContext(nativeAudioNode, nativeContext) {
+      // @todo The type definition of TypeScript wrongly defines the context property of an AudioNode as an AudioContext.
+      // @todo https://github.com/Microsoft/TypeScript/blob/master/lib/lib.dom.d.ts#L1415
+      return nativeAudioNode.context === nativeContext;
+    };
+
+    function getAudioGraph(anyContext) {
+      var audioGraph = AUDIO_GRAPHS.get(anyContext);
+
+      if (audioGraph === undefined) {
+        throw new Error('Missing the audio graph of the given context.');
+      }
+
+      return audioGraph;
+    }
+
+    var getAudioNodeConnections = function getAudioNodeConnections(anyAudioNode) {
+      // The builtin types define the context property as BaseAudioContext which is why it needs to be casted here.
+      var audioGraph = getAudioGraph(anyAudioNode.context);
+      var audioNodeConnections = audioGraph.nodes.get(anyAudioNode);
+
+      if (audioNodeConnections === undefined) {
+        throw new Error('Missing the connections of the given AudioNode in the audio graph.');
+      }
+
+      return audioNodeConnections;
+    };
+
+    var getAudioNodeRenderer = function getAudioNodeRenderer(anyAudioNode) {
+      var audioNodeConnections = getAudioNodeConnections(anyAudioNode);
+
+      if (audioNodeConnections.renderer === null) {
+        throw new Error('Missing the renderer of the given AudioNode in the audio graph.');
+      }
+
+      return audioNodeConnections.renderer;
+    };
+
+    var renderInputsOfAudioNode = function renderInputsOfAudioNode(audioNode, nativeOfflineAudioContext, nativeAudioNode) {
+      var audioNodeConnections = getAudioNodeConnections(audioNode);
+      return Promise.all(audioNodeConnections.inputs.map(function (connections, input) {
+        return Array.from(connections.values()).map(function (_ref) {
+          var _ref2 = _slicedToArray(_ref, 2),
+              source = _ref2[0],
+              output = _ref2[1];
+
+          return getAudioNodeRenderer(source).render(source, nativeOfflineAudioContext).then(function (node) {
+            return node.connect(nativeAudioNode, output, input);
+          });
+        });
+      }).reduce(function (allRenderingPromises, renderingPromises) {
+        return _toConsumableArray(allRenderingPromises).concat(_toConsumableArray(renderingPromises));
+      }, []));
+    };
+
+    var createAnalyserNodeRendererFactory = function createAnalyserNodeRendererFactory(createNativeAnalyserNode) {
+      return function () {
+        var nativeAnalyserNode = null;
+        return {
+          render: function () {
+            var _render = _asyncToGenerator(
+            /*#__PURE__*/
+            _regeneratorRuntime.mark(function _callee(proxy, nativeOfflineAudioContext) {
+              var options;
+              return _regeneratorRuntime.wrap(function _callee$(_context) {
+                while (1) {
+                  switch (_context.prev = _context.next) {
+                    case 0:
+                      if (!(nativeAnalyserNode !== null)) {
+                        _context.next = 2;
+                        break;
+                      }
+
+                      return _context.abrupt("return", nativeAnalyserNode);
+
+                    case 2:
+                      nativeAnalyserNode = getNativeAudioNode(proxy);
+                      /*
+                       * If the initially used nativeAnalyserNode was not constructed on the same OfflineAudioContext it needs to be created
+                       * again.
+                       */
+
+                      if (!isOwnedByContext(nativeAnalyserNode, nativeOfflineAudioContext)) {
+                        options = {
+                          channelCount: nativeAnalyserNode.channelCount,
+                          channelCountMode: nativeAnalyserNode.channelCountMode,
+                          channelInterpretation: nativeAnalyserNode.channelInterpretation,
+                          fftSize: nativeAnalyserNode.fftSize,
+                          maxDecibels: nativeAnalyserNode.maxDecibels,
+                          minDecibels: nativeAnalyserNode.minDecibels,
+                          smoothingTimeConstant: nativeAnalyserNode.smoothingTimeConstant
+                        };
+                        nativeAnalyserNode = createNativeAnalyserNode(nativeOfflineAudioContext, options);
+                      }
+
+                      _context.next = 6;
+                      return renderInputsOfAudioNode(proxy, nativeOfflineAudioContext, nativeAnalyserNode);
+
+                    case 6:
+                      return _context.abrupt("return", nativeAnalyserNode);
+
+                    case 7:
+                    case "end":
+                      return _context.stop();
+                  }
+                }
+              }, _callee, this);
+            }));
+
+            return function render(_x, _x2) {
+              return _render.apply(this, arguments);
+            };
+          }()
+        };
+      };
+    };
+
+    var ONGOING_TESTS = new Map();
+
+    function cacheTestResult(tester, test) {
+      var cachedTestResult = TEST_RESULTS.get(tester);
+
+      if (cachedTestResult !== undefined) {
+        return cachedTestResult;
+      }
+
+      var ongoingTest = ONGOING_TESTS.get(tester);
+
+      if (ongoingTest !== undefined) {
+        return ongoingTest;
+      }
+
+      var synchronousTestResult = test();
+
+      if (synchronousTestResult instanceof Promise) {
+        ONGOING_TESTS.set(tester, synchronousTestResult);
+        return synchronousTestResult.then(function (finalTestResult) {
+          ONGOING_TESTS.delete(tester);
+          TEST_RESULTS.set(tester, finalTestResult);
+          return finalTestResult;
+        });
+      }
+
+      TEST_RESULTS.set(tester, synchronousTestResult);
+      return synchronousTestResult;
+    }
+
+    var testAudioBufferCopyChannelMethodsSubarraySupport = function testAudioBufferCopyChannelMethodsSubarraySupport(nativeAudioBuffer) {
+      var source = new Float32Array(2);
+
+      try {
+        /*
+         * Only Firefox does not fully support the copyFromChannel() and copyToChannel() methods. Therefore testing one of those
+         * methods is enough to know if the other one it supported as well.
+         */
+        nativeAudioBuffer.copyToChannel(source, 0, nativeAudioBuffer.length - 1);
+      } catch (_a) {
+        return false;
+      }
+
+      return true;
+    };
+
+    var createIndexSizeError = function createIndexSizeError() {
+      try {
+        return new DOMException('', 'IndexSizeError');
+      } catch (err) {
+        err.code = 1;
+        err.name = 'IndexSizeError';
+        return err;
+      }
+    };
+
+    var wrapAudioBufferCopyChannelMethods = function wrapAudioBufferCopyChannelMethods(audioBuffer) {
+      audioBuffer.copyFromChannel = function (destination, channelNumber) {
+        var startInChannel = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 0;
+
+        if (channelNumber >= audioBuffer.numberOfChannels || startInChannel >= audioBuffer.length) {
+          throw createIndexSizeError();
+        }
+
+        var channelData = audioBuffer.getChannelData(channelNumber);
+        var channelLength = channelData.length;
+        var destinationLength = destination.length;
+
+        for (var i = 0; i + startInChannel < channelLength && i < destinationLength; i += 1) {
+          destination[i] = channelData[i + startInChannel];
+        }
+      };
+
+      audioBuffer.copyToChannel = function (source, channelNumber) {
+        var startInChannel = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 0;
+
+        if (channelNumber >= audioBuffer.numberOfChannels || startInChannel >= audioBuffer.length) {
+          throw createIndexSizeError();
+        }
+
+        var channelData = audioBuffer.getChannelData(channelNumber);
+        var channelLength = channelData.length;
+        var sourceLength = source.length;
+
+        for (var i = 0; i + startInChannel < channelLength && i < sourceLength; i += 1) {
+          channelData[i + startInChannel] = source[i];
+        }
+      };
+    };
+
+    var wrapAudioBufferCopyChannelMethodsSubarray = function wrapAudioBufferCopyChannelMethodsSubarray(audioBuffer) {
+      audioBuffer.copyFromChannel = function (copyFromChannel) {
+        return function (destination, channelNumber) {
+          var startInChannel = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 0;
+
+          if (channelNumber >= audioBuffer.numberOfChannels || startInChannel >= audioBuffer.length) {
+            throw createIndexSizeError();
+          }
+
+          if (startInChannel < audioBuffer.length && audioBuffer.length - startInChannel < destination.length) {
+            return copyFromChannel.call(audioBuffer, destination.subarray(0, audioBuffer.length - startInChannel), channelNumber, startInChannel);
+          }
+
+          return copyFromChannel.call(audioBuffer, destination, channelNumber, startInChannel);
+        };
+      }(audioBuffer.copyFromChannel);
+
+      audioBuffer.copyToChannel = function (copyToChannel) {
+        return function (source, channelNumber) {
+          var startInChannel = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 0;
+
+          if (channelNumber >= audioBuffer.numberOfChannels || startInChannel >= audioBuffer.length) {
+            throw createIndexSizeError();
+          }
+
+          if (startInChannel < audioBuffer.length && audioBuffer.length - startInChannel < source.length) {
+            return copyToChannel.call(audioBuffer, source.subarray(0, audioBuffer.length - startInChannel), channelNumber, startInChannel);
+          }
+
+          return copyToChannel.call(audioBuffer, source, channelNumber, startInChannel);
+        };
+      }(audioBuffer.copyToChannel);
+    };
+
+    var wrapAudioBufferGetChannelDataMethod = function wrapAudioBufferGetChannelDataMethod(audioBuffer) {
+      audioBuffer.getChannelData = function (getChannelData) {
+        return function (channel) {
+          try {
+            return getChannelData.call(audioBuffer, channel);
+          } catch (err) {
+            if (err.code === 12) {
+              throw createIndexSizeError();
+            }
+
+            throw err; // tslint:disable-line:rxjs-throw-error
+          }
+        };
+      }(audioBuffer.getChannelData);
+    };
+
+    var DEFAULT_OPTIONS$1 = {
+      numberOfChannels: 1
+    };
+    var createAudioBufferConstructor = function createAudioBufferConstructor(createNotSupportedError, nativeAudioBufferConstructor, nativeOfflineAudioContextConstructor, testNativeAudioBufferConstructorSupport) {
+      var nativeOfflineAudioContext = null;
+      return (
+        /*#__PURE__*/
+        function () {
+          function AudioBuffer(options) {
+            _classCallCheck(this, AudioBuffer);
+
+            if (nativeOfflineAudioContextConstructor === null) {
+              throw new Error(); // @todo
+            }
+
+            var _Object$assign = Object.assign({}, DEFAULT_OPTIONS$1, options),
+                length = _Object$assign.length,
+                numberOfChannels = _Object$assign.numberOfChannels,
+                sampleRate = _Object$assign.sampleRate;
+
+            if (nativeOfflineAudioContext === null) {
+              nativeOfflineAudioContext = new nativeOfflineAudioContextConstructor(1, 1, 44100);
+            }
+            /*
+             * Bug #99: Firefox does not throw a NotSupportedError when the numberOfChannels is zero. But it only does it when using the
+             * factory function. But since Firefox also supports the constructor everything should be fine.
+             */
+
+
+            var audioBuffer = nativeAudioBufferConstructor !== null && cacheTestResult(testNativeAudioBufferConstructorSupport, function () {
+              return testNativeAudioBufferConstructorSupport();
+            }) ? new nativeAudioBufferConstructor({
+              length: length,
+              numberOfChannels: numberOfChannels,
+              sampleRate: sampleRate
+            }) : nativeOfflineAudioContext.createBuffer(numberOfChannels, length, sampleRate); // Bug #5: Safari does not support copyFromChannel() and copyToChannel().
+            // Bug #100: Safari does throw a wrong error when calling getChannelData() with an out-of-bounds value.
+
+            if (typeof audioBuffer.copyFromChannel !== 'function') {
+              wrapAudioBufferCopyChannelMethods(audioBuffer);
+              wrapAudioBufferGetChannelDataMethod(audioBuffer); // Bug #42: Firefox does not yet fully support copyFromChannel() and copyToChannel().
+            } else if (!cacheTestResult(testAudioBufferCopyChannelMethodsSubarraySupport, function () {
+              return testAudioBufferCopyChannelMethodsSubarraySupport(audioBuffer);
+            })) {
+              wrapAudioBufferCopyChannelMethodsSubarray(audioBuffer);
+            } // Bug #99: Safari does not throw an error when the numberOfChannels is zero.
+
+
+            if (audioBuffer.numberOfChannels === 0) {
+              throw createNotSupportedError();
+            }
+            /*
+             * This does violate all good pratices but it is necessary to allow this AudioBuffer to be used with native
+             * (Offline)AudioContexts.
+             */
+
+
+            return audioBuffer;
+          } // This method needs to be defined to convince TypeScript that the IAudioBuffer will be implemented.
+
+
+          _createClass(AudioBuffer, [{
+            key: "copyFromChannel",
+            value: function copyFromChannel(_1, _2) {
+            } // tslint:disable-line:no-empty
+            // This method needs to be defined to convince TypeScript that the IAudioBuffer will be implemented.
+
+          }, {
+            key: "copyToChannel",
+            value: function copyToChannel(_1, _2) {
+            } // tslint:disable-line:no-empty
+            // This method needs to be defined to convince TypeScript that the IAudioBuffer will be implemented.
+
+          }, {
+            key: "getChannelData",
+            value: function getChannelData(_) {
+              return new Float32Array(0);
+            }
+          }]);
+
+          return AudioBuffer;
+        }()
+      );
+    };
+
+    var DEFAULT_OPTIONS$2 = {
+      buffer: null,
+      channelCount: 2,
+      channelCountMode: 'max',
+      channelInterpretation: 'speakers',
+      detune: 0,
+      loop: false,
+      loopEnd: 0,
+      loopStart: 0,
+      playbackRate: 1
+    };
+    var createAudioBufferSourceNodeConstructor = function createAudioBufferSourceNodeConstructor(createAudioBufferSourceNodeRenderer, createAudioParam, createInvalidStateError, createNativeAudioBufferSourceNode, isNativeOfflineAudioContext, noneAudioDestinationNodeConstructor) {
+      return (
+        /*#__PURE__*/
+        function (_noneAudioDestination) {
+          _inherits(AudioBufferSourceNode, _noneAudioDestination);
+
+          function AudioBufferSourceNode(context) {
+            var _this;
+
+            var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : DEFAULT_OPTIONS$2;
+
+            _classCallCheck(this, AudioBufferSourceNode);
+
+            var nativeContext = getNativeContext(context);
+            var mergedOptions = Object.assign({}, DEFAULT_OPTIONS$2, options);
+            var nativeAudioBufferSourceNode = createNativeAudioBufferSourceNode(nativeContext, mergedOptions);
+            var isOffline = isNativeOfflineAudioContext(nativeContext);
+            var audioBufferSourceNodeRenderer = isOffline ? createAudioBufferSourceNodeRenderer() : null;
+            _this = _possibleConstructorReturn(this, _getPrototypeOf(AudioBufferSourceNode).call(this, context, nativeAudioBufferSourceNode, audioBufferSourceNodeRenderer));
+            _this._audioBufferSourceNodeRenderer = audioBufferSourceNodeRenderer;
+            _this._detune = createAudioParam(context, isOffline, nativeAudioBufferSourceNode.detune);
+            _this._isBufferNullified = false;
+            _this._isBufferSet = false;
+            _this._nativeAudioBufferSourceNode = nativeAudioBufferSourceNode; // Bug #73: Edge, Firefox & Safari do not export the correct values for maxValue and minValue.
+
+            _this._playbackRate = createAudioParam(context, isOffline, nativeAudioBufferSourceNode.playbackRate, 3.4028234663852886e38, -3.4028234663852886e38);
+            return _this;
+          }
+
+          _createClass(AudioBufferSourceNode, [{
+            key: "start",
+            value: function start() {
+              var when = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 0;
+              var offset = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 0;
+              var duration = arguments.length > 2 ? arguments[2] : undefined;
+
+              this._nativeAudioBufferSourceNode.start(when, offset, duration);
+
+              if (this._audioBufferSourceNodeRenderer !== null) {
+                this._audioBufferSourceNodeRenderer.start = duration === undefined ? [when, offset] : [when, offset, duration];
+              }
+            }
+          }, {
+            key: "stop",
+            value: function stop() {
+              var when = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 0;
+
+              this._nativeAudioBufferSourceNode.stop(when);
+
+              if (this._audioBufferSourceNodeRenderer !== null) {
+                this._audioBufferSourceNodeRenderer.stop = when;
+              }
+            }
+          }, {
+            key: "buffer",
+            get: function get() {
+              if (this._isBufferNullified) {
+                return null;
+              }
+
+              return this._nativeAudioBufferSourceNode.buffer;
+            },
+            set: function set(value) {
+              // Bug #71: Edge does not allow to set the buffer to null.
+              try {
+                this._nativeAudioBufferSourceNode.buffer = value;
+              } catch (err) {
+                if (value !== null || err.code !== 17) {
+                  throw err; // tslint:disable-line:rxjs-throw-error
+                } // @todo Create a new internal nativeAudioBufferSourceNode.
+
+
+                this._isBufferNullified = this._nativeAudioBufferSourceNode.buffer !== null;
+              } // Bug #72: Only Chrome, Edge & Opera do not allow to reassign the buffer yet.
+
+
+              if (value !== null) {
+                if (this._isBufferSet) {
+                  throw createInvalidStateError();
+                }
+
+                this._isBufferSet = true;
+              }
+            }
+          }, {
+            key: "onended",
+            get: function get() {
+              return this._nativeAudioBufferSourceNode.onended;
+            },
+            set: function set(value) {
+              this._nativeAudioBufferSourceNode.onended = value;
+            }
+          }, {
+            key: "detune",
+            get: function get() {
+              return this._detune;
+            }
+          }, {
+            key: "loop",
+            get: function get() {
+              return this._nativeAudioBufferSourceNode.loop;
+            },
+            set: function set(value) {
+              this._nativeAudioBufferSourceNode.loop = value;
+            }
+          }, {
+            key: "loopEnd",
+            get: function get() {
+              return this._nativeAudioBufferSourceNode.loopEnd;
+            },
+            set: function set(value) {
+              this._nativeAudioBufferSourceNode.loopEnd = value;
+            }
+          }, {
+            key: "loopStart",
+            get: function get() {
+              return this._nativeAudioBufferSourceNode.loopStart;
+            },
+            set: function set(value) {
+              this._nativeAudioBufferSourceNode.loopStart = value;
+            }
+          }, {
+            key: "playbackRate",
+            get: function get() {
+              return this._playbackRate;
+            }
+          }]);
+
+          return AudioBufferSourceNode;
+        }(noneAudioDestinationNodeConstructor)
+      );
+    };
+
+    var createAudioBufferSourceNodeRendererFactory = function createAudioBufferSourceNodeRendererFactory(createNativeAudioBufferSourceNode) {
+      return function () {
+        var nativeAudioBufferSourceNode = null;
+        var start = null;
+        var stop = null;
+        return {
+          set start(value) {
+            start = value;
+          },
+
+          set stop(value) {
+            stop = value;
+          },
+
+          render: function () {
+            var _render = _asyncToGenerator(
+            /*#__PURE__*/
+            _regeneratorRuntime.mark(function _callee(proxy, nativeOfflineAudioContext) {
+              var options, _nativeAudioBufferSou;
+
+              return _regeneratorRuntime.wrap(function _callee$(_context) {
+                while (1) {
+                  switch (_context.prev = _context.next) {
+                    case 0:
+                      if (!(nativeAudioBufferSourceNode !== null)) {
+                        _context.next = 2;
+                        break;
+                      }
+
+                      return _context.abrupt("return", nativeAudioBufferSourceNode);
+
+                    case 2:
+                      nativeAudioBufferSourceNode = getNativeAudioNode(proxy);
+                      /*
+                       * If the initially used nativeAudioBufferSourceNode was not constructed on the same OfflineAudioContext it needs to be
+                       * created again.
+                       */
+
+                      if (!isOwnedByContext(nativeAudioBufferSourceNode, nativeOfflineAudioContext)) {
+                        options = {
+                          buffer: nativeAudioBufferSourceNode.buffer,
+                          channelCount: nativeAudioBufferSourceNode.channelCount,
+                          channelCountMode: nativeAudioBufferSourceNode.channelCountMode,
+                          channelInterpretation: nativeAudioBufferSourceNode.channelInterpretation,
+                          detune: 0,
+                          loop: nativeAudioBufferSourceNode.loop,
+                          loopEnd: nativeAudioBufferSourceNode.loopEnd,
+                          loopStart: nativeAudioBufferSourceNode.loopStart,
+                          playbackRate: nativeAudioBufferSourceNode.playbackRate.value
+                        };
+                        nativeAudioBufferSourceNode = createNativeAudioBufferSourceNode(nativeOfflineAudioContext, options);
+
+                        if (start !== null) {
+                          (_nativeAudioBufferSou = nativeAudioBufferSourceNode).start.apply(_nativeAudioBufferSou, _toConsumableArray(start));
+                        }
+
+                        if (stop !== null) {
+                          nativeAudioBufferSourceNode.stop(stop);
+                        }
+                      }
+
+                      _context.next = 6;
+                      return renderInputsOfAudioNode(proxy, nativeOfflineAudioContext, nativeAudioBufferSourceNode);
+
+                    case 6:
+                      return _context.abrupt("return", nativeAudioBufferSourceNode);
+
+                    case 7:
+                    case "end":
+                      return _context.stop();
+                  }
+                }
+              }, _callee, this);
+            }));
+
+            return function render(_x, _x2) {
+              return _render.apply(this, arguments);
+            };
+          }()
+        };
+      };
+    };
+
+    var isValidLatencyHint = function isValidLatencyHint(latencyHint) {
+      return latencyHint === undefined || typeof latencyHint === 'number' || typeof latencyHint === 'string' && (latencyHint === 'balanced' || latencyHint === 'interactive' || latencyHint === 'playback');
+    };
+
+    var createAudioContextConstructor = function createAudioContextConstructor(baseAudioContextConstructor, createInvalidStateError, mediaElementAudioSourceNodeConstructor, mediaStreamAudioSourceNodeConstructor, nativeAudioContextConstructor) {
+      return (
+        /*#__PURE__*/
+        function (_baseAudioContextCons) {
+          _inherits(AudioContext, _baseAudioContextCons);
+
+          function AudioContext() {
+            var _this;
+
+            var options = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
+
+            _classCallCheck(this, AudioContext);
+
+            if (nativeAudioContextConstructor === null) {
+              throw new Error(); // @todo
+            }
+
+            var nativeAudioContext = new nativeAudioContextConstructor(options); // Bug #51 Only Chrome and Opera throw an error if the given latencyHint is invalid.
+
+            if (!isValidLatencyHint(options.latencyHint)) {
+              throw new TypeError("The provided value '".concat(options.latencyHint, "' is not a valid enum value of type AudioContextLatencyCategory."));
+            }
+
+            _this = _possibleConstructorReturn(this, _getPrototypeOf(AudioContext).call(this, nativeAudioContext, nativeAudioContext.destination.channelCount));
+            _this._state = null;
+            _this._nativeAudioContext = nativeAudioContext;
+            /*
+             * Bug #34: Chrome and Opera pretend to be running right away, but fire an onstatechange event when the state actually changes
+             * to 'running'.
+             */
+
+            if (nativeAudioContext.state === 'running') {
+              _this._state = 'suspended';
+
+              var revokeState = function revokeState() {
+                if (_this._state === 'suspended') {
+                  _this._state = null;
+                }
+
+                if (nativeAudioContext.removeEventListener) {
+                  nativeAudioContext.removeEventListener('statechange', revokeState);
+                }
+              };
+
+              nativeAudioContext.addEventListener('statechange', revokeState);
+            }
+
+            return _this;
+          }
+
+          _createClass(AudioContext, [{
+            key: "close",
+            value: function close() {
+              // Bug #35: Firefox does not throw an error if the AudioContext was closed before.
+              if (this.state === 'closed') {
+                return this._nativeAudioContext.close().then(function () {
+                  throw createInvalidStateError();
+                });
+              } // Bug #34: If the state was set to suspended before it should be revoked now.
+
+
+              if (this._state === 'suspended') {
+                this._state = null;
+              }
+
+              return this._nativeAudioContext.close();
+              /*
+               * Bug #50: Deleting the AudioGraph is currently not possible anymore.
+               * ...then(() => deleteAudioGraph(this, this._nativeAudioContext));
+               */
+            }
+          }, {
+            key: "createMediaElementSource",
+            value: function createMediaElementSource(mediaElement) {
+              return new mediaElementAudioSourceNodeConstructor(this, {
+                mediaElement: mediaElement
+              });
+            }
+          }, {
+            key: "createMediaStreamSource",
+            value: function createMediaStreamSource(mediaStream) {
+              return new mediaStreamAudioSourceNodeConstructor(this, {
+                mediaStream: mediaStream
+              });
+            }
+          }, {
+            key: "resume",
+            value: function resume() {
+              return this._nativeAudioContext.resume().catch(function (err) {
+                // Bug #55: Chrome, Edge and Opera do throw an InvalidAccessError instead of an InvalidStateError.
+                // Bug #56: Safari invokes the catch handler but without an error.
+                if (err === undefined || err.code === 15) {
+                  throw createInvalidStateError();
+                }
+
+                throw err; // tslint:disable-line:rxjs-throw-error
+              });
+            }
+          }, {
+            key: "suspend",
+            value: function suspend() {
+              return this._nativeAudioContext.suspend().catch(function (err) {
+                // Bug #56: Safari invokes the catch handler but without an error.
+                if (err === undefined) {
+                  throw createInvalidStateError();
+                }
+
+                throw err; // tslint:disable-line:rxjs-throw-error
+              });
+            }
+          }, {
+            key: "state",
+            get: function get() {
+              return this._state !== null ? this._state : this._nativeAudioContext.state;
+            }
+          }]);
+
+          return AudioContext;
+        }(baseAudioContextConstructor)
+      );
+    };
+
+    var createAudioDestinationNodeConstructor = function createAudioDestinationNodeConstructor(audioNodeConstructor, createAudioDestinationNodeRenderer, createIndexSizeError, createInvalidStateError, createNativeAudioDestinationNode, isNativeOfflineAudioContext) {
+      return (
+        /*#__PURE__*/
+        function (_audioNodeConstructor) {
+          _inherits(AudioDestinationNode, _audioNodeConstructor);
+
+          function AudioDestinationNode(context, channelCount) {
+            var _this;
+
+            _classCallCheck(this, AudioDestinationNode);
+
+            var nativeContext = getNativeContext(context);
+            var isOffline = isNativeOfflineAudioContext(nativeContext);
+            var nativeAudioDestinationNode = createNativeAudioDestinationNode(nativeContext, channelCount, isOffline);
+            var audioDestinationNodeRenderer = isOffline ? createAudioDestinationNodeRenderer() : null;
+            var audioGraph = {
+              audioWorkletGlobalScope: null,
+              nodes: new WeakMap(),
+              params: new WeakMap()
+            };
+            AUDIO_GRAPHS.set(context, audioGraph);
+            AUDIO_GRAPHS.set(nativeContext, audioGraph);
+            _this = _possibleConstructorReturn(this, _getPrototypeOf(AudioDestinationNode).call(this, context, nativeAudioDestinationNode, audioDestinationNodeRenderer));
+            _this._isNodeOfNativeOfflineAudioContext = isOffline;
+            _this._nativeAudioDestinationNode = nativeAudioDestinationNode;
+            return _this;
+          }
+
+          _createClass(AudioDestinationNode, [{
+            key: "channelCount",
+            get: function get() {
+              return this._nativeAudioDestinationNode.channelCount;
+            },
+            set: function set(value) {
+              // Bug #52: Chrome, Edge, Opera & Safari do not throw an exception at all.
+              // Bug #54: Firefox does throw an IndexSizeError.
+              if (this._isNodeOfNativeOfflineAudioContext) {
+                throw createInvalidStateError();
+              } // Bug #47: The AudioDestinationNode in Edge and Safari do not initialize the maxChannelCount property correctly.
+
+
+              if (value > this._nativeAudioDestinationNode.maxChannelCount) {
+                throw createIndexSizeError();
+              }
+
+              this._nativeAudioDestinationNode.channelCount = value;
+            }
+          }, {
+            key: "channelCountMode",
+            get: function get() {
+              return this._nativeAudioDestinationNode.channelCountMode;
+            },
+            set: function set(value) {
+              // Bug #53: No browser does throw an exception yet.
+              if (this._isNodeOfNativeOfflineAudioContext) {
+                throw createInvalidStateError();
+              }
+
+              this._nativeAudioDestinationNode.channelCountMode = value;
+            }
+          }, {
+            key: "maxChannelCount",
+            get: function get() {
+              return this._nativeAudioDestinationNode.maxChannelCount;
+            }
+          }]);
+
+          return AudioDestinationNode;
+        }(audioNodeConstructor)
+      );
+    };
+
+    var createAudioDestinationNodeRenderer = function createAudioDestinationNodeRenderer() {
+      var nativeAudioDestinationNode = null;
+      return {
+        render: function () {
+          var _render = _asyncToGenerator(
+          /*#__PURE__*/
+          _regeneratorRuntime.mark(function _callee(proxy, nativeOfflineAudioContext) {
+            return _regeneratorRuntime.wrap(function _callee$(_context) {
+              while (1) {
+                switch (_context.prev = _context.next) {
+                  case 0:
+                    if (!(nativeAudioDestinationNode !== null)) {
+                      _context.next = 2;
+                      break;
+                    }
+
+                    return _context.abrupt("return", nativeAudioDestinationNode);
+
+                  case 2:
+                    nativeAudioDestinationNode = nativeOfflineAudioContext.destination;
+                    _context.next = 5;
+                    return renderInputsOfAudioNode(proxy, nativeOfflineAudioContext, nativeAudioDestinationNode);
+
+                  case 5:
+                    return _context.abrupt("return", nativeAudioDestinationNode);
+
+                  case 6:
+                  case "end":
+                    return _context.stop();
+                }
+              }
+            }, _callee, this);
+          }));
+
+          return function render(_x, _x2) {
+            return _render.apply(this, arguments);
+          };
+        }()
+      };
+    };
+
+    var EventTarget =
+    /*#__PURE__*/
+    function () {
+      function EventTarget() {
+        _classCallCheck(this, EventTarget);
+      }
+
+      _createClass(EventTarget, [{
+        key: "addEventListener",
+        value: function addEventListener(type, listener, // @todo EventListenerOrEventListenerObject | null = null,
+        options) {
+        }
+      }, {
+        key: "dispatchEvent",
+        value: function dispatchEvent(evt) {
+
+          return false;
+        }
+      }, {
+        key: "removeEventListener",
+        value: function removeEventListener(type, listener, // @todo EventListenerOrEventListenerObject | null = null,
+        options) {
+        }
+      }]);
+
+      return EventTarget;
+    }();
+
+    var isAudioNode = function isAudioNode(audioNodeOrAudioParam) {
+      return audioNodeOrAudioParam.context !== undefined;
+    };
+
+    function getAudioParamConnections(anyContext, audioParam) {
+      var audioGraph = getAudioGraph(anyContext);
+      var audioParamConnections = audioGraph.params.get(audioParam);
+
+      if (audioParamConnections === undefined) {
+        throw new Error('Missing the connections of the given AudioParam in the audio graph.');
+      }
+
+      return audioParamConnections;
+    }
+
+    var getNativeAudioParam = function getNativeAudioParam(audioParam) {
+      var nativeAudioParam = AUDIO_PARAM_STORE.get(audioParam);
+
+      if (nativeAudioParam === undefined) {
+        throw new Error('The associated nativeAudioParam is missing.');
+      }
+
+      return nativeAudioParam;
+    };
+
+    var testAudioNodeDisconnectMethodSupport = function testAudioNodeDisconnectMethodSupport(nativeAudioContext) {
+      return new Promise(function (resolve) {
+        var analyzer = nativeAudioContext.createScriptProcessor(256, 1, 1);
+        var dummy = nativeAudioContext.createGain(); // Bug #95: Safari does not play one sample buffers.
+
+        var ones = nativeAudioContext.createBuffer(1, 2, 44100);
+        var channelData = ones.getChannelData(0);
+        channelData[0] = 1;
+        channelData[1] = 1;
+        var source = nativeAudioContext.createBufferSource();
+        source.buffer = ones;
+        source.loop = true;
+        source.connect(analyzer);
+        analyzer.connect(nativeAudioContext.destination);
+        source.connect(dummy);
+        source.disconnect(dummy);
+
+        analyzer.onaudioprocess = function (event) {
+          var chnnlDt = event.inputBuffer.getChannelData(0);
+
+          if (Array.prototype.some.call(chnnlDt, function (sample) {
+            return sample === 1;
+          })) {
+            resolve(true);
+          } else {
+            resolve(false);
+          }
+
+          source.stop();
+          analyzer.onaudioprocess = null;
+          source.disconnect(analyzer);
+          analyzer.disconnect(nativeAudioContext.destination);
+        };
+
+        source.start();
+      });
+    };
+
+    var wrapAudioNodeDisconnectMethod = function wrapAudioNodeDisconnectMethod(nativeAudioNode) {
+      var destinations = new Map();
+
+      nativeAudioNode.connect = function (connect) {
+        return function (destination) {
+          var output = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 0;
+          var input = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 0;
+          destinations.set(destination, {
+            input: input,
+            output: output
+          });
+
+          if (destination instanceof AudioNode) {
+            return connect.call(nativeAudioNode, destination, output, input);
+          }
+
+          return connect.call(nativeAudioNode, destination, output);
+        };
+      }(nativeAudioNode.connect);
+
+      nativeAudioNode.disconnect = function (disconnect) {
+        return function (outputOrDestination, _output, _input) {
+          disconnect.apply(nativeAudioNode);
+
+          if (outputOrDestination === undefined) {
+            destinations.clear();
+          } else if (destinations.has(outputOrDestination)) {
+            destinations.delete(outputOrDestination);
+            destinations.forEach(function (_ref, dstntn) {
+              var input = _ref.input,
+                  output = _ref.output;
+              nativeAudioNode.connect(dstntn, input, output);
+            });
+          }
+        };
+      }(nativeAudioNode.disconnect);
+    };
+
+    var addAudioNode = function addAudioNode(context, audioNode, audioNoderRender, nativeAudioNode) {
+      var audioGraph = getAudioGraph(context);
+      var inputs = [];
+
+      for (var i = 0; i < nativeAudioNode.numberOfInputs; i += 1) {
+        inputs.push(new Set());
+      }
+
+      var audioNodeConnections = {
+        inputs: inputs,
+        outputs: new Set(),
+        renderer: audioNoderRender
+      };
+      audioGraph.nodes.set(audioNode, audioNodeConnections);
+      audioGraph.nodes.set(nativeAudioNode, audioNodeConnections);
+    };
+
+    var addConnectionToAudioNode = function addConnectionToAudioNode(source, destination, output, input) {
+      var audioNodeConnectionsOfSource = getAudioNodeConnections(source);
+      var audioNodeConnectionsOfDestination = getAudioNodeConnections(destination);
+      audioNodeConnectionsOfSource.outputs.add([destination, output, input]);
+      audioNodeConnectionsOfDestination.inputs[input].add([source, output]);
+    };
+
+    var addConnectionToAudioParam = function addConnectionToAudioParam(context, source, destination, output) {
+      var audioNodeConnections = getAudioNodeConnections(source);
+      var audioParamConnections = getAudioParamConnections(context, destination);
+      audioNodeConnections.outputs.add([destination, output]);
+      audioParamConnections.inputs.add([source, output]);
+    };
+
+    var removeAnyConnection = function removeAnyConnection(source) {
+      var audioNodeConnectionsOfSource = getAudioNodeConnections(source);
+
+      var _arr = Array.from(audioNodeConnectionsOfSource.outputs.values());
+
+      for (var _i = 0; _i < _arr.length; _i++) {
+        var _arr$_i = _slicedToArray(_arr[_i], 1),
+            destination = _arr$_i[0];
+
+        if (isAudioNode(destination)) {
+          var audioNodeConnectionsOfDestination = getAudioNodeConnections(destination);
+          var _iteratorNormalCompletion = true;
+          var _didIteratorError = false;
+          var _iteratorError = undefined;
+
+          try {
+            for (var _iterator = audioNodeConnectionsOfDestination.inputs[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+              var connectionsToInput = _step.value;
+
+              var _arr2 = Array.from(connectionsToInput.values());
+
+              for (var _i2 = 0; _i2 < _arr2.length; _i2++) {
+                var connection = _arr2[_i2];
+
+                if (connection[0] === source) {
+                  connectionsToInput.delete(connection);
+                }
+              }
+            }
+          } catch (err) {
+            _didIteratorError = true;
+            _iteratorError = err;
+          } finally {
+            try {
+              if (!_iteratorNormalCompletion && _iterator.return != null) {
+                _iterator.return();
+              }
+            } finally {
+              if (_didIteratorError) {
+                throw _iteratorError;
+              }
+            }
+          }
+        }
+      }
+
+      audioNodeConnectionsOfSource.outputs.clear();
+    };
+
+    var removeConnectionToAudioNode = function removeConnectionToAudioNode(source, destination) {
+      var audioNodeConnectionsOfSource = getAudioNodeConnections(source);
+      var audioNodeConnectionsOfDestination = getAudioNodeConnections(destination);
+
+      var _arr3 = Array.from(audioNodeConnectionsOfSource.outputs.values());
+
+      for (var _i3 = 0; _i3 < _arr3.length; _i3++) {
+        var connection = _arr3[_i3];
+
+        if (connection[0] === destination) {
+          audioNodeConnectionsOfSource.outputs.delete(connection);
+        }
+      }
+
+      var _iteratorNormalCompletion2 = true;
+      var _didIteratorError2 = false;
+      var _iteratorError2 = undefined;
+
+      try {
+        for (var _iterator2 = audioNodeConnectionsOfDestination.inputs[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
+          var connectionsToInput = _step2.value;
+
+          var _arr4 = Array.from(connectionsToInput.values());
+
+          for (var _i4 = 0; _i4 < _arr4.length; _i4++) {
+            var _connection = _arr4[_i4];
+
+            if (_connection[0] === source) {
+              connectionsToInput.delete(_connection);
+            }
+          }
+        }
+      } catch (err) {
+        _didIteratorError2 = true;
+        _iteratorError2 = err;
+      } finally {
+        try {
+          if (!_iteratorNormalCompletion2 && _iterator2.return != null) {
+            _iterator2.return();
+          }
+        } finally {
+          if (_didIteratorError2) {
+            throw _iteratorError2;
+          }
+        }
+      }
+    };
+
+    var createAudioNodeConstructor = function createAudioNodeConstructor(createInvalidAccessError, isNativeOfflineAudioContext) {
+      return (
+        /*#__PURE__*/
+        function (_EventTarget) {
+          _inherits(AudioNode, _EventTarget);
+
+          function AudioNode(context, nativeAudioNode, audioNodeRenderer) {
+            var _this;
+
+            _classCallCheck(this, AudioNode);
+
+            _this = _possibleConstructorReturn(this, _getPrototypeOf(AudioNode).call(this));
+            _this._context = context;
+            _this._nativeAudioNode = nativeAudioNode;
+            var nativeContext = getNativeContext(context); // Bug #12: Firefox and Safari do not support to disconnect a specific destination.
+            // @todo Make sure this is not used with an OfflineAudioContext.
+
+            if (!isNativeOfflineAudioContext(nativeContext) && true !== cacheTestResult(testAudioNodeDisconnectMethodSupport, function () {
+              return testAudioNodeDisconnectMethodSupport(nativeContext);
+            })) {
+              wrapAudioNodeDisconnectMethod(nativeAudioNode);
+            }
+
+            AUDIO_NODE_STORE.set(_assertThisInitialized(_assertThisInitialized(_this)), nativeAudioNode);
+            addAudioNode(context, _assertThisInitialized(_assertThisInitialized(_this)), audioNodeRenderer, nativeAudioNode);
+            return _this;
+          }
+
+          _createClass(AudioNode, [{
+            key: "addEventListener",
+            value: function addEventListener(type, listener, // @todo EventListenerOrEventListenerObject | null = null,
+            options) {
+              return this._nativeAudioNode.addEventListener(type, listener, options);
+            }
+          }, {
+            key: "connect",
+            value: function connect(destination) {
+              var output = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 0;
+              var input = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 0;
+              var nativeContext = getNativeContext(this._context);
+
+              if (isAudioNode(destination)) {
+                // Bug #41: Only Chrome, Firefox and Opera throw the correct exception by now.
+                if (this._context !== destination.context) {
+                  throw createInvalidAccessError();
+                }
+
+                if (!isNativeOfflineAudioContext(nativeContext)) {
+                  var nativeDestinationNode = getNativeAudioNode(destination);
+
+                  if (nativeDestinationNode.inputs !== undefined) {
+                    var inputs = nativeDestinationNode.inputs;
+                    var nativeInputDestinationNode = inputs[input];
+
+                    this._nativeAudioNode.connect(nativeInputDestinationNode, output, input);
+                  } else {
+                    this._nativeAudioNode.connect(nativeDestinationNode, output, input);
+                  }
+                }
+
+                addConnectionToAudioNode(this, destination, output, input);
+                return destination;
+              }
+
+              var nativeAudioParam = getNativeAudioParam(destination);
+
+              try {
+                this._nativeAudioNode.connect(nativeAudioParam, output); // @todo Calling connect() is only needed to throw possible errors when the nativeContext is an OfflineAudioContext.
+
+
+                if (isNativeOfflineAudioContext(nativeContext)) {
+                  this._nativeAudioNode.disconnect(nativeAudioParam, output);
+                }
+              } catch (err) {
+                // Bug #58: Only Firefox does throw an InvalidStateError yet.
+                if (err.code === 12) {
+                  throw createInvalidAccessError();
+                }
+
+                throw err; // tslint:disable-line:rxjs-throw-error
+              }
+
+              addConnectionToAudioParam(this._context, this, destination, output);
+            }
+          }, {
+            key: "disconnect",
+            value: function disconnect(destination) {
+              var nativeContext = getNativeContext(this._context);
+
+              if (!isNativeOfflineAudioContext(nativeContext)) {
+                if (destination === undefined) {
+                  return this._nativeAudioNode.disconnect();
+                }
+
+                var nativeDestinationNode = getNativeAudioNode(destination);
+
+                if (nativeDestinationNode.inputs !== undefined) {
+                  var _iteratorNormalCompletion3 = true;
+                  var _didIteratorError3 = false;
+                  var _iteratorError3 = undefined;
+
+                  try {
+                    for (var _iterator3 = nativeDestinationNode.inputs[Symbol.iterator](), _step3; !(_iteratorNormalCompletion3 = (_step3 = _iterator3.next()).done); _iteratorNormalCompletion3 = true) {
+                      var input = _step3.value;
+
+                      this._nativeAudioNode.disconnect(input);
+                    }
+                  } catch (err) {
+                    _didIteratorError3 = true;
+                    _iteratorError3 = err;
+                  } finally {
+                    try {
+                      if (!_iteratorNormalCompletion3 && _iterator3.return != null) {
+                        _iterator3.return();
+                      }
+                    } finally {
+                      if (_didIteratorError3) {
+                        throw _iteratorError3;
+                      }
+                    }
+                  }
+                } else {
+                  this._nativeAudioNode.disconnect(nativeDestinationNode);
+                }
+              }
+
+              if (destination === undefined) {
+                removeAnyConnection(this);
+              } else {
+                removeConnectionToAudioNode(this, destination);
+              }
+            }
+          }, {
+            key: "removeEventListener",
+            value: function removeEventListener(type, listener, // @todo EventListenerOrEventListenerObject | null = null,
+            options) {
+              return this._nativeAudioNode.removeEventListener(type, listener, options);
+            }
+          }, {
+            key: "channelCount",
+            get: function get() {
+              return this._nativeAudioNode.channelCount;
+            },
+            set: function set(value) {
+              this._nativeAudioNode.channelCount = value;
+            }
+          }, {
+            key: "channelCountMode",
+            get: function get() {
+              return this._nativeAudioNode.channelCountMode;
+            },
+            set: function set(value) {
+              this._nativeAudioNode.channelCountMode = value;
+            }
+          }, {
+            key: "channelInterpretation",
+            get: function get() {
+              return this._nativeAudioNode.channelInterpretation;
+            },
+            set: function set(value) {
+              this._nativeAudioNode.channelInterpretation = value;
+            }
+          }, {
+            key: "context",
+            get: function get() {
+              return this._context;
+            }
+          }, {
+            key: "numberOfInputs",
+            get: function get() {
+              return this._nativeAudioNode.numberOfInputs;
+            }
+          }, {
+            key: "numberOfOutputs",
+            get: function get() {
+              return this._nativeAudioNode.numberOfOutputs;
+            }
+          }]);
+
+          return AudioNode;
+        }(EventTarget)
+      );
+    };
+
+    var addAudioParam = function addAudioParam(context, audioParam, audioParamRenderer) {
+      var audioGraph = getAudioGraph(context);
+      audioGraph.params.set(audioParam, {
+        inputs: new Set(),
+        renderer: audioParamRenderer
+      });
+    };
+
+    var createAudioParamFactory = function createAudioParamFactory(createAudioParamRenderer) {
+      return function (context, isAudioParamOfOfflineAudioContext, nativeAudioParam) {
+        var maxValue = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : null;
+        var minValue = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : null;
+        var audioParamRenderer = isAudioParamOfOfflineAudioContext ? createAudioParamRenderer() : null;
+        var audioParam = {
+          get defaultValue() {
+            return nativeAudioParam.defaultValue;
+          },
+
+          get maxValue() {
+            return maxValue === null ? nativeAudioParam.maxValue : maxValue;
+          },
+
+          get minValue() {
+            return minValue === null ? nativeAudioParam.minValue : minValue;
+          },
+
+          get value() {
+            return nativeAudioParam.value;
+          },
+
+          set value(value) {
+            nativeAudioParam.value = value; // Bug #98: Edge, Firefox & Safari do not yet treat the value setter like a call to setValueAtTime().
+
+            audioParam.setValueAtTime(value, context.currentTime);
+          },
+
+          cancelScheduledValues: function cancelScheduledValues(cancelTime) {
+            nativeAudioParam.cancelScheduledValues(cancelTime); // @todo
+
+            return audioParam;
+          },
+          exponentialRampToValueAtTime: function exponentialRampToValueAtTime(value, endTime) {
+            nativeAudioParam.exponentialRampToValueAtTime(value, endTime);
+
+            if (audioParamRenderer !== null) {
+              audioParamRenderer.record({
+                endTime: endTime,
+                type: 'exponentialRampToValue',
+                value: value
+              });
+            }
+
+            return audioParam;
+          },
+          linearRampToValueAtTime: function linearRampToValueAtTime(value, endTime) {
+            nativeAudioParam.linearRampToValueAtTime(value, endTime);
+
+            if (audioParamRenderer !== null) {
+              audioParamRenderer.record({
+                endTime: endTime,
+                type: 'linearRampToValue',
+                value: value
+              });
+            }
+
+            return audioParam;
+          },
+          setTargetAtTime: function setTargetAtTime(target, startTime, timeConstant) {
+            nativeAudioParam.setTargetAtTime(target, startTime, timeConstant);
+
+            if (audioParamRenderer !== null) {
+              audioParamRenderer.record({
+                startTime: startTime,
+                target: target,
+                timeConstant: timeConstant,
+                type: 'setTarget'
+              });
+            }
+
+            return audioParam;
+          },
+          setValueAtTime: function setValueAtTime(value, startTime) {
+            nativeAudioParam.setValueAtTime(value, startTime);
+
+            if (audioParamRenderer !== null) {
+              audioParamRenderer.record({
+                startTime: startTime,
+                type: 'setValue',
+                value: value
+              });
+            }
+
+            return audioParam;
+          },
+          setValueCurveAtTime: function setValueCurveAtTime(values, startTime, duration) {
+            // @todo TypeScript is expecting values to be an array of numbers.
+            nativeAudioParam.setValueCurveAtTime(values, startTime, duration);
+
+            if (audioParamRenderer !== null) {
+              audioParamRenderer.record({
+                duration: duration,
+                startTime: startTime,
+                type: 'setValueCurve',
+                values: values
+              });
+            }
+
+            return audioParam;
+          }
+        };
+        AUDIO_PARAM_STORE.set(audioParam, nativeAudioParam);
+        addAudioParam(context, audioParam, audioParamRenderer);
+        return audioParam;
+      };
+    };
+
+    var createAudioParamRenderer = function createAudioParamRenderer() {
+      var automations = [];
+      return {
+        record: function record(automation) {
+          automations.push(automation);
+        },
+        replay: function replay(audioParam) {
+          for (var _i = 0; _i < automations.length; _i++) {
+            var automation = automations[_i];
+
+            if (automation.type === 'exponentialRampToValue') {
+              var endTime = automation.endTime,
+                  value = automation.value;
+              audioParam.exponentialRampToValueAtTime(value, endTime);
+            } else if (automation.type === 'linearRampToValue') {
+              var _endTime = automation.endTime,
+                  _value = automation.value;
+              audioParam.linearRampToValueAtTime(_value, _endTime);
+            } else if (automation.type === 'setTarget') {
+              var startTime = automation.startTime,
+                  target = automation.target,
+                  timeConstant = automation.timeConstant;
+              audioParam.setTargetAtTime(target, startTime, timeConstant);
+            } else if (automation.type === 'setValue') {
+              var _startTime = automation.startTime,
+                  _value2 = automation.value;
+              audioParam.setValueAtTime(_value2, _startTime);
+            } else if (automation.type === 'setValueCurve') {
+              var duration = automation.duration,
+                  _startTime2 = automation.startTime,
+                  values = automation.values; // @todo TypeScript is expecting values to be an array of numbers.
+
+              audioParam.setValueCurveAtTime(values, _startTime2, duration);
+            } else {
+              throw new Error("Can't apply an unkown automation.");
+            }
+          }
+        }
+      };
+    };
+
+    var ReadOnlyMap =
+    /*#__PURE__*/
+    function () {
+      function ReadOnlyMap(parameters) {
+        _classCallCheck(this, ReadOnlyMap);
+
+        this._map = new Map(parameters);
+      }
+
+      _createClass(ReadOnlyMap, [{
+        key: "entries",
+        value: function entries() {
+          return this._map.entries();
+        }
+      }, {
+        key: "forEach",
+        value: function forEach(callback) {
+          var _this = this;
+
+          var thisArg = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
+          return this._map.forEach(function (value, key) {
+            return callback.call(thisArg, value, key, _this);
+          });
+        }
+      }, {
+        key: "get",
+        value: function get(name) {
+          return this._map.get(name);
+        }
+      }, {
+        key: "has",
+        value: function has(name) {
+          return this._map.has(name);
+        }
+      }, {
+        key: "keys",
+        value: function keys() {
+          return this._map.keys();
+        }
+      }, {
+        key: "values",
+        value: function values() {
+          return this._map.values();
+        }
+      }, {
+        key: "size",
+        get: function get() {
+          return this._map.size;
+        }
+      }]);
+
+      return ReadOnlyMap;
+    }();
+
+    var DEFAULT_OPTIONS$3 = {
+      channelCount: 2,
+      // Bug #61: The channelCountMode should be 'max' according to the spec but is set to 'explicit' to achieve consistent behavior.
+      channelCountMode: 'explicit',
+      channelInterpretation: 'speakers',
+      numberOfInputs: 1,
+      numberOfOutputs: 1,
+      outputChannelCount: undefined,
+      parameterData: {},
+      processorOptions: null
+    };
+
+    var createChannelCount = function createChannelCount(length) {
+      var channelCount = [];
+
+      for (var i = 0; i < length; i += 1) {
+        channelCount.push(1);
+      }
+
+      return channelCount;
+    };
+
+    var sanitizedOptions = function sanitizedOptions(options) {
+      return Object.assign({}, options, {
+        outputChannelCount: options.outputChannelCount !== undefined ? options.outputChannelCount : options.numberOfInputs === 1 && options.numberOfOutputs === 1 ?
+        /*
+         * Bug #61: This should be the computedNumberOfChannels, but unfortunately that is almost impossible to fake. That's why
+         * the channelCountMode is required to be 'explicit' as long as there is not a native implementation in every browser. That
+         * makes sure the computedNumberOfChannels is equivilant to the channelCount which makes it much easier to compute.
+         */
+        [options.channelCount] : createChannelCount(options.numberOfOutputs),
+        // Bug #66: The default value of processorOptions should be null, but Chrome Canary doesn't like it.
+        processorOptions: options.processorOptions === null ? {} : options.processorOptions
+      });
+    };
+
+    var createAudioWorkletNodeConstructor = function createAudioWorkletNodeConstructor(createAudioParam, createAudioWorkletNodeRenderer, createNativeAudioWorkletNode, isNativeOfflineAudioContext, nativeAudioWorkletNodeConstructor, noneAudioDestinationNodeConstructor) {
+      return (
+        /*#__PURE__*/
+        function (_noneAudioDestination) {
+          _inherits(AudioWorkletNode, _noneAudioDestination);
+
+          function AudioWorkletNode(context, name) {
+            var _this;
+
+            var options = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : DEFAULT_OPTIONS$3;
+
+            _classCallCheck(this, AudioWorkletNode);
+
+            var nativeContext = getNativeContext(context);
+            var mergedOptions = sanitizedOptions(Object.assign({}, DEFAULT_OPTIONS$3, options));
+            var nodeNameToProcessorDefinitionMap = NODE_NAME_TO_PROCESSOR_DEFINITION_MAPS.get(nativeContext);
+            var processorDefinition = nodeNameToProcessorDefinitionMap === undefined ? undefined : nodeNameToProcessorDefinitionMap.get(name);
+            var nativeAudioWorkletNode = createNativeAudioWorkletNode(nativeContext, nativeAudioWorkletNodeConstructor, name, processorDefinition, mergedOptions);
+            var isOffline = isNativeOfflineAudioContext(nativeContext);
+            var audioWorkletNodeRenderer = isOffline ? createAudioWorkletNodeRenderer(name, mergedOptions, processorDefinition) : null;
+            _this = _possibleConstructorReturn(this, _getPrototypeOf(AudioWorkletNode).call(this, context, nativeAudioWorkletNode, audioWorkletNodeRenderer));
+            var parameters = [];
+            nativeAudioWorkletNode.parameters.forEach(function (nativeAudioParam, nm) {
+              var audioParam = createAudioParam(context, isOffline, nativeAudioParam);
+              parameters.push([nm, audioParam]);
+            });
+            _this._nativeAudioWorkletNode = nativeAudioWorkletNode; // Bug #86 & #87: Every browser but Firefox needs to get an unused output which should not be exposed.
+
+            _this._numberOfOutputs = options.numberOfOutputs === 0 ? 0 : _this._nativeAudioWorkletNode.numberOfOutputs;
+            _this._parameters = new ReadOnlyMap(parameters);
+            /*
+             * Bug #86 & #87: Every browser but Firefox needs an output to be connected.
+             *
+             * Bug #50: Only Safari does yet allow to create AudioNodes on a closed AudioContext. Therefore this is currently faked by
+             * using another AudioContext. And that is the reason why this will fail in case of a closed AudioContext.
+             */
+
+            if (options.numberOfOutputs === 0 && _this.context.state !== 'closed') {
+              _this.connect(context.destination);
+            }
+
+            return _this;
+          }
+
+          _createClass(AudioWorkletNode, [{
+            key: "numberOfOutputs",
+            get: function get() {
+              return this._numberOfOutputs;
+            }
+          }, {
+            key: "onprocessorerror",
+            get: function get() {
+              return this._nativeAudioWorkletNode.onprocessorerror;
+            },
+            set: function set(value) {
+              this._nativeAudioWorkletNode.onprocessorerror = value;
+            }
+          }, {
+            key: "parameters",
+            get: function get() {
+              if (this._parameters === null) {
+                return this._nativeAudioWorkletNode.parameters;
+              }
+
+              return this._parameters;
+            }
+          }, {
+            key: "port",
+            get: function get() {
+              return this._nativeAudioWorkletNode.port;
+            }
+          }]);
+
+          return AudioWorkletNode;
+        }(noneAudioDestinationNodeConstructor)
+      );
+    };
+
+    var renderInputsOfAudioParam = function renderInputsOfAudioParam(context, audioParam, nativeOfflineAudioContext, nativeAudioParam) {
+      var audioParamConnections = getAudioParamConnections(context, audioParam);
+      return Promise.all(Array.from(audioParamConnections.inputs).map(function (_ref) {
+        var _ref2 = _slicedToArray(_ref, 2),
+            source = _ref2[0],
+            output = _ref2[1];
+
+        var audioNodeRenderer = getAudioNodeRenderer(source);
+        return audioNodeRenderer.render(source, nativeOfflineAudioContext).then(function (node) {
+          return node.connect(nativeAudioParam, output);
+        });
+      }));
+    };
+
+    var connectAudioParam = function connectAudioParam(context, nativeOfflineAudioContext, audioParam) {
+      var nativeAudioParam = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : getNativeAudioParam(audioParam);
+      return renderInputsOfAudioParam(context, audioParam, nativeOfflineAudioContext, nativeAudioParam);
+    };
+
+    var createNestedArrays = function createNestedArrays(x, y) {
+      var arrays = [];
+
+      for (var i = 0; i < x; i += 1) {
+        var array = [];
+        var length = typeof y === 'number' ? y : y[i];
+
+        for (var j = 0; j < length; j += 1) {
+          array.push(new Float32Array(128));
+        }
+
+        arrays.push(array);
+      }
+
+      return arrays;
+    };
+
+    var getAudioWorkletProcessor = function getAudioWorkletProcessor(nativeOfflineAudioContext, proxy) {
+      var nodeToProcessorMap = NODE_TO_PROCESSOR_MAPS.get(nativeOfflineAudioContext);
+
+      if (nodeToProcessorMap === undefined) {
+        throw new Error('Missing the processor map for the given OfflineAudioContext.');
+      }
+
+      var nativeAudioWorkletNode = getNativeAudioNode(proxy);
+      var audioWorkletProcessorPromise = nodeToProcessorMap.get(nativeAudioWorkletNode);
+
+      if (audioWorkletProcessorPromise === undefined) {
+        throw new Error('Missing the promise for the given AudioWorkletNode.');
+      }
+
+      return audioWorkletProcessorPromise;
+    };
+
+    function getAudioParamRenderer(anyContext, audioParam) {
+      var audioParamConnections = getAudioParamConnections(anyContext, audioParam);
+
+      if (audioParamConnections.renderer === null) {
+        throw new Error('Missing the renderer of the given AudioParam in the audio graph.');
+      }
+
+      return audioParamConnections.renderer;
+    }
+
+    var renderAutomation = function renderAutomation(context, nativeOfflineAudioContext, audioParam, nativeAudioParam) {
+      var audioParamRenderer = getAudioParamRenderer(context, audioParam);
+      audioParamRenderer.replay(nativeAudioParam);
+      return renderInputsOfAudioParam(context, audioParam, nativeOfflineAudioContext, nativeAudioParam);
+    };
+
+    var processBuffer =
+    /*#__PURE__*/
+    function () {
+      var _ref = _asyncToGenerator(
+      /*#__PURE__*/
+      _regeneratorRuntime.mark(function _callee(proxy, renderedBuffer, nativeOfflineAudioContext, options, processorDefinition) {
+        var length, numberOfInputChannels, numberOfOutputChannels, processedBuffer, audioNodeConnections, audioWorkletProcessor, inputs, outputs, parameters, _loop, i, _ret;
+
+        return _regeneratorRuntime.wrap(function _callee$(_context) {
+          while (1) {
+            switch (_context.prev = _context.next) {
+              case 0:
+                length = renderedBuffer.length;
+                numberOfInputChannels = options.channelCount * options.numberOfInputs;
+                numberOfOutputChannels = options.outputChannelCount.reduce(function (sum, value) {
+                  return sum + value;
+                }, 0);
+                processedBuffer = numberOfOutputChannels === 0 ? null : nativeOfflineAudioContext.createBuffer(numberOfOutputChannels, length, renderedBuffer.sampleRate);
+
+                if (!(processorDefinition === undefined)) {
+                  _context.next = 6;
+                  break;
+                }
+
+                throw new Error();
+
+              case 6:
+                audioNodeConnections = getAudioNodeConnections(proxy);
+                _context.next = 9;
+                return getAudioWorkletProcessor(nativeOfflineAudioContext, proxy);
+
+              case 9:
+                audioWorkletProcessor = _context.sent;
+                inputs = createNestedArrays(options.numberOfInputs, options.channelCount);
+                outputs = createNestedArrays(options.numberOfOutputs, options.outputChannelCount);
+                parameters = Array.from(proxy.parameters.keys()).reduce(function (prmtrs, name, index) {
+                  return Object.assign({}, prmtrs, _defineProperty({}, name, renderedBuffer.getChannelData(numberOfInputChannels + index)));
+                }, {});
+
+                _loop = function _loop(i) {
+                  for (var j = 0; j < options.numberOfInputs; j += 1) {
+                    for (var k = 0; k < options.channelCount; k += 1) {
+                      // Bug #5: Safari does not support copyFromChannel().
+                      var slicedRenderedBuffer = renderedBuffer.getChannelData(k).slice(i, i + 128);
+                      inputs[j][k].set(slicedRenderedBuffer);
+                    }
+                  }
+
+                  if (processorDefinition.parameterDescriptors !== undefined) {
+                    processorDefinition.parameterDescriptors.forEach(function (_ref2, index) {
+                      var name = _ref2.name;
+                      var slicedRenderedBuffer = renderedBuffer.getChannelData(numberOfInputChannels + index).slice(i, i + 128);
+                      parameters[name].set(slicedRenderedBuffer);
+                    });
+                  }
+
+                  try {
+                    var potentiallyEmptyInputs = inputs.map(function (input, index) {
+                      if (audioNodeConnections.inputs[index].size === 0) {
+                        return [];
+                      }
+
+                      return input;
+                    });
+                    var activeSourceFlag = audioWorkletProcessor.process(potentiallyEmptyInputs, outputs, parameters);
+
+                    if (processedBuffer !== null) {
+                      for (var _j = 0, outputChannelSplitterNodeOutput = 0; _j < options.numberOfOutputs; _j += 1) {
+                        for (var _k = 0; _k < options.outputChannelCount[_j]; _k += 1) {
+                          // Bug #5: Safari does not support copyToChannel().
+                          processedBuffer.getChannelData(outputChannelSplitterNodeOutput + _k).set(outputs[_j][_k], i);
+                        }
+
+                        outputChannelSplitterNodeOutput += options.outputChannelCount[_j];
+                      }
+                    }
+
+                    if (!activeSourceFlag) {
+                      return "break";
+                    }
+                  } catch (_a) {
+                    if (proxy.onprocessorerror !== null) {
+                      proxy.onprocessorerror.call(null, new ErrorEvent('processorerror'));
+                    }
+
+                    return "break";
+                  }
+                };
+
+                i = 0;
+
+              case 15:
+                if (!(i < length)) {
+                  _context.next = 22;
+                  break;
+                }
+
+                _ret = _loop(i);
+
+                if (!(_ret === "break")) {
+                  _context.next = 19;
+                  break;
+                }
+
+                return _context.abrupt("break", 22);
+
+              case 19:
+                i += 128;
+                _context.next = 15;
+                break;
+
+              case 22:
+                return _context.abrupt("return", processedBuffer);
+
+              case 23:
+              case "end":
+                return _context.stop();
+            }
+          }
+        }, _callee, this);
+      }));
+
+      return function processBuffer(_x, _x2, _x3, _x4, _x5) {
+        return _ref.apply(this, arguments);
+      };
+    }();
+
+    var createAudioWorkletNodeRendererFactory = function createAudioWorkletNodeRendererFactory(connectMultipleOutputs, createNativeAudioBufferSourceNode, createNativeChannelMergerNode, createNativeChannelSplitterNode, createNativeConstantSourceNode, createNativeGainNode, disconnectMultipleOutputs, nativeAudioWorkletNodeConstructor, nativeOfflineAudioContextConstructor, renderNativeOfflineAudioContext) {
+      return function (name, options, processorDefinition) {
+        var nativeAudioNode = null;
+        return {
+          render: function () {
+            var _render = _asyncToGenerator(
+            /*#__PURE__*/
+            _regeneratorRuntime.mark(function _callee4(proxy, nativeOfflineAudioContext) {
+              var numberOfInputChannels, numberOfParameters, partialOfflineAudioContext, gainNodes, inputChannelSplitterNodes, i, constantSourceNodes, inputChannelMergerNode, _i, j, _arr, _i2, _arr$_i, index, constantSourceNode, _arr2, _i5, _arr2$_i, nm, audioParam, _arr3, _i6, _arr3$_i;
+
+              return _regeneratorRuntime.wrap(function _callee4$(_context4) {
+                while (1) {
+                  switch (_context4.prev = _context4.next) {
+                    case 0:
+                      if (!(nativeAudioNode !== null)) {
+                        _context4.next = 2;
+                        break;
+                      }
+
+                      return _context4.abrupt("return", nativeAudioNode);
+
+                    case 2:
+                      nativeAudioNode = getNativeAudioNode(proxy); // Bug #61: Only Chrome & Opera have an implementation of the AudioWorkletNode yet.
+
+                      if (!(nativeAudioWorkletNodeConstructor === null)) {
+                        _context4.next = 23;
+                        break;
+                      }
+
+                      if (!(processorDefinition === undefined)) {
+                        _context4.next = 6;
+                        break;
+                      }
+
+                      throw new Error('Missing the processor definition.');
+
+                    case 6:
+                      if (!(nativeOfflineAudioContextConstructor === null)) {
+                        _context4.next = 8;
+                        break;
+                      }
+
+                      throw new Error('Missing the native (Offline)AudioContext constructor.');
+
+                    case 8:
+                      // Bug #47: The AudioDestinationNode in Edge and Safari gets not initialized correctly.
+                      numberOfInputChannels = proxy.channelCount * proxy.numberOfInputs;
+                      numberOfParameters = processorDefinition.parameterDescriptors === undefined ? 0 : processorDefinition.parameterDescriptors.length;
+                      partialOfflineAudioContext = new nativeOfflineAudioContextConstructor(numberOfInputChannels + numberOfParameters, // Ceil the length to the next full render quantum.
+                      // Bug #17: Safari does not yet expose the length.
+                      Math.ceil(proxy.context.length / 128) * 128, nativeOfflineAudioContext.sampleRate);
+                      gainNodes = [];
+                      inputChannelSplitterNodes = [];
+
+                      for (i = 0; i < options.numberOfInputs; i += 1) {
+                        gainNodes.push(createNativeGainNode(partialOfflineAudioContext, {
+                          channelCount: options.channelCount,
+                          channelCountMode: options.channelCountMode,
+                          channelInterpretation: options.channelInterpretation,
+                          gain: 1
+                        }));
+                        inputChannelSplitterNodes.push(createNativeChannelSplitterNode(partialOfflineAudioContext, {
+                          channelCount: options.channelCount,
+                          channelCountMode: 'explicit',
+                          channelInterpretation: 'discrete',
+                          numberOfOutputs: options.channelCount
+                        }));
+                      }
+
+                      _context4.next = 16;
+                      return Promise.all(Array.from(proxy.parameters.values()).map(
+                      /*#__PURE__*/
+                      function () {
+                        var _ref3 = _asyncToGenerator(
+                        /*#__PURE__*/
+                        _regeneratorRuntime.mark(function _callee2(audioParam) {
+                          var constantSourceNode;
+                          return _regeneratorRuntime.wrap(function _callee2$(_context2) {
+                            while (1) {
+                              switch (_context2.prev = _context2.next) {
+                                case 0:
+                                  constantSourceNode = createNativeConstantSourceNode(partialOfflineAudioContext, {
+                                    channelCount: 1,
+                                    channelCountMode: 'explicit',
+                                    channelInterpretation: 'discrete',
+                                    offset: audioParam.value
+                                  });
+                                  _context2.next = 3;
+                                  return renderAutomation(proxy.context, partialOfflineAudioContext, audioParam, constantSourceNode.offset);
+
+                                case 3:
+                                  return _context2.abrupt("return", constantSourceNode);
+
+                                case 4:
+                                case "end":
+                                  return _context2.stop();
+                              }
+                            }
+                          }, _callee2, this);
+                        }));
+
+                        return function (_x8) {
+                          return _ref3.apply(this, arguments);
+                        };
+                      }()));
+
+                    case 16:
+                      constantSourceNodes = _context4.sent;
+                      inputChannelMergerNode = createNativeChannelMergerNode(partialOfflineAudioContext, {
+                        numberOfInputs: Math.max(1, numberOfInputChannels + numberOfParameters)
+                      });
+
+                      for (_i = 0; _i < options.numberOfInputs; _i += 1) {
+                        gainNodes[_i].connect(inputChannelSplitterNodes[_i]);
+
+                        for (j = 0; j < options.channelCount; j += 1) {
+                          inputChannelSplitterNodes[_i].connect(inputChannelMergerNode, j, _i * options.channelCount + j);
+                        }
+                      }
+
+                      _arr = Array.from(constantSourceNodes.entries());
+
+                      for (_i2 = 0; _i2 < _arr.length; _i2++) {
+                        _arr$_i = _slicedToArray(_arr[_i2], 2), index = _arr$_i[0], constantSourceNode = _arr$_i[1];
+                        constantSourceNode.connect(inputChannelMergerNode, 0, numberOfInputChannels + index);
+                        constantSourceNode.start(0);
+                      }
+
+                      inputChannelMergerNode.connect(partialOfflineAudioContext.destination);
+                      return _context4.abrupt("return", Promise.all(gainNodes.map(function (gainNode) {
+                        return renderInputsOfAudioNode(proxy, partialOfflineAudioContext, gainNode);
+                      })).then(function () {
+                        return renderNativeOfflineAudioContext(partialOfflineAudioContext);
+                      }).then(
+                      /*#__PURE__*/
+                      function () {
+                        var _ref4 = _asyncToGenerator(
+                        /*#__PURE__*/
+                        _regeneratorRuntime.mark(function _callee3(renderedBuffer) {
+                          var audioBufferSourceNode, numberOfOutputChannels, outputChannelSplitterNode, outputChannelMergerNodes, _i3, processedBuffer, _i4, outputChannelSplitterNodeOutput, outputChannelMergerNode, _j2, outputAudioNodes;
+
+                          return _regeneratorRuntime.wrap(function _callee3$(_context3) {
+                            while (1) {
+                              switch (_context3.prev = _context3.next) {
+                                case 0:
+                                  audioBufferSourceNode = createNativeAudioBufferSourceNode(nativeOfflineAudioContext);
+                                  numberOfOutputChannels = options.outputChannelCount.reduce(function (sum, value) {
+                                    return sum + value;
+                                  }, 0);
+                                  outputChannelSplitterNode = createNativeChannelSplitterNode(nativeOfflineAudioContext, {
+                                    channelCount: Math.max(1, numberOfOutputChannels),
+                                    channelCountMode: 'explicit',
+                                    channelInterpretation: 'discrete',
+                                    numberOfOutputs: Math.max(1, numberOfOutputChannels)
+                                  });
+                                  outputChannelMergerNodes = [];
+
+                                  for (_i3 = 0; _i3 < proxy.numberOfOutputs; _i3 += 1) {
+                                    outputChannelMergerNodes.push(createNativeChannelMergerNode(nativeOfflineAudioContext, {
+                                      numberOfInputs: options.outputChannelCount[_i3]
+                                    }));
+                                  }
+
+                                  _context3.next = 7;
+                                  return processBuffer(proxy, renderedBuffer, nativeOfflineAudioContext, options, processorDefinition);
+
+                                case 7:
+                                  processedBuffer = _context3.sent;
+
+                                  if (processedBuffer !== null) {
+                                    audioBufferSourceNode.buffer = processedBuffer;
+                                    audioBufferSourceNode.start(0);
+                                  }
+
+                                  audioBufferSourceNode.connect(outputChannelSplitterNode);
+
+                                  for (_i4 = 0, outputChannelSplitterNodeOutput = 0; _i4 < proxy.numberOfOutputs; _i4 += 1) {
+                                    outputChannelMergerNode = outputChannelMergerNodes[_i4];
+
+                                    for (_j2 = 0; _j2 < options.outputChannelCount[_i4]; _j2 += 1) {
+                                      outputChannelSplitterNode.connect(outputChannelMergerNode, outputChannelSplitterNodeOutput + _j2, _j2);
+                                    }
+
+                                    outputChannelSplitterNodeOutput += options.outputChannelCount[_i4];
+                                  } // Bug #87: Expose at least one output to make this node connectable.
+
+
+                                  outputAudioNodes = options.numberOfOutputs === 0 ? [outputChannelSplitterNode] : outputChannelMergerNodes;
+
+                                  audioBufferSourceNode.connect = function () {
+                                    return connectMultipleOutputs(outputAudioNodes, arguments.length <= 0 ? undefined : arguments[0], arguments.length <= 1 ? undefined : arguments[1], arguments.length <= 2 ? undefined : arguments[2]);
+                                  };
+
+                                  audioBufferSourceNode.disconnect = function () {
+                                    return disconnectMultipleOutputs(outputAudioNodes, arguments.length <= 0 ? undefined : arguments[0], arguments.length <= 1 ? undefined : arguments[1], arguments.length <= 2 ? undefined : arguments[2]);
+                                  };
+
+                                  nativeAudioNode = audioBufferSourceNode;
+                                  return _context3.abrupt("return", nativeAudioNode);
+
+                                case 16:
+                                case "end":
+                                  return _context3.stop();
+                              }
+                            }
+                          }, _callee3, this);
+                        }));
+
+                        return function (_x9) {
+                          return _ref4.apply(this, arguments);
+                        };
+                      }()));
+
+                    case 23:
+                      if (isOwnedByContext(nativeAudioNode, nativeOfflineAudioContext)) {
+                        _context4.next = 36;
+                        break;
+                      }
+
+                      nativeAudioNode = new nativeAudioWorkletNodeConstructor(nativeOfflineAudioContext, name); // @todo Using Array.from() is a lazy fix that should not be necessary forever.
+
+                      _arr2 = Array.from(proxy.parameters.entries());
+                      _i5 = 0;
+
+                    case 27:
+                      if (!(_i5 < _arr2.length)) {
+                        _context4.next = 34;
+                        break;
+                      }
+
+                      _arr2$_i = _slicedToArray(_arr2[_i5], 2), nm = _arr2$_i[0], audioParam = _arr2$_i[1];
+                      _context4.next = 31;
+                      return renderAutomation(proxy.context, nativeOfflineAudioContext, audioParam, nativeAudioNode.parameters.get(nm));
+
+                    case 31:
+                      _i5++;
+                      _context4.next = 27;
+                      break;
+
+                    case 34:
+                      _context4.next = 45;
+                      break;
+
+                    case 36:
+                      // @todo Using Array.from() is a lazy fix that should not be necessary forever.
+                      _arr3 = Array.from(proxy.parameters.entries());
+                      _i6 = 0;
+
+                    case 38:
+                      if (!(_i6 < _arr3.length)) {
+                        _context4.next = 45;
+                        break;
+                      }
+
+                      _arr3$_i = _slicedToArray(_arr3[_i6], 2), nm = _arr3$_i[0], audioParam = _arr3$_i[1];
+                      _context4.next = 42;
+                      return connectAudioParam(proxy.context, nativeOfflineAudioContext, audioParam, nativeAudioNode.parameters.get(nm));
+
+                    case 42:
+                      _i6++;
+                      _context4.next = 38;
+                      break;
+
+                    case 45:
+                      _context4.next = 47;
+                      return renderInputsOfAudioNode(proxy, nativeOfflineAudioContext, nativeAudioNode);
+
+                    case 47:
+                      return _context4.abrupt("return", nativeAudioNode);
+
+                    case 48:
+                    case "end":
+                      return _context4.stop();
+                  }
+                }
+              }, _callee4, this);
+            }));
+
+            return function render(_x6, _x7) {
+              return _render.apply(this, arguments);
+            };
+          }()
+        };
+      };
+    };
+
+    var createBaseAudioContextConstructor = function createBaseAudioContextConstructor(addAudioWorkletModule, analyserNodeConstructor, audioBufferConstructor, audioBufferSourceNodeConstructor, biquadFilterNodeConstructor, channelMergerNodeConstructor, channelSplitterNodeConstructor, constantSourceNodeConstructor, _decodeAudioData, gainNodeConstructor, iIRFilterNodeConstructor, minimalBaseAudioContextConstructor, oscillatorNodeConstructor, stereoPannerNodeConstructor, waveShaperNodeConstructor) {
+      return (
+        /*#__PURE__*/
+        function (_minimalBaseAudioCont) {
+          _inherits(BaseAudioContext, _minimalBaseAudioCont);
+
+          function BaseAudioContext(nativeContext, numberOfChannels) {
+            var _this;
+
+            _classCallCheck(this, BaseAudioContext);
+
+            _this = _possibleConstructorReturn(this, _getPrototypeOf(BaseAudioContext).call(this, nativeContext, numberOfChannels));
+            _this._audioWorklet = addAudioWorkletModule === undefined ? undefined : {
+              addModule: function addModule(moduleURL, options) {
+                return addAudioWorkletModule(_assertThisInitialized(_assertThisInitialized(_this)), moduleURL, options);
+              }
+            };
+            _this._nativeContext = nativeContext;
+            return _this;
+          }
+
+          _createClass(BaseAudioContext, [{
+            key: "createAnalyser",
+            value: function createAnalyser() {
+              return new analyserNodeConstructor(this);
+            }
+          }, {
+            key: "createBiquadFilter",
+            value: function createBiquadFilter() {
+              return new biquadFilterNodeConstructor(this);
+            }
+          }, {
+            key: "createBuffer",
+            value: function createBuffer(numberOfChannels, length, sampleRate) {
+              return new audioBufferConstructor({
+                length: length,
+                numberOfChannels: numberOfChannels,
+                sampleRate: sampleRate
+              });
+            }
+          }, {
+            key: "createBufferSource",
+            value: function createBufferSource() {
+              return new audioBufferSourceNodeConstructor(this);
+            }
+          }, {
+            key: "createChannelMerger",
+            value: function createChannelMerger() {
+              var numberOfInputs = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 6;
+              return new channelMergerNodeConstructor(this, {
+                numberOfInputs: numberOfInputs
+              });
+            }
+          }, {
+            key: "createChannelSplitter",
+            value: function createChannelSplitter() {
+              var numberOfOutputs = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 6;
+              return new channelSplitterNodeConstructor(this, {
+                numberOfOutputs: numberOfOutputs
+              });
+            }
+          }, {
+            key: "createConstantSource",
+            value: function createConstantSource() {
+              return new constantSourceNodeConstructor(this);
+            }
+          }, {
+            key: "createGain",
+            value: function createGain() {
+              return new gainNodeConstructor(this);
+            }
+          }, {
+            key: "createIIRFilter",
+            value: function createIIRFilter(feedforward, feedback) {
+              return new iIRFilterNodeConstructor(this, {
+                feedback: feedback,
+                feedforward: feedforward
+              });
+            }
+          }, {
+            key: "createOscillator",
+            value: function createOscillator() {
+              return new oscillatorNodeConstructor(this);
+            }
+          }, {
+            key: "createStereoPanner",
+            value: function createStereoPanner() {
+              return new stereoPannerNodeConstructor(this);
+            }
+          }, {
+            key: "createWaveShaper",
+            value: function createWaveShaper() {
+              return new waveShaperNodeConstructor(this);
+            }
+          }, {
+            key: "decodeAudioData",
+            value: function decodeAudioData(audioData, successCallback, errorCallback) {
+              return _decodeAudioData(this._nativeContext, audioData).then(function (audioBuffer) {
+                if (typeof successCallback === 'function') {
+                  successCallback(audioBuffer);
+                }
+
+                return audioBuffer;
+              }).catch(function (err) {
+                if (typeof errorCallback === 'function') {
+                  errorCallback(err);
+                }
+
+                throw err; // tslint:disable-line:rxjs-throw-error
+              });
+            }
+          }, {
+            key: "audioWorklet",
+            get: function get() {
+              return this._audioWorklet;
+            }
+          }]);
+
+          return BaseAudioContext;
+        }(minimalBaseAudioContextConstructor)
+      );
+    };
+
+    var DEFAULT_OPTIONS$4 = {
+      Q: 1,
+      channelCount: 2,
+      channelCountMode: 'max',
+      channelInterpretation: 'speakers',
+      detune: 0,
+      frequency: 350,
+      gain: 0,
+      type: 'lowpass'
+    };
+    var createBiquadFilterNodeConstructor = function createBiquadFilterNodeConstructor(createAudioParam, createBiquadFilterNodeRenderer, createInvalidAccessError, createNativeBiquadFilterNode, isNativeOfflineAudioContext, noneAudioDestinationNodeConstructor) {
+      return (
+        /*#__PURE__*/
+        function (_noneAudioDestination) {
+          _inherits(BiquadFilterNode, _noneAudioDestination);
+
+          function BiquadFilterNode(context) {
+            var _this;
+
+            var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : DEFAULT_OPTIONS$4;
+
+            _classCallCheck(this, BiquadFilterNode);
+
+            var nativeContext = getNativeContext(context);
+            var mergedOptions = Object.assign({}, DEFAULT_OPTIONS$4, options);
+            var nativeBiquadFilterNode = createNativeBiquadFilterNode(nativeContext, mergedOptions);
+            var isOffline = isNativeOfflineAudioContext(nativeContext);
+            var biquadFilterNodeRenderer = isOffline ? createBiquadFilterNodeRenderer() : null;
+            _this = _possibleConstructorReturn(this, _getPrototypeOf(BiquadFilterNode).call(this, context, nativeBiquadFilterNode, biquadFilterNodeRenderer)); // Bug #80: Edge, Firefox & Safari do not export the correct values for maxValue and minValue.
+
+            _this._Q = createAudioParam(context, isOffline, nativeBiquadFilterNode.Q, 3.4028234663852886e38, -3.4028234663852886e38); // Bug #78: Edge, Firefox & Safari do not export the correct values for maxValue and minValue.
+
+            _this._detune = createAudioParam(context, isOffline, nativeBiquadFilterNode.detune, 3.4028234663852886e38, -3.4028234663852886e38); // Bug #77: Chrome, Edge, Firefox, Opera & Safari do not export the correct values for maxValue and minValue.
+
+            _this._frequency = createAudioParam(context, isOffline, nativeBiquadFilterNode.frequency, 3.4028234663852886e38, -3.4028234663852886e38); // Bug #79: Edge, Firefox & Safari do not export the correct values for maxValue and minValue.
+
+            _this._gain = createAudioParam(context, isOffline, nativeBiquadFilterNode.gain, 3.4028234663852886e38, -3.4028234663852886e38);
+            _this._nativeBiquadFilterNode = nativeBiquadFilterNode;
+            return _this;
+          }
+
+          _createClass(BiquadFilterNode, [{
+            key: "getFrequencyResponse",
+            value: function getFrequencyResponse(frequencyHz, magResponse, phaseResponse) {
+              this._nativeBiquadFilterNode.getFrequencyResponse(frequencyHz, magResponse, phaseResponse); // Bug #68: Only Chrome & Opera do throw an error if the parameters differ in their length.
+
+
+              if (frequencyHz.length !== magResponse.length || magResponse.length !== phaseResponse.length) {
+                throw createInvalidAccessError();
+              }
+            }
+          }, {
+            key: "Q",
+            get: function get() {
+              return this._Q;
+            }
+          }, {
+            key: "detune",
+            get: function get() {
+              return this._detune;
+            }
+          }, {
+            key: "frequency",
+            get: function get() {
+              return this._frequency;
+            }
+          }, {
+            key: "gain",
+            get: function get() {
+              return this._gain;
+            }
+          }, {
+            key: "type",
+            get: function get() {
+              return this._nativeBiquadFilterNode.type;
+            },
+            set: function set(value) {
+              this._nativeBiquadFilterNode.type = value;
+            }
+          }]);
+
+          return BiquadFilterNode;
+        }(noneAudioDestinationNodeConstructor)
+      );
+    };
+
+    var createBiquadFilterNodeRendererFactory = function createBiquadFilterNodeRendererFactory(createNativeBiquadFilterNode) {
+      return function () {
+        var nativeBiquadFilterNode = null;
+        return {
+          render: function () {
+            var _render = _asyncToGenerator(
+            /*#__PURE__*/
+            _regeneratorRuntime.mark(function _callee(proxy, nativeOfflineAudioContext) {
+              var options;
+              return _regeneratorRuntime.wrap(function _callee$(_context) {
+                while (1) {
+                  switch (_context.prev = _context.next) {
+                    case 0:
+                      if (!(nativeBiquadFilterNode !== null)) {
+                        _context.next = 2;
+                        break;
+                      }
+
+                      return _context.abrupt("return", nativeBiquadFilterNode);
+
+                    case 2:
+                      nativeBiquadFilterNode = getNativeAudioNode(proxy);
+                      /*
+                       * If the initially used nativeBiquadFilterNode was not constructed on the same OfflineAudioContext it needs to be created
+                       * again.
+                       */
+
+                      if (isOwnedByContext(nativeBiquadFilterNode, nativeOfflineAudioContext)) {
+                        _context.next = 16;
+                        break;
+                      }
+
+                      options = {
+                        Q: nativeBiquadFilterNode.Q.value,
+                        channelCount: nativeBiquadFilterNode.channelCount,
+                        channelCountMode: nativeBiquadFilterNode.channelCountMode,
+                        channelInterpretation: nativeBiquadFilterNode.channelInterpretation,
+                        detune: nativeBiquadFilterNode.detune.value,
+                        frequency: nativeBiquadFilterNode.frequency.value,
+                        gain: nativeBiquadFilterNode.gain.value,
+                        type: nativeBiquadFilterNode.type
+                      };
+                      nativeBiquadFilterNode = createNativeBiquadFilterNode(nativeOfflineAudioContext, options);
+                      _context.next = 8;
+                      return renderAutomation(proxy.context, nativeOfflineAudioContext, proxy.Q, nativeBiquadFilterNode.Q);
+
+                    case 8:
+                      _context.next = 10;
+                      return renderAutomation(proxy.context, nativeOfflineAudioContext, proxy.detune, nativeBiquadFilterNode.detune);
+
+                    case 10:
+                      _context.next = 12;
+                      return renderAutomation(proxy.context, nativeOfflineAudioContext, proxy.frequency, nativeBiquadFilterNode.frequency);
+
+                    case 12:
+                      _context.next = 14;
+                      return renderAutomation(proxy.context, nativeOfflineAudioContext, proxy.gain, nativeBiquadFilterNode.gain);
+
+                    case 14:
+                      _context.next = 24;
+                      break;
+
+                    case 16:
+                      _context.next = 18;
+                      return connectAudioParam(proxy.context, nativeOfflineAudioContext, proxy.Q);
+
+                    case 18:
+                      _context.next = 20;
+                      return connectAudioParam(proxy.context, nativeOfflineAudioContext, proxy.detune);
+
+                    case 20:
+                      _context.next = 22;
+                      return connectAudioParam(proxy.context, nativeOfflineAudioContext, proxy.frequency);
+
+                    case 22:
+                      _context.next = 24;
+                      return connectAudioParam(proxy.context, nativeOfflineAudioContext, proxy.gain);
+
+                    case 24:
+                      _context.next = 26;
+                      return renderInputsOfAudioNode(proxy, nativeOfflineAudioContext, nativeBiquadFilterNode);
+
+                    case 26:
+                      return _context.abrupt("return", nativeBiquadFilterNode);
+
+                    case 27:
+                    case "end":
+                      return _context.stop();
+                  }
+                }
+              }, _callee, this);
+            }));
+
+            return function render(_x, _x2) {
+              return _render.apply(this, arguments);
+            };
+          }()
+        };
+      };
+    };
+
+    var DEFAULT_OPTIONS$5 = {
+      channelCount: 1,
+      channelCountMode: 'explicit',
+      channelInterpretation: 'speakers',
+      numberOfInputs: 6
+    };
+    var createChannelMergerNodeConstructor = function createChannelMergerNodeConstructor(createChannelMergerNodeRenderer, createNativeChannelMergerNode, isNativeOfflineAudioContext, noneAudioDestinationNodeConstructor) {
+      return (
+        /*#__PURE__*/
+        function (_noneAudioDestination) {
+          _inherits(ChannelMergerNode, _noneAudioDestination);
+
+          function ChannelMergerNode(context) {
+            var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : DEFAULT_OPTIONS$5;
+
+            _classCallCheck(this, ChannelMergerNode);
+
+            var nativeContext = getNativeContext(context);
+            var mergedOptions = Object.assign({}, DEFAULT_OPTIONS$5, options);
+            var nativeChannelMergerNode = createNativeChannelMergerNode(nativeContext, mergedOptions);
+            var channelMergerNodeRenderer = isNativeOfflineAudioContext(nativeContext) ? createChannelMergerNodeRenderer() : null;
+            return _possibleConstructorReturn(this, _getPrototypeOf(ChannelMergerNode).call(this, context, nativeChannelMergerNode, channelMergerNodeRenderer));
+          }
+
+          return ChannelMergerNode;
+        }(noneAudioDestinationNodeConstructor)
+      );
+    };
+
+    var createChannelMergerNodeRendererFactory = function createChannelMergerNodeRendererFactory(createNativeChannelMergerNode) {
+      return function () {
+        var nativeAudioNode = null;
+        return {
+          render: function () {
+            var _render = _asyncToGenerator(
+            /*#__PURE__*/
+            _regeneratorRuntime.mark(function _callee(proxy, nativeOfflineAudioContext) {
+              var options;
+              return _regeneratorRuntime.wrap(function _callee$(_context) {
+                while (1) {
+                  switch (_context.prev = _context.next) {
+                    case 0:
+                      if (!(nativeAudioNode !== null)) {
+                        _context.next = 2;
+                        break;
+                      }
+
+                      return _context.abrupt("return", nativeAudioNode);
+
+                    case 2:
+                      nativeAudioNode = getNativeAudioNode(proxy); // If the initially used nativeAudioNode was not constructed on the same OfflineAudioContext it needs to be created again.
+
+                      if (!isOwnedByContext(nativeAudioNode, nativeOfflineAudioContext)) {
+                        options = {
+                          channelCount: nativeAudioNode.channelCount,
+                          channelCountMode: nativeAudioNode.channelCountMode,
+                          channelInterpretation: nativeAudioNode.channelInterpretation,
+                          numberOfInputs: nativeAudioNode.numberOfInputs
+                        };
+                        nativeAudioNode = createNativeChannelMergerNode(nativeOfflineAudioContext, options);
+                      }
+
+                      _context.next = 6;
+                      return renderInputsOfAudioNode(proxy, nativeOfflineAudioContext, nativeAudioNode);
+
+                    case 6:
+                      return _context.abrupt("return", nativeAudioNode);
+
+                    case 7:
+                    case "end":
+                      return _context.stop();
+                  }
+                }
+              }, _callee, this);
+            }));
+
+            return function render(_x, _x2) {
+              return _render.apply(this, arguments);
+            };
+          }()
+        };
+      };
+    };
+
+    var DEFAULT_OPTIONS$6 = {
+      channelCount: 6,
+      channelCountMode: 'explicit',
+      channelInterpretation: 'discrete',
+      numberOfOutputs: 6
+    };
+
+    var sanitizedOptions$1 = function sanitizedOptions(options) {
+      return Object.assign({}, options, {
+        channelCount: options.numberOfOutputs
+      });
+    };
+
+    var createChannelSplitterNodeConstructor = function createChannelSplitterNodeConstructor(createChannelSplitterNodeRenderer, createNativeChannelSplitterNode, isNativeOfflineAudioContext, noneAudioDestinationNodeConstructor) {
+      return (
+        /*#__PURE__*/
+        function (_noneAudioDestination) {
+          _inherits(ChannelSplitterNode, _noneAudioDestination);
+
+          function ChannelSplitterNode(context) {
+            var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : DEFAULT_OPTIONS$6;
+
+            _classCallCheck(this, ChannelSplitterNode);
+
+            var nativeContext = getNativeContext(context);
+            var mergedOptions = sanitizedOptions$1(Object.assign({}, DEFAULT_OPTIONS$6, options));
+            var nativeChannelSplitterNode = createNativeChannelSplitterNode(nativeContext, mergedOptions);
+            var channelSplitterNodeRenderer = isNativeOfflineAudioContext(nativeContext) ? createChannelSplitterNodeRenderer() : null;
+            return _possibleConstructorReturn(this, _getPrototypeOf(ChannelSplitterNode).call(this, context, nativeChannelSplitterNode, channelSplitterNodeRenderer));
+          }
+
+          return ChannelSplitterNode;
+        }(noneAudioDestinationNodeConstructor)
+      );
+    };
+
+    var createChannelSplitterNodeRendererFactory = function createChannelSplitterNodeRendererFactory(createNativeChannelSplitterNode) {
+      return function () {
+        var nativeAudioNode = null;
+        return {
+          render: function () {
+            var _render = _asyncToGenerator(
+            /*#__PURE__*/
+            _regeneratorRuntime.mark(function _callee(proxy, nativeOfflineAudioContext) {
+              var options;
+              return _regeneratorRuntime.wrap(function _callee$(_context) {
+                while (1) {
+                  switch (_context.prev = _context.next) {
+                    case 0:
+                      if (!(nativeAudioNode !== null)) {
+                        _context.next = 2;
+                        break;
+                      }
+
+                      return _context.abrupt("return", nativeAudioNode);
+
+                    case 2:
+                      nativeAudioNode = getNativeAudioNode(proxy); // If the initially used nativeAudioNode was not constructed on the same OfflineAudioContext it needs to be created again.
+
+                      if (!isOwnedByContext(nativeAudioNode, nativeOfflineAudioContext)) {
+                        options = {
+                          channelCount: nativeAudioNode.channelCount,
+                          channelCountMode: nativeAudioNode.channelCountMode,
+                          channelInterpretation: nativeAudioNode.channelInterpretation,
+                          numberOfOutputs: nativeAudioNode.numberOfOutputs
+                        };
+                        nativeAudioNode = createNativeChannelSplitterNode(nativeOfflineAudioContext, options);
+                      }
+
+                      _context.next = 6;
+                      return renderInputsOfAudioNode(proxy, nativeOfflineAudioContext, nativeAudioNode);
+
+                    case 6:
+                      return _context.abrupt("return", nativeAudioNode);
+
+                    case 7:
+                    case "end":
+                      return _context.stop();
+                  }
+                }
+              }, _callee, this);
+            }));
+
+            return function render(_x, _x2) {
+              return _render.apply(this, arguments);
+            };
+          }()
+        };
+      };
+    };
+
+    var isNativeAudioNode = function isNativeAudioNode(nativeAudioNodeOrAudioParam) {
+      return nativeAudioNodeOrAudioParam.context !== undefined;
+    };
+
+    var createConnectMultipleOutputs = function createConnectMultipleOutputs(createIndexSizeError) {
+      return function (outputAudioNodes, destinationAudioNodeOrAudioParam) {
+        var output = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 0;
+        var input = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : 0;
+        var outputAudioNode = outputAudioNodes[output];
+
+        if (outputAudioNode === undefined) {
+          throw createIndexSizeError();
+        }
+
+        if (isNativeAudioNode(destinationAudioNodeOrAudioParam)) {
+          return outputAudioNode.connect(destinationAudioNodeOrAudioParam, 0, input);
+        }
+
+        return outputAudioNode.connect(destinationAudioNodeOrAudioParam, 0);
+      };
+    };
+
+    var DEFAULT_OPTIONS$7 = {
+      channelCount: 2,
+      channelCountMode: 'max',
+      channelInterpretation: 'speakers',
+      offset: 1
+    };
+    var createConstantSourceNodeConstructor = function createConstantSourceNodeConstructor(createAudioParam, createConstantSourceNodeRendererFactory, createNativeConstantSourceNode, isNativeOfflineAudioContext, noneAudioDestinationNodeConstructor) {
+      return (
+        /*#__PURE__*/
+        function (_noneAudioDestination) {
+          _inherits(ConstantSourceNode, _noneAudioDestination);
+
+          function ConstantSourceNode(context) {
+            var _this;
+
+            var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : DEFAULT_OPTIONS$7;
+
+            _classCallCheck(this, ConstantSourceNode);
+
+            var nativeContext = getNativeContext(context);
+            var mergedOptions = Object.assign({}, DEFAULT_OPTIONS$7, options);
+            var nativeConstantSourceNode = createNativeConstantSourceNode(nativeContext, mergedOptions);
+            var isOffline = isNativeOfflineAudioContext(nativeContext);
+            var constantSourceNodeRenderer = isOffline ? createConstantSourceNodeRendererFactory() : null;
+            _this = _possibleConstructorReturn(this, _getPrototypeOf(ConstantSourceNode).call(this, context, nativeConstantSourceNode, constantSourceNodeRenderer));
+            _this._constantSourceNodeRenderer = constantSourceNodeRenderer;
+            _this._nativeConstantSourceNode = nativeConstantSourceNode;
+            /*
+             * Bug #62 & #74: Edge & Safari do not support ConstantSourceNodes and do not export the correct values for maxValue and
+             * minValue for GainNodes.
+             * Bug #75: Firefox does not export the correct values for maxValue and minValue.
+             */
+
+            _this._offset = createAudioParam(context, isOffline, nativeConstantSourceNode.offset, 3.4028234663852886e38, -3.4028234663852886e38);
+            return _this;
+          }
+
+          _createClass(ConstantSourceNode, [{
+            key: "start",
+            value: function start() {
+              var when = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 0;
+
+              this._nativeConstantSourceNode.start(when);
+
+              if (this._constantSourceNodeRenderer !== null) {
+                this._constantSourceNodeRenderer.start = when;
+              }
+            }
+          }, {
+            key: "stop",
+            value: function stop() {
+              var when = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 0;
+
+              this._nativeConstantSourceNode.stop(when);
+
+              if (this._constantSourceNodeRenderer !== null) {
+                this._constantSourceNodeRenderer.stop = when;
+              }
+            }
+          }, {
+            key: "offset",
+            get: function get() {
+              return this._offset;
+            }
+          }, {
+            key: "onended",
+            get: function get() {
+              return this._nativeConstantSourceNode.onended;
+            },
+            set: function set(value) {
+              this._nativeConstantSourceNode.onended = value;
+            }
+          }]);
+
+          return ConstantSourceNode;
+        }(noneAudioDestinationNodeConstructor)
+      );
+    };
+
+    var createConstantSourceNodeRendererFactory = function createConstantSourceNodeRendererFactory(createNativeConstantSourceNode) {
+      return function () {
+        var nativeConstantSourceNode = null;
+        var start = null;
+        var stop = null;
+        return {
+          set start(value) {
+            start = value;
+          },
+
+          set stop(value) {
+            stop = value;
+          },
+
+          render: function () {
+            var _render = _asyncToGenerator(
+            /*#__PURE__*/
+            _regeneratorRuntime.mark(function _callee(proxy, nativeOfflineAudioContext) {
+              var options;
+              return _regeneratorRuntime.wrap(function _callee$(_context) {
+                while (1) {
+                  switch (_context.prev = _context.next) {
+                    case 0:
+                      if (!(nativeConstantSourceNode !== null)) {
+                        _context.next = 2;
+                        break;
+                      }
+
+                      return _context.abrupt("return", nativeConstantSourceNode);
+
+                    case 2:
+                      nativeConstantSourceNode = getNativeAudioNode(proxy);
+                      /*
+                       * If the initially used nativeConstantSourceNode was not constructed on the same OfflineAudioContext it needs to be
+                       * created again.
+                       */
+
+                      if (isOwnedByContext(nativeConstantSourceNode, nativeOfflineAudioContext)) {
+                        _context.next = 12;
+                        break;
+                      }
+
+                      options = {
+                        channelCount: nativeConstantSourceNode.channelCount,
+                        channelCountMode: nativeConstantSourceNode.channelCountMode,
+                        channelInterpretation: nativeConstantSourceNode.channelInterpretation,
+                        offset: nativeConstantSourceNode.offset.value
+                      };
+                      nativeConstantSourceNode = createNativeConstantSourceNode(nativeOfflineAudioContext, options);
+
+                      if (start !== null) {
+                        nativeConstantSourceNode.start(start);
+                      }
+
+                      if (stop !== null) {
+                        nativeConstantSourceNode.stop(stop);
+                      }
+
+                      _context.next = 10;
+                      return renderAutomation(proxy.context, nativeOfflineAudioContext, proxy.offset, nativeConstantSourceNode.offset);
+
+                    case 10:
+                      _context.next = 14;
+                      break;
+
+                    case 12:
+                      _context.next = 14;
+                      return connectAudioParam(proxy.context, nativeOfflineAudioContext, proxy.offset);
+
+                    case 14:
+                      _context.next = 16;
+                      return renderInputsOfAudioNode(proxy, nativeOfflineAudioContext, nativeConstantSourceNode);
+
+                    case 16:
+                      return _context.abrupt("return", nativeConstantSourceNode);
+
+                    case 17:
+                    case "end":
+                      return _context.stop();
+                  }
+                }
+              }, _callee, this);
+            }));
+
+            return function render(_x, _x2) {
+              return _render.apply(this, arguments);
+            };
+          }()
+        };
+      };
+    };
+
+    var createDataCloneError = function createDataCloneError() {
+      try {
+        return new DOMException('', 'DataCloneError');
+      } catch (err) {
+        err.code = 25;
+        err.name = 'DataCloneError';
+        return err;
+      }
+    };
+
+    var createDecodeAudioData = function createDecodeAudioData(createDataCloneError, createEncodingError, nativeOfflineAudioContextConstructor, isNativeOfflineAudioContext, testAudioBufferCopyChannelMethodsSubarraySupport, testPromiseSupport) {
+      return function (nativeContext, audioData) {
+        // Bug #43: Only Chrome and Opera do throw a DataCloneError.
+        if (DETACHED_ARRAY_BUFFERS.has(audioData)) {
+          var err = createDataCloneError();
+          return Promise.reject(err);
+        } // The audioData parameter maybe of a type which can't be added to a WeakSet.
+
+
+        try {
+          DETACHED_ARRAY_BUFFERS.add(audioData);
+        } catch (_a) {} // Ignore errors.
+        // Bug #21: Safari does not support promises yet.
+
+
+        if (cacheTestResult(testPromiseSupport, function () {
+          return testPromiseSupport(nativeContext);
+        })) {
+          // Bug #101: Edge does not decode something on a closed OfflineAudioContext.
+          var nativeContextOrBackupNativeContext = nativeContext.state === 'closed' && nativeOfflineAudioContextConstructor !== null && isNativeOfflineAudioContext(nativeContext) ? new nativeOfflineAudioContextConstructor(1, 1, nativeContext.sampleRate) : nativeContext;
+          var promise = nativeContextOrBackupNativeContext.decodeAudioData(audioData).catch(function (err) {
+            // Bug #27: Edge is rejecting invalid arrayBuffers with a DOMException.
+            if (err instanceof DOMException && err.name === 'NotSupportedError') {
+              throw new TypeError();
+            }
+
+            throw err;
+          });
+          setTimeout(function () {
+            try {
+              asyncArrayBuffer.deallocate(audioData);
+            } catch (
+            /* Ignore errors. */
+            _a) {
+              /* Ignore errors. */
+            }
+          });
+          return promise.then(function (audioBuffer) {
+            // Bug #42: Firefox does not yet fully support copyFromChannel() and copyToChannel().
+            if (!cacheTestResult(testAudioBufferCopyChannelMethodsSubarraySupport, function () {
+              return testAudioBufferCopyChannelMethodsSubarraySupport(audioBuffer);
+            })) {
+              wrapAudioBufferCopyChannelMethodsSubarray(audioBuffer);
+            }
+
+            return audioBuffer;
+          });
+        } // Bug #21: Safari does not return a Promise yet.
+
+
+        return new Promise(function (resolve, reject) {
+          var complete = function complete() {
+            try {
+              asyncArrayBuffer.deallocate(audioData);
+            } catch (
+            /* Ignore errors. */
+            _a) {
+              /* Ignore errors. */
+            }
+          };
+
+          var fail = function fail(err) {
+            reject(err);
+            complete();
+          };
+
+          var succeed = function succeed(dBffrWrppr) {
+            resolve(dBffrWrppr);
+            complete();
+          }; // Bug #26: Safari throws a synchronous error.
+
+
+          try {
+            // Bug #1: Safari requires a successCallback.
+            nativeContext.decodeAudioData(audioData, function (audioBuffer) {
+              // Bug #5: Safari does not support copyFromChannel() and copyToChannel().
+              // Bug #100: Safari does throw a wrong error when calling getChannelData() with an out-of-bounds value.
+              if (typeof audioBuffer.copyFromChannel !== 'function') {
+                wrapAudioBufferCopyChannelMethods(audioBuffer);
+                wrapAudioBufferGetChannelDataMethod(audioBuffer);
+              }
+
+              succeed(audioBuffer);
+            }, function (err) {
+              // Bug #4: Safari returns null instead of an error.
+              if (err === null) {
+                fail(createEncodingError());
+              } else {
+                fail(err);
+              }
+            });
+          } catch (err) {
+            fail(err);
+          }
+        });
+      };
+    };
+
+    var getOutputAudioNodeAtIndex = function getOutputAudioNodeAtIndex(createIndexSizeError, outputAudioNodes, output) {
+      var outputAudioNode = outputAudioNodes[output];
+
+      if (outputAudioNode === undefined) {
+        throw createIndexSizeError();
+      }
+
+      return outputAudioNode;
+    };
+
+    var createDisconnectMultipleOutputs = function createDisconnectMultipleOutputs(createIndexSizeError) {
+      return function (outputAudioNodes) {
+        var outputOrDestinationAudioNodeOrAudioParam = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : undefined;
+        var output = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : undefined;
+        var input = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : 0;
+
+        if (outputOrDestinationAudioNodeOrAudioParam === undefined) {
+          return outputAudioNodes.forEach(function (outputAudioNode) {
+            return outputAudioNode.disconnect();
+          });
+        }
+
+        if (typeof outputOrDestinationAudioNodeOrAudioParam === 'number') {
+          return getOutputAudioNodeAtIndex(createIndexSizeError, outputAudioNodes, outputOrDestinationAudioNodeOrAudioParam).disconnect();
+        }
+
+        if (isNativeAudioNode(outputOrDestinationAudioNodeOrAudioParam)) {
+          if (output === undefined) {
+            return outputAudioNodes.forEach(function (outputAudioNode) {
+              return outputAudioNode.disconnect(outputOrDestinationAudioNodeOrAudioParam);
+            });
+          }
+
+          if (input === undefined) {
+            return getOutputAudioNodeAtIndex(createIndexSizeError, outputAudioNodes, output).disconnect(outputOrDestinationAudioNodeOrAudioParam, 0);
+          }
+
+          return getOutputAudioNodeAtIndex(createIndexSizeError, outputAudioNodes, output).disconnect(outputOrDestinationAudioNodeOrAudioParam, 0, input);
+        }
+
+        if (output === undefined) {
+          return outputAudioNodes.forEach(function (outputAudioNode) {
+            return outputAudioNode.disconnect(outputOrDestinationAudioNodeOrAudioParam);
+          });
+        }
+
+        return getOutputAudioNodeAtIndex(createIndexSizeError, outputAudioNodes, output).disconnect(outputOrDestinationAudioNodeOrAudioParam, 0);
+      };
+    };
+
+    var createEncodingError = function createEncodingError() {
+      try {
+        return new DOMException('', 'EncodingError');
+      } catch (err) {
+        err.code = 0;
+        err.name = 'EncodingError';
+        return err;
+      }
+    };
+
+    var DEFAULT_OPTIONS$8 = {
+      channelCount: 2,
+      channelCountMode: 'max',
+      channelInterpretation: 'speakers',
+      gain: 1
+    };
+    var createGainNodeConstructor = function createGainNodeConstructor(createAudioParam, createGainNodeRenderer, createNativeGainNode, isNativeOfflineAudioContext, noneAudioDestinationNodeConstructor) {
+      return (
+        /*#__PURE__*/
+        function (_noneAudioDestination) {
+          _inherits(GainNode, _noneAudioDestination);
+
+          function GainNode(context) {
+            var _this;
+
+            var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : DEFAULT_OPTIONS$8;
+
+            _classCallCheck(this, GainNode);
+
+            var nativeContext = getNativeContext(context);
+            var mergedOptions = Object.assign({}, DEFAULT_OPTIONS$8, options);
+            var nativeGainNode = createNativeGainNode(nativeContext, mergedOptions);
+            var isOffline = isNativeOfflineAudioContext(nativeContext);
+            var gainNodeRenderer = isOffline ? createGainNodeRenderer() : null;
+            _this = _possibleConstructorReturn(this, _getPrototypeOf(GainNode).call(this, context, nativeGainNode, gainNodeRenderer)); // Bug #74: Edge, Firefox & Safari do not export the correct values for maxValue and minValue.
+
+            _this._gain = createAudioParam(context, isOffline, nativeGainNode.gain, 3.4028234663852886e38, -3.4028234663852886e38);
+            return _this;
+          }
+
+          _createClass(GainNode, [{
+            key: "gain",
+            get: function get() {
+              return this._gain;
+            }
+          }]);
+
+          return GainNode;
+        }(noneAudioDestinationNodeConstructor)
+      );
+    };
+
+    var createGainNodeRendererFactory = function createGainNodeRendererFactory(createNativeGainNode) {
+      return function () {
+        var nativeGainNode = null;
+        return {
+          render: function () {
+            var _render = _asyncToGenerator(
+            /*#__PURE__*/
+            _regeneratorRuntime.mark(function _callee(proxy, nativeOfflineAudioContext) {
+              var options;
+              return _regeneratorRuntime.wrap(function _callee$(_context) {
+                while (1) {
+                  switch (_context.prev = _context.next) {
+                    case 0:
+                      if (!(nativeGainNode !== null)) {
+                        _context.next = 2;
+                        break;
+                      }
+
+                      return _context.abrupt("return", nativeGainNode);
+
+                    case 2:
+                      nativeGainNode = getNativeAudioNode(proxy); // If the initially used nativeGainNode was not constructed on the same OfflineAudioContext it needs to be created again.
+
+                      if (isOwnedByContext(nativeGainNode, nativeOfflineAudioContext)) {
+                        _context.next = 10;
+                        break;
+                      }
+
+                      options = {
+                        channelCount: nativeGainNode.channelCount,
+                        channelCountMode: nativeGainNode.channelCountMode,
+                        channelInterpretation: nativeGainNode.channelInterpretation,
+                        gain: nativeGainNode.gain.value
+                      };
+                      nativeGainNode = createNativeGainNode(nativeOfflineAudioContext, options);
+                      _context.next = 8;
+                      return renderAutomation(proxy.context, nativeOfflineAudioContext, proxy.gain, nativeGainNode.gain);
+
+                    case 8:
+                      _context.next = 12;
+                      break;
+
+                    case 10:
+                      _context.next = 12;
+                      return connectAudioParam(proxy.context, nativeOfflineAudioContext, proxy.gain);
+
+                    case 12:
+                      _context.next = 14;
+                      return renderInputsOfAudioNode(proxy, nativeOfflineAudioContext, nativeGainNode);
+
+                    case 14:
+                      return _context.abrupt("return", nativeGainNode);
+
+                    case 15:
+                    case "end":
+                      return _context.stop();
+                  }
+                }
+              }, _callee, this);
+            }));
+
+            return function render(_x, _x2) {
+              return _render.apply(this, arguments);
+            };
+          }()
+        };
+      };
+    };
+
+    var createGetBackupNativeContext = function createGetBackupNativeContext(isNativeOfflineAudioContext, nativeAudioContextConstructor, nativeOfflineAudioContextConstructor) {
+      return function (nativeContext) {
+        /*
+         * Bug #50: Only Safari does currently allow to create AudioNodes on a closed context yet which is why there needs to be no
+         * backupNativeContext in that case.
+         */
+        if (nativeContext.state === 'closed' && !window.hasOwnProperty('webkitAudioContext')) {
+          if (isNativeOfflineAudioContext(nativeContext)) {
+            var backupNativeContext = BACKUP_NATIVE_CONTEXT_STORE.get(nativeContext);
+
+            if (backupNativeContext !== undefined) {
+              return backupNativeContext;
+            }
+
+            if (nativeOfflineAudioContextConstructor !== null) {
+              // @todo Copy the attached AudioWorkletProcessors and other settings.
+              var bckpNtveCntxt = new nativeOfflineAudioContextConstructor(1, 1, 44100);
+              BACKUP_NATIVE_CONTEXT_STORE.set(nativeContext, bckpNtveCntxt);
+              return bckpNtveCntxt;
+            }
+          } else {
+            var _backupNativeContext = BACKUP_NATIVE_CONTEXT_STORE.get(nativeContext);
+
+            if (_backupNativeContext !== undefined) {
+              return _backupNativeContext;
+            }
+
+            if (nativeAudioContextConstructor !== null) {
+              // @todo Copy the attached AudioWorkletProcessors and other settings.
+              var _bckpNtveCntxt = new nativeAudioContextConstructor();
+
+              BACKUP_NATIVE_CONTEXT_STORE.set(nativeContext, _bckpNtveCntxt);
+              return _bckpNtveCntxt;
+            }
+          }
+        }
+
+        return null;
+      };
+    };
+
+    var createInvalidAccessError = function createInvalidAccessError() {
+      try {
+        return new DOMException('', 'InvalidAccessError');
+      } catch (err) {
+        err.code = 15;
+        err.name = 'InvalidAccessError';
+        return err;
+      }
+    };
+
+    var wrapIIRFilterNodeGetFrequencyResponseMethod = function wrapIIRFilterNodeGetFrequencyResponseMethod(nativeIIRFilterNode) {
+      nativeIIRFilterNode.getFrequencyResponse = function (getFrequencyResponse) {
+        return function (frequencyHz, magResponse, phaseResponse) {
+          if (frequencyHz.length !== magResponse.length || magResponse.length !== phaseResponse.length) {
+            throw createInvalidAccessError();
+          }
+
+          return getFrequencyResponse.call(nativeIIRFilterNode, frequencyHz, magResponse, phaseResponse);
+        };
+      }(nativeIIRFilterNode.getFrequencyResponse);
+    };
+
+    var DEFAULT_OPTIONS$9 = {
+      channelCount: 2,
+      channelCountMode: 'max',
+      channelInterpretation: 'speakers'
+    };
+    var createIIRFilterNodeConstructor = function createIIRFilterNodeConstructor(createNativeIIRFilterNode, createIIRFilterNodeRenderer, isNativeOfflineAudioContext, noneAudioDestinationNodeConstructor) {
+      return (
+        /*#__PURE__*/
+        function (_noneAudioDestination) {
+          _inherits(IIRFilterNode, _noneAudioDestination);
+
+          function IIRFilterNode(context, options) {
+            var _this;
+
+            _classCallCheck(this, IIRFilterNode);
+
+            var nativeContext = getNativeContext(context);
+            var mergedOptions = Object.assign({}, DEFAULT_OPTIONS$9, options);
+            var nativeIIRFilterNode = createNativeIIRFilterNode(nativeContext, mergedOptions);
+            var iirFilterNodeRenderer = isNativeOfflineAudioContext(nativeContext) ? createIIRFilterNodeRenderer(mergedOptions.feedback, mergedOptions.feedforward) : null;
+            _this = _possibleConstructorReturn(this, _getPrototypeOf(IIRFilterNode).call(this, context, nativeIIRFilterNode, iirFilterNodeRenderer)); // Bug #23 & #24: FirefoxDeveloper does not throw an InvalidAccessError.
+            // @todo Write a test which allows other browsers to remain unpatched.
+
+            wrapIIRFilterNodeGetFrequencyResponseMethod(nativeIIRFilterNode);
+            _this._nativeIIRFilterNode = nativeIIRFilterNode;
+            return _this;
+          }
+
+          _createClass(IIRFilterNode, [{
+            key: "getFrequencyResponse",
+            value: function getFrequencyResponse(frequencyHz, magResponse, phaseResponse) {
+              return this._nativeIIRFilterNode.getFrequencyResponse(frequencyHz, magResponse, phaseResponse);
+            }
+          }]);
+
+          return IIRFilterNode;
+        }(noneAudioDestinationNodeConstructor)
+      );
+    };
+
+    // This implementation as shamelessly inspired by source code of
+    // tslint:disable-next-line:max-line-length
+    // {@link https://chromium.googlesource.com/chromium/src.git/+/master/third_party/WebKit/Source/platform/audio/IIRFilter.cpp|Chromium's IIRFilter}.
+    var filterBuffer = function filterBuffer(feedback, feedbackLength, feedforward, feedforwardLength, minLength, xBuffer, yBuffer, bufferIndex, bufferLength, input, output) {
+      var inputLength = input.length;
+      var i = bufferIndex;
+
+      for (var j = 0; j < inputLength; j += 1) {
+        var y = feedforward[0] * input[j];
+
+        for (var k = 1; k < minLength; k += 1) {
+          var x = i - k & bufferLength - 1; // tslint:disable-line:no-bitwise
+
+          y += feedforward[k] * xBuffer[x];
+          y -= feedback[k] * yBuffer[x];
+        }
+
+        for (var _k = minLength; _k < feedforwardLength; _k += 1) {
+          y += feedforward[_k] * xBuffer[i - _k & bufferLength - 1]; // tslint:disable-line:no-bitwise
+        }
+
+        for (var _k2 = minLength; _k2 < feedbackLength; _k2 += 1) {
+          y -= feedback[_k2] * yBuffer[i - _k2 & bufferLength - 1]; // tslint:disable-line:no-bitwise
+        }
+
+        xBuffer[i] = input[j];
+        yBuffer[i] = y;
+        i = i + 1 & bufferLength - 1; // tslint:disable-line:no-bitwise
+
+        output[j] = y;
+      }
+
+      return i;
+    };
+
+    var filterFullBuffer = function filterFullBuffer(renderedBuffer, nativeOfflineAudioContext, feedback, feedforward) {
+      var feedbackLength = feedback.length;
+      var feedforwardLength = feedforward.length;
+      var minLength = Math.min(feedbackLength, feedforwardLength);
+
+      if (feedback[0] !== 1) {
+        for (var i = 0; i < feedbackLength; i += 1) {
+          feedforward[i] /= feedback[0];
+        }
+
+        for (var _i = 1; _i < feedforwardLength; _i += 1) {
+          feedback[_i] /= feedback[0];
+        }
+      }
+
+      var bufferLength = 32;
+      var xBuffer = new Float32Array(bufferLength);
+      var yBuffer = new Float32Array(bufferLength);
+      var filteredBuffer = nativeOfflineAudioContext.createBuffer(renderedBuffer.numberOfChannels, renderedBuffer.length, renderedBuffer.sampleRate);
+      var numberOfChannels = renderedBuffer.numberOfChannels;
+
+      for (var _i2 = 0; _i2 < numberOfChannels; _i2 += 1) {
+        var input = renderedBuffer.getChannelData(_i2);
+        var output = filteredBuffer.getChannelData(_i2); // @todo Add a test which checks support for TypedArray.prototype.fill().
+
+        xBuffer.fill(0);
+        yBuffer.fill(0);
+        filterBuffer(feedback, feedbackLength, feedforward, feedforwardLength, minLength, xBuffer, yBuffer, 0, bufferLength, input, output);
+      }
+
+      return filteredBuffer;
+    };
+
+    var createIIRFilterNodeRendererFactory = function createIIRFilterNodeRendererFactory(createNativeAudioBufferSourceNode, createNativeAudioNode, nativeOfflineAudioContextConstructor, renderNativeOfflineAudioContext) {
+      return function (feedback, feedforward) {
+        var nativeAudioNode = null;
+        return {
+          render: function () {
+            var _render = _asyncToGenerator(
+            /*#__PURE__*/
+            _regeneratorRuntime.mark(function _callee(proxy, nativeOfflineAudioContext) {
+              var partialOfflineAudioContext, renderedBuffer, audioBufferSourceNode;
+              return _regeneratorRuntime.wrap(function _callee$(_context) {
+                while (1) {
+                  switch (_context.prev = _context.next) {
+                    case 0:
+                      if (!(nativeAudioNode !== null)) {
+                        _context.next = 2;
+                        break;
+                      }
+
+                      return _context.abrupt("return", nativeAudioNode);
+
+                    case 2:
+                      if (!(nativeOfflineAudioContextConstructor === null)) {
+                        _context.next = 4;
+                        break;
+                      }
+
+                      throw new Error();
+
+                    case 4:
+                      nativeAudioNode = getNativeAudioNode(proxy); // Bug #9: Safari does not support IIRFilterNodes.
+
+                      if (!(nativeOfflineAudioContext.createIIRFilter === undefined)) {
+                        _context.next = 19;
+                        break;
+                      }
+
+                      partialOfflineAudioContext = new nativeOfflineAudioContextConstructor( // Bug #47: The AudioDestinationNode in Edge and Safari gets not initialized correctly.
+                      proxy.context.destination.channelCount, // Bug #17: Safari does not yet expose the length.
+                      proxy.context.length, nativeOfflineAudioContext.sampleRate);
+                      _context.next = 9;
+                      return renderInputsOfAudioNode(proxy, partialOfflineAudioContext, partialOfflineAudioContext.destination);
+
+                    case 9:
+                      _context.next = 11;
+                      return renderNativeOfflineAudioContext(partialOfflineAudioContext);
+
+                    case 11:
+                      renderedBuffer = _context.sent;
+                      audioBufferSourceNode = createNativeAudioBufferSourceNode(nativeOfflineAudioContext);
+                      audioBufferSourceNode.buffer = filterFullBuffer(renderedBuffer, nativeOfflineAudioContext, feedback, feedforward);
+                      audioBufferSourceNode.start(0);
+                      nativeAudioNode = audioBufferSourceNode;
+                      return _context.abrupt("return", nativeAudioNode);
+
+                    case 19:
+                      /*
+                       * If the initially used nativeAudioNode was not constructed on the same OfflineAudioContext it needs to be created
+                       * again.
+                       */
+                      if (!isOwnedByContext(nativeAudioNode, nativeOfflineAudioContext)) {
+                        nativeAudioNode = createNativeAudioNode(nativeOfflineAudioContext, function (ntvCntxt) {
+                          return ntvCntxt.createIIRFilter(feedforward, feedback);
+                        });
+                      }
+
+                      _context.next = 22;
+                      return renderInputsOfAudioNode(proxy, nativeOfflineAudioContext, nativeAudioNode);
+
+                    case 22:
+                      return _context.abrupt("return", nativeAudioNode);
+
+                    case 23:
+                    case "end":
+                      return _context.stop();
+                  }
+                }
+              }, _callee, this);
+            }));
+
+            return function render(_x, _x2) {
+              return _render.apply(this, arguments);
+            };
+          }()
+        };
+      };
+    };
+
+    var createIsNativeOfflineAudioContext = function createIsNativeOfflineAudioContext(nativeOfflineAudioContextConstructor) {
+      return function (nativeContext) {
+        if (nativeOfflineAudioContextConstructor === null) {
+          throw new Error('The native OfflineAudioContext constructor is missing.');
+        }
+
+        return nativeContext instanceof nativeOfflineAudioContextConstructor;
+      };
+    };
+
+    var createIsSecureContext = function createIsSecureContext(window) {
+      return window !== null && window.isSecureContext;
+    };
+
+    var createIsSupportedPromise = function createIsSupportedPromise(browsernizr, testAsyncArrayBufferSupport, testAudioContextCloseMethodSupport, testAudioContextDecodeAudioDataMethodTypeErrorSupport, testAudioContextOptionsSupport, testChannelMergerNodeSupport, testChannelSplitterNodeChannelCountSupport, testIsSecureContextSupport) {
+      if (browsernizr.promises && browsernizr.typedarrays && browsernizr.webaudio && cacheTestResult(testAudioContextCloseMethodSupport, function () {
+        return testAudioContextCloseMethodSupport();
+      }) && cacheTestResult(testAudioContextOptionsSupport, function () {
+        return testAudioContextOptionsSupport();
+      }) && cacheTestResult(testChannelSplitterNodeChannelCountSupport, function () {
+        return testChannelSplitterNodeChannelCountSupport();
+      }) && cacheTestResult(testIsSecureContextSupport, function () {
+        return testIsSecureContextSupport();
+      })) {
+        return Promise.all([cacheTestResult(testAsyncArrayBufferSupport, function () {
+          return testAsyncArrayBufferSupport();
+        }), cacheTestResult(testAudioContextDecodeAudioDataMethodTypeErrorSupport, function () {
+          return testAudioContextDecodeAudioDataMethodTypeErrorSupport();
+        }), cacheTestResult(testChannelMergerNodeSupport, function () {
+          return testChannelMergerNodeSupport();
+        })]).then(function (_ref) {
+          var _ref2 = _slicedToArray(_ref, 3),
+              asyncArrayBufferSupport = _ref2[0],
+              audioContextDecodeAudioDataMethodTypeErrorSupport = _ref2[1],
+              channelMergerNodeSupport = _ref2[2];
+
+          return asyncArrayBufferSupport && audioContextDecodeAudioDataMethodTypeErrorSupport && channelMergerNodeSupport;
+        });
+      }
+
+      return Promise.resolve(false);
+    };
+
+    var getNativeAudioContext = function getNativeAudioContext(audioContext) {
+      var nativeContext = CONTEXT_STORE.get(audioContext);
+
+      if (nativeContext === undefined) {
+        throw createInvalidStateError();
+      }
+
+      return nativeContext;
+    };
+
+    var DEFAULT_OPTIONS$a = {
+      channelCount: 2,
+      channelCountMode: 'max',
+      channelInterpretation: 'speakers'
+    };
+    var createMediaElementAudioSourceNodeConstructor = function createMediaElementAudioSourceNodeConstructor(createNativeMediaElementAudioSourceNode, noneAudioDestinationNodeConstructor) {
+      return (
+        /*#__PURE__*/
+        function (_noneAudioDestination) {
+          _inherits(MediaElementAudioSourceNode, _noneAudioDestination);
+
+          function MediaElementAudioSourceNode(context, options) {
+            var _this;
+
+            _classCallCheck(this, MediaElementAudioSourceNode);
+
+            var nativeContext = getNativeAudioContext(context);
+            var mergedOptions = Object.assign({}, DEFAULT_OPTIONS$a, options);
+            var nativeMediaElementAudioSourceNode = createNativeMediaElementAudioSourceNode(nativeContext, mergedOptions);
+            _this = _possibleConstructorReturn(this, _getPrototypeOf(MediaElementAudioSourceNode).call(this, context, nativeMediaElementAudioSourceNode, null)); // Bug #63: Edge & Firefox do not expose the mediaElement yet.
+
+            _this._mediaElement = mergedOptions.mediaElement;
+            _this._nativeMediaElementAudioSourceNode = nativeMediaElementAudioSourceNode;
+            return _this;
+          }
+
+          _createClass(MediaElementAudioSourceNode, [{
+            key: "mediaElement",
+            get: function get() {
+              return this._nativeMediaElementAudioSourceNode.mediaElement === undefined ? this._mediaElement : this._nativeMediaElementAudioSourceNode.mediaElement;
+            }
+          }]);
+
+          return MediaElementAudioSourceNode;
+        }(noneAudioDestinationNodeConstructor)
+      );
+    };
+
+    var DEFAULT_OPTIONS$b = {
+      channelCount: 2,
+      channelCountMode: 'max',
+      channelInterpretation: 'speakers'
+    };
+    var createMediaStreamAudioSourceNodeConstructor = function createMediaStreamAudioSourceNodeConstructor(createNativeMediaStreamAudioSourceNode, noneAudioDestinationNodeConstructor) {
+      return (
+        /*#__PURE__*/
+        function (_noneAudioDestination) {
+          _inherits(MediaStreamAudioSourceNode, _noneAudioDestination);
+
+          function MediaStreamAudioSourceNode(context, options) {
+            var _this;
+
+            _classCallCheck(this, MediaStreamAudioSourceNode);
+
+            var nativeContext = getNativeAudioContext(context);
+            var mergedOptions = Object.assign({}, DEFAULT_OPTIONS$b, options);
+            var nativeMediaStreamAudioSourceNode = createNativeMediaStreamAudioSourceNode(nativeContext, mergedOptions);
+            _this = _possibleConstructorReturn(this, _getPrototypeOf(MediaStreamAudioSourceNode).call(this, context, nativeMediaStreamAudioSourceNode, null)); // Bug #63: Edge & Firefox do not expose the mediaStream yet.
+
+            _this._mediaStream = mergedOptions.mediaStream;
+            _this._nativeMediaStreamAudioSourceNode = nativeMediaStreamAudioSourceNode;
+            return _this;
+          }
+
+          _createClass(MediaStreamAudioSourceNode, [{
+            key: "mediaStream",
+            get: function get() {
+              return this._nativeMediaStreamAudioSourceNode.mediaStream === undefined ? this._mediaStream : this._nativeMediaStreamAudioSourceNode.mediaStream;
+            }
+          }]);
+
+          return MediaStreamAudioSourceNode;
+        }(noneAudioDestinationNodeConstructor)
+      );
+    };
+
+    var createMinimalAudioContextConstructor = function createMinimalAudioContextConstructor(createInvalidStateError, minimalBaseAudioContextConstructor, nativeAudioContextConstructor) {
+      return (
+        /*#__PURE__*/
+        function (_minimalBaseAudioCont) {
+          _inherits(MinimalAudioContext, _minimalBaseAudioCont);
+
+          function MinimalAudioContext() {
+            var _this;
+
+            var options = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
+
+            _classCallCheck(this, MinimalAudioContext);
+
+            if (nativeAudioContextConstructor === null) {
+              throw new Error(); // @todo
+            }
+
+            var nativeAudioContext = new nativeAudioContextConstructor(options); // Bug #51 Only Chrome and Opera throw an error if the given latencyHint is invalid.
+
+            if (!isValidLatencyHint(options.latencyHint)) {
+              throw new TypeError("The provided value '".concat(options.latencyHint, "' is not a valid enum value of type AudioContextLatencyCategory."));
+            }
+
+            _this = _possibleConstructorReturn(this, _getPrototypeOf(MinimalAudioContext).call(this, nativeAudioContext, nativeAudioContext.destination.channelCount));
+            _this._state = null;
+            _this._nativeAudioContext = nativeAudioContext;
+            /*
+             * Bug #34: Chrome and Opera pretend to be running right away, but fire an onstatechange event when the state actually
+             * changes to 'running'.
+             */
+
+            if (nativeAudioContext.state === 'running') {
+              _this._state = 'suspended';
+
+              var revokeState = function revokeState() {
+                if (_this._state === 'suspended') {
+                  _this._state = null;
+                }
+
+                if (nativeAudioContext.removeEventListener) {
+                  nativeAudioContext.removeEventListener('statechange', revokeState);
+                }
+              };
+
+              nativeAudioContext.addEventListener('statechange', revokeState);
+            }
+
+            return _this;
+          }
+
+          _createClass(MinimalAudioContext, [{
+            key: "close",
+            value: function close() {
+              // Bug #35: Firefox does not throw an error if the AudioContext was closed before.
+              if (this.state === 'closed') {
+                return this._nativeAudioContext.close().then(function () {
+                  throw createInvalidStateError();
+                });
+              } // Bug #34: If the state was set to suspended before it should be revoked now.
+
+
+              if (this._state === 'suspended') {
+                this._state = null;
+              }
+
+              return this._nativeAudioContext.close();
+              /*
+               * Bug #50: Deleting the AudioGraph is currently not possible anymore.
+               * ...then(() => deleteAudioGraph(this, this._nativeAudioContext));
+               */
+            }
+          }, {
+            key: "resume",
+            value: function resume() {
+              return this._nativeAudioContext.resume().catch(function (err) {
+                // Bug #55: Chrome, Edge and Opera do throw an InvalidAccessError instead of an InvalidStateError.
+                // Bug #56: Safari invokes the catch handler but without an error.
+                if (err === undefined || err.code === 15) {
+                  throw createInvalidStateError();
+                }
+
+                throw err; // tslint:disable-line:rxjs-throw-error
+              });
+            }
+          }, {
+            key: "suspend",
+            value: function suspend() {
+              return this._nativeAudioContext.suspend().catch(function (err) {
+                // Bug #56: Safari invokes the catch handler but without an error.
+                if (err === undefined) {
+                  throw createInvalidStateError();
+                }
+
+                throw err; // tslint:disable-line:rxjs-throw-error
+              });
+            }
+          }, {
+            key: "state",
+            get: function get() {
+              return this._state !== null ? this._state : this._nativeAudioContext.state;
+            }
+          }]);
+
+          return MinimalAudioContext;
+        }(minimalBaseAudioContextConstructor)
+      );
+    };
+
+    var createMinimalBaseAudioContextConstructor = function createMinimalBaseAudioContextConstructor(audioDestinationNodeConstructor) {
+      return (
+        /*#__PURE__*/
+        function (_EventTarget) {
+          _inherits(MinimalBaseAudioContext, _EventTarget);
+
+          function MinimalBaseAudioContext(nativeContext, numberOfChannels) {
+            var _this;
+
+            _classCallCheck(this, MinimalBaseAudioContext);
+
+            _this = _possibleConstructorReturn(this, _getPrototypeOf(MinimalBaseAudioContext).call(this));
+            CONTEXT_STORE.set(_assertThisInitialized(_assertThisInitialized(_this)), nativeContext); // Bug #93: Edge will set the sampleRate of an AudioContext to zero when it is closed.
+
+            var sampleRate = nativeContext.sampleRate;
+            Object.defineProperty(nativeContext, 'sampleRate', {
+              get: function get() {
+                return sampleRate;
+              }
+            });
+            _this._nativeContext = nativeContext;
+            _this._destination = new audioDestinationNodeConstructor(_assertThisInitialized(_assertThisInitialized(_this)), numberOfChannels);
+            return _this;
+          }
+
+          _createClass(MinimalBaseAudioContext, [{
+            key: "currentTime",
+            get: function get() {
+              return this._nativeContext.currentTime;
+            }
+          }, {
+            key: "destination",
+            get: function get() {
+              return this._destination;
+            }
+          }, {
+            key: "onstatechange",
+            get: function get() {
+              return this._nativeContext.onstatechange;
+            },
+            set: function set(value) {
+              this._nativeContext.onstatechange = value;
+            }
+          }, {
+            key: "sampleRate",
+            get: function get() {
+              return this._nativeContext.sampleRate;
+            }
+          }, {
+            key: "state",
+            get: function get() {
+              return this._nativeContext.state;
+            }
+          }]);
+
+          return MinimalBaseAudioContext;
+        }(EventTarget)
+      );
+    };
+
+    var testPromiseSupport = function testPromiseSupport(nativeContext) {
+      // This 12 numbers represent the 48 bytes of an empty WAVE file with a single sample.
+      var uint32Array = new Uint32Array([1179011410, 40, 1163280727, 544501094, 16, 131073, 44100, 176400, 1048580, 1635017060, 4, 0]);
+
+      try {
+        // Bug #1: Safari requires a successCallback.
+        var promise = nativeContext.decodeAudioData(uint32Array.buffer, function () {// Ignore the success callback.
+        });
+
+        if (promise === undefined) {
+          return false;
+        }
+
+        promise.catch(function () {// Ignore rejected errors.
+        });
+        return true;
+      } catch (_a) {// Ignore errors.
+      }
+
+      return false;
+    };
+
+    var DEFAULT_OPTIONS$c = {
+      numberOfChannels: 1
+    };
+    var createMinimalOfflineAudioContextConstructor = function createMinimalOfflineAudioContextConstructor(createInvalidStateError, minimalBaseAudioContextConstructor, nativeOfflineAudioContextConstructor, _startRendering) {
+      return (
+        /*#__PURE__*/
+        function (_minimalBaseAudioCont) {
+          _inherits(MinimalOfflineAudioContext, _minimalBaseAudioCont);
+
+          function MinimalOfflineAudioContext(options) {
+            var _this;
+
+            _classCallCheck(this, MinimalOfflineAudioContext);
+
+            if (nativeOfflineAudioContextConstructor === null) {
+              throw new Error(); // @todo
+            }
+
+            var _Object$assign = Object.assign({}, DEFAULT_OPTIONS$c, options),
+                length = _Object$assign.length,
+                numberOfChannels = _Object$assign.numberOfChannels,
+                sampleRate = _Object$assign.sampleRate;
+
+            var nativeOfflineAudioContext = new nativeOfflineAudioContextConstructor(numberOfChannels, length, sampleRate); // #21 Safari does not support promises and therefore would fire the statechange event before the promise can be resolved.
+
+            if (!cacheTestResult(testPromiseSupport, function () {
+              return testPromiseSupport(nativeOfflineAudioContext);
+            })) {
+              nativeOfflineAudioContext.addEventListener('statechange', function () {
+                var i = 0;
+
+                var delayStateChangeEvent = function delayStateChangeEvent(event) {
+                  if (_this._state === 'running') {
+                    if (i > 0) {
+                      nativeOfflineAudioContext.removeEventListener('statechange', delayStateChangeEvent);
+                      event.stopImmediatePropagation();
+
+                      _this._waitForThePromiseToSettle(event);
+                    } else {
+                      i += 1;
+                    }
+                  }
+                };
+
+                return delayStateChangeEvent;
+              }());
+            }
+
+            _this = _possibleConstructorReturn(this, _getPrototypeOf(MinimalOfflineAudioContext).call(this, nativeOfflineAudioContext, numberOfChannels));
+            _this._length = length;
+            _this._nativeOfflineAudioContext = nativeOfflineAudioContext;
+            _this._state = null;
+            return _this;
+          }
+
+          _createClass(MinimalOfflineAudioContext, [{
+            key: "startRendering",
+            value: function startRendering() {
+              var _this2 = this;
+
+              /*
+               * Bug #9 & #59: It is theoretically possible that startRendering() will first render a partialOfflineAudioContext. Therefore
+               * the state of the nativeOfflineAudioContext might no transition to running immediately.
+               */
+              if (this._state === 'running') {
+                return Promise.reject(createInvalidStateError());
+              }
+
+              this._state = 'running';
+              return _startRendering(this.destination, this._nativeOfflineAudioContext).then(function (audioBuffer) {
+                _this2._state = null;
+                /*
+                 * Bug #50: Deleting the AudioGraph is currently not possible anymore.
+                 * deleteAudioGraph(this, this._nativeOfflineAudioContext);
+                 */
+
+                return audioBuffer;
+              }) // @todo This could be written more elegantly when Promise.finally() becomes avalaible.
+              .catch(function (err) {
+                _this2._state = null;
+                /*
+                 * Bug #50: Deleting the AudioGraph is currently not possible anymore.
+                 * deleteAudioGraph(this, this._nativeOfflineAudioContext);
+                 */
+
+                throw err; // tslint:disable-line:rxjs-throw-error
+              });
+            }
+          }, {
+            key: "_waitForThePromiseToSettle",
+            value: function _waitForThePromiseToSettle(event) {
+              var _this3 = this;
+
+              if (this._state === null) {
+                this._nativeOfflineAudioContext.dispatchEvent(event);
+              } else {
+                setTimeout(function () {
+                  return _this3._waitForThePromiseToSettle(event);
+                });
+              }
+            }
+          }, {
+            key: "length",
+            get: function get() {
+              // Bug #17: Safari does not yet expose the length.
+              if (this._nativeOfflineAudioContext.length === undefined) {
+                return this._length;
+              }
+
+              return this._nativeOfflineAudioContext.length;
+            }
+          }, {
+            key: "state",
+            get: function get() {
+              return this._state === null ? this._nativeOfflineAudioContext.state : this._state;
+            }
+          }]);
+
+          return MinimalOfflineAudioContext;
+        }(minimalBaseAudioContextConstructor)
+      );
+    };
+
+    // @todo Use the same strategy to assign all node specific options as well.
+    var assignNativeAudioNodeOption = function assignNativeAudioNodeOption(nativeAudioNode, options, option) {
+      var value = options[option];
+
+      if (value !== undefined && value !== nativeAudioNode[option]) {
+        nativeAudioNode[option] = value;
+      }
+    };
+
+    var assignNativeAudioNodeOptions = function assignNativeAudioNodeOptions(nativeAudioNode) {
+      var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+      assignNativeAudioNodeOption(nativeAudioNode, options, 'channelCount');
+      assignNativeAudioNodeOption(nativeAudioNode, options, 'channelCountMode');
+      assignNativeAudioNodeOption(nativeAudioNode, options, 'channelInterpretation');
+    };
+
+    var testAnalyserNodeGetFloatTimeDomainDataMethodSupport = function testAnalyserNodeGetFloatTimeDomainDataMethodSupport(nativeAnalyserNode) {
+      return typeof nativeAnalyserNode.getFloatTimeDomainData === 'function';
+    };
+
+    var wrapAnalyserNodeGetFloatTimeDomainDataMethod = function wrapAnalyserNodeGetFloatTimeDomainDataMethod(nativeAnalyserNode) {
+      nativeAnalyserNode.getFloatTimeDomainData = function (array) {
+        var byteTimeDomainData = new Uint8Array(array.length);
+        nativeAnalyserNode.getByteTimeDomainData(byteTimeDomainData);
+        var length = Math.max(byteTimeDomainData.length, nativeAnalyserNode.fftSize);
+
+        for (var i = 0; i < length; i += 1) {
+          array[i] = (byteTimeDomainData[i] - 128) * 0.0078125;
+        }
+
+        return array;
+      };
+    };
+
+    var createNativeAnalyserNodeFactory = function createNativeAnalyserNodeFactory(createNativeAudioNode) {
+      return function (nativeContext, options) {
+        var nativeAnalyserNode = createNativeAudioNode(nativeContext, function (ntvCntxt) {
+          return ntvCntxt.createAnalyser();
+        });
+        assignNativeAudioNodeOptions(nativeAnalyserNode, options);
+
+        if (options.fftSize !== nativeAnalyserNode.fftSize) {
+          nativeAnalyserNode.fftSize = options.fftSize;
+        }
+
+        if (options.maxDecibels !== nativeAnalyserNode.maxDecibels) {
+          nativeAnalyserNode.maxDecibels = options.maxDecibels;
+        }
+
+        if (options.minDecibels !== nativeAnalyserNode.minDecibels) {
+          nativeAnalyserNode.minDecibels = options.minDecibels;
+        }
+
+        if (options.smoothingTimeConstant !== nativeAnalyserNode.smoothingTimeConstant) {
+          nativeAnalyserNode.smoothingTimeConstant = options.smoothingTimeConstant;
+        } // Bug #37: Only Edge and Safari create an AnalyserNode with the default properties.
+
+
+        if (nativeAnalyserNode.channelCount === 1) {
+          nativeAnalyserNode.channelCount = 2;
+        } // Bug #36: Safari does not support getFloatTimeDomainData() yet.
+
+
+        if (!cacheTestResult(testAnalyserNodeGetFloatTimeDomainDataMethodSupport, function () {
+          return testAnalyserNodeGetFloatTimeDomainDataMethodSupport(nativeAnalyserNode);
+        })) {
+          wrapAnalyserNodeGetFloatTimeDomainDataMethod(nativeAnalyserNode);
+        }
+
+        return nativeAnalyserNode;
+      };
+    };
+
+    var createNativeAudioBufferConstructor = function createNativeAudioBufferConstructor(window) {
+      if (window === null) {
+        return null;
+      }
+
+      if (window.hasOwnProperty('AudioBuffer')) {
+        // @todo TypeScript doesn't know yet about the AudioBuffer constructor.
+        return window.AudioBuffer;
+      }
+
+      return null;
+    };
+
+    var wrapAudioBufferSourceNodeStartMethodConsecutiveCalls = function wrapAudioBufferSourceNodeStartMethodConsecutiveCalls(nativeAudioBufferSourceNode) {
+      nativeAudioBufferSourceNode.start = function (start) {
+        var isScheduled = false;
+        return function () {
+          var when = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 0;
+          var offset = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 0;
+          var duration = arguments.length > 2 ? arguments[2] : undefined;
+
+          if (isScheduled) {
+            throw createInvalidStateError();
+          }
+
+          start.call(nativeAudioBufferSourceNode, when, offset, duration);
+          isScheduled = true;
+        };
+      }(nativeAudioBufferSourceNode.start);
+    };
+
+    var wrapAudioBufferSourceNodeStartMethodDurationParameter = function wrapAudioBufferSourceNodeStartMethodDurationParameter(nativeAudioScheduledSourceNode, nativeContext) {
+      var endTime = Number.POSITIVE_INFINITY;
+      var stopTime = Number.POSITIVE_INFINITY;
+
+      nativeAudioScheduledSourceNode.start = function (start, stop) {
+        return function () {
+          var when = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 0;
+          var offset = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 0;
+          var duration = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : Number.POSITIVE_INFINITY;
+          start.call(nativeAudioScheduledSourceNode, when, offset);
+
+          if (duration >= 0 && duration < Number.POSITIVE_INFINITY) {
+            var actualStartTime = Math.max(when, nativeContext.currentTime); // @todo The playbackRate could of course also have been automated and is not always fixed.
+
+            var durationInBufferTime = duration / nativeAudioScheduledSourceNode.playbackRate.value;
+            endTime = actualStartTime + durationInBufferTime;
+            stop.call(nativeAudioScheduledSourceNode, Math.min(endTime, stopTime));
+          }
+        };
+      }(nativeAudioScheduledSourceNode.start, nativeAudioScheduledSourceNode.stop);
+
+      nativeAudioScheduledSourceNode.stop = function (stop) {
+        return function () {
+          var when = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 0;
+          stopTime = Math.max(when, nativeContext.currentTime);
+          stop.call(nativeAudioScheduledSourceNode, Math.min(endTime, stopTime));
+        };
+      }(nativeAudioScheduledSourceNode.stop);
+    };
+
+    var wrapAudioScheduledSourceNodeStartMethodNegativeParameters = function wrapAudioScheduledSourceNodeStartMethodNegativeParameters(nativeAudioScheduledSourceNode) {
+      nativeAudioScheduledSourceNode.start = function (start) {
+        return function () {
+          var when = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 0;
+          var offset = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 0;
+          var duration = arguments.length > 2 ? arguments[2] : undefined;
+
+          if (typeof duration === 'number' && duration < 0 || offset < 0 || when < 0) {
+            throw new RangeError("The parameters can't be negative.");
+          }
+
+          start.call(nativeAudioScheduledSourceNode, when, offset, duration);
+        };
+      }(nativeAudioScheduledSourceNode.start);
+    };
+
+    var wrapAudioScheduledSourceNodeStopMethodNegativeParameters = function wrapAudioScheduledSourceNodeStopMethodNegativeParameters(nativeAudioScheduledSourceNode) {
+      nativeAudioScheduledSourceNode.stop = function (stop) {
+        return function () {
+          var when = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 0;
+
+          if (when < 0) {
+            throw new RangeError("The parameter can't be negative.");
+          }
+
+          stop.call(nativeAudioScheduledSourceNode, when);
+        };
+      }(nativeAudioScheduledSourceNode.stop);
+    };
+
+    var createNativeAudioBufferSourceNodeFactory = function createNativeAudioBufferSourceNodeFactory(createNativeAudioNode, testAudioBufferSourceNodeStartMethodConsecutiveCallsSupport, testAudioBufferSourceNodeStartMethodDurationParameterSupport, testAudioScheduledSourceNodeStartMethodNegativeParametersSupport, testAudioScheduledSourceNodeStopMethodConsecutiveCallsSupport, testAudioScheduledSourceNodeStopMethodNegativeParametersSupport, wrapAudioScheduledSourceNodeStopMethodConsecutiveCalls) {
+      return function (nativeContext) {
+        var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+        var nativeAudioBufferSourceNode = createNativeAudioNode(nativeContext, function (ntvCntxt) {
+          return ntvCntxt.createBufferSource();
+        });
+        assignNativeAudioNodeOptions(nativeAudioBufferSourceNode, options); // Bug #71: Edge does not allow to set the buffer to null.
+
+        if (options.buffer !== undefined && options.buffer !== null) {
+          nativeAudioBufferSourceNode.buffer = options.buffer;
+        } // @todo if (options.detune !== undefined) {
+        // @todo    nativeAudioBufferSourceNode.detune.value = options.detune;
+        // @todo }
+
+
+        if (options.loop !== undefined) {
+          nativeAudioBufferSourceNode.loop = options.loop;
+        }
+
+        if (options.loopEnd !== undefined) {
+          nativeAudioBufferSourceNode.loopEnd = options.loopEnd;
+        }
+
+        if (options.loopStart !== undefined) {
+          nativeAudioBufferSourceNode.loopStart = options.loopStart;
+        }
+
+        if (options.playbackRate !== undefined) {
+          nativeAudioBufferSourceNode.playbackRate.value = options.playbackRate;
+        } // Bug #69: Safari does allow calls to start() of an already scheduled AudioBufferSourceNode.
+
+
+        if (!cacheTestResult(testAudioBufferSourceNodeStartMethodConsecutiveCallsSupport, function () {
+          return testAudioBufferSourceNodeStartMethodConsecutiveCallsSupport(nativeContext);
+        })) {
+          wrapAudioBufferSourceNodeStartMethodConsecutiveCalls(nativeAudioBufferSourceNode);
+        } // Bug #92: Edge does not respect the duration parameter yet.
+
+
+        if (!cacheTestResult(testAudioBufferSourceNodeStartMethodDurationParameterSupport, function () {
+          return testAudioBufferSourceNodeStartMethodDurationParameterSupport();
+        })) {
+          wrapAudioBufferSourceNodeStartMethodDurationParameter(nativeAudioBufferSourceNode, nativeContext);
+        } // Bug #44: Only Chrome & Opera throw a RangeError yet.
+
+
+        if (!cacheTestResult(testAudioScheduledSourceNodeStartMethodNegativeParametersSupport, function () {
+          return testAudioScheduledSourceNodeStartMethodNegativeParametersSupport(nativeContext);
+        })) {
+          wrapAudioScheduledSourceNodeStartMethodNegativeParameters(nativeAudioBufferSourceNode);
+        } // Bug #19: Safari does not ignore calls to stop() of an already stopped AudioBufferSourceNode.
+
+
+        if (!cacheTestResult(testAudioScheduledSourceNodeStopMethodConsecutiveCallsSupport, function () {
+          return testAudioScheduledSourceNodeStopMethodConsecutiveCallsSupport(nativeContext);
+        })) {
+          wrapAudioScheduledSourceNodeStopMethodConsecutiveCalls(nativeAudioBufferSourceNode, nativeContext);
+        } // Bug #44: No browser does throw a RangeError yet.
+
+
+        if (!cacheTestResult(testAudioScheduledSourceNodeStopMethodNegativeParametersSupport, function () {
+          return testAudioScheduledSourceNodeStopMethodNegativeParametersSupport(nativeContext);
+        })) {
+          wrapAudioScheduledSourceNodeStopMethodNegativeParameters(nativeAudioBufferSourceNode);
+        }
+
+        return nativeAudioBufferSourceNode;
+      };
+    };
+
+    var createNativeAudioContextConstructor = function createNativeAudioContextConstructor(window) {
+      if (window === null) {
+        return null;
+      }
+
+      if (window.hasOwnProperty('AudioContext')) {
+        return window.AudioContext;
+      }
+
+      return window.hasOwnProperty('webkitAudioContext') ? window.webkitAudioContext : null;
+    };
+
+    var createNativeAudioDestinationNode = function createNativeAudioDestinationNode(nativeContext, channelCount, isNodeOfNativeOfflineAudioContext) {
+      var nativeAudioDestinationNode = nativeContext.destination; // @todo Which bug is that covering?
+
+      if (nativeAudioDestinationNode.channelCount !== channelCount) {
+        nativeAudioDestinationNode.channelCount = channelCount;
+      } // Bug #83: Edge & Safari do not have the correct channelCountMode.
+
+
+      if (isNodeOfNativeOfflineAudioContext && nativeAudioDestinationNode.channelCountMode !== 'explicit') {
+        nativeAudioDestinationNode.channelCountMode = 'explicit';
+      } // Bug #47: The AudioDestinationNode in Edge and Safari do not initialize the maxChannelCount property correctly.
+
+
+      if (nativeAudioDestinationNode.maxChannelCount === 0) {
+        Object.defineProperty(nativeAudioDestinationNode, 'maxChannelCount', {
+          get: function get() {
+            return nativeAudioDestinationNode.channelCount;
+          }
+        });
+      }
+
+      return nativeAudioDestinationNode;
+    };
+
+    var createNativeAudioNodeFactory = function createNativeAudioNodeFactory(getBackupNativeContext) {
+      return function (nativeContext, factoryFunction) {
+        // Bug #50: Only Safari does currently allow to create AudioNodes on a closed context yet.
+        var backupNativeContext = getBackupNativeContext(nativeContext);
+
+        if (backupNativeContext !== null) {
+          return factoryFunction(backupNativeContext);
+        }
+
+        return factoryFunction(nativeContext);
+      };
+    };
+
+    var createNativeAudioWorkletNodeConstructor = function createNativeAudioWorkletNodeConstructor(window) {
+      if (window === null) {
+        return null;
+      }
+
+      return window.hasOwnProperty('AudioWorkletNode') ? window.AudioWorkletNode : null;
+    };
+
+    var testClonabilityOfAudioWorkletNodeOptions = function testClonabilityOfAudioWorkletNodeOptions(audioWorkletNodeOptions) {
+      var _ref = new MessageChannel(),
+          port1 = _ref.port1;
+
+      try {
+        // This will throw an error if the audioWorkletNodeOptions are not clonable.
+        port1.postMessage(audioWorkletNodeOptions);
+      } finally {
+        port1.close();
+      }
+    };
+
+    var createNativeAudioWorkletNodeFactory = function createNativeAudioWorkletNodeFactory(createInvalidStateError, createNativeAudioNode, createNativeAudioWorkletNodeFaker, createNotSupportedError) {
+      return function (nativeContext, nativeAudioWorkletNodeConstructor, name, processorDefinition, options) {
+        if (nativeAudioWorkletNodeConstructor !== null) {
+          try {
+            // Bug #86: Chrome Canary does not invoke the process() function if the corresponding AudioWorkletNode has no output.
+            var nativeAudioWorkletNode = createNativeAudioNode(nativeContext, function (ntvCntxt) {
+              return options.numberOfInputs !== 0 && options.numberOfOutputs === 0 ? new nativeAudioWorkletNodeConstructor(ntvCntxt, name, Object.assign({}, options, {
+                numberOfOutputs: 1,
+                outputChannelCount: [1],
+                parameterData: Object.assign({}, options.parameterData, {
+                  hasNoOutput: 1
+                })
+              })) : new nativeAudioWorkletNodeConstructor(ntvCntxt, name, options);
+            });
+            /*
+             * Bug #61: Overwriting the property accessors is necessary as long as some browsers have no native implementation to
+             * achieve a consistent behavior.
+             */
+
+            Object.defineProperties(nativeAudioWorkletNode, {
+              channelCount: {
+                get: function get() {
+                  return options.channelCount;
+                },
+                set: function set() {
+                  throw createInvalidStateError();
+                }
+              },
+              channelCountMode: {
+                get: function get() {
+                  return 'explicit';
+                },
+                set: function set() {
+                  throw createInvalidStateError();
+                }
+              }
+            });
+            return nativeAudioWorkletNode;
+          } catch (err) {
+            // Bug #60: Chrome Canary throws an InvalidStateError instead of a NotSupportedError.
+            if (err.code === 11 && nativeContext.state !== 'closed') {
+              throw createNotSupportedError();
+            }
+
+            throw err; // tslint:disable-line:rxjs-throw-error
+          }
+        } // Bug #61: Only Chrome & Opera have an implementation of the AudioWorkletNode yet.
+
+
+        if (processorDefinition === undefined) {
+          throw createNotSupportedError();
+        }
+
+        testClonabilityOfAudioWorkletNodeOptions(options);
+        return createNativeAudioWorkletNodeFaker(nativeContext, processorDefinition, options);
+      };
+    };
+
+    var cloneAudioWorkletNodeOptions = function cloneAudioWorkletNodeOptions(audioWorkletNodeOptions) {
+      return new Promise(function (resolve, reject) {
+        var _ref = new MessageChannel(),
+            port1 = _ref.port1,
+            port2 = _ref.port2;
+
+        port1.onmessage = function (_ref2) {
+          var data = _ref2.data;
+          port1.close();
+          port2.close();
+          resolve(data);
+        };
+
+        port1.onmessageerror = function (_ref3) {
+          var data = _ref3.data;
+          port1.close();
+          port2.close();
+          reject(data);
+        }; // This will throw an error if the audioWorkletNodeOptions are not clonable.
+
+
+        port2.postMessage(audioWorkletNodeOptions);
+      });
+    };
+
+    var createAudioWorkletProcessorPromise =
+    /*#__PURE__*/
+    function () {
+      var _ref = _asyncToGenerator(
+      /*#__PURE__*/
+      _regeneratorRuntime.mark(function _callee(processorDefinition, audioWorkletNodeOptions) {
+        var clonedAudioWorkletNodeOptions;
+        return _regeneratorRuntime.wrap(function _callee$(_context) {
+          while (1) {
+            switch (_context.prev = _context.next) {
+              case 0:
+                _context.next = 2;
+                return cloneAudioWorkletNodeOptions(audioWorkletNodeOptions);
+
+              case 2:
+                clonedAudioWorkletNodeOptions = _context.sent;
+                return _context.abrupt("return", new processorDefinition(clonedAudioWorkletNodeOptions));
+
+              case 4:
+              case "end":
+                return _context.stop();
+            }
+          }
+        }, _callee, this);
+      }));
+
+      return function createAudioWorkletProcessorPromise(_x, _x2) {
+        return _ref.apply(this, arguments);
+      };
+    }();
+
+    var createAudioWorkletProcessor = function createAudioWorkletProcessor(nativeContext, nativeAudioWorkletNode, processorDefinition, audioWorkletNodeOptions) {
+      var nodeToProcessorMap = NODE_TO_PROCESSOR_MAPS.get(nativeContext);
+
+      if (nodeToProcessorMap === undefined) {
+        nodeToProcessorMap = new WeakMap();
+        NODE_TO_PROCESSOR_MAPS.set(nativeContext, nodeToProcessorMap);
+      }
+
+      var audioWorkletProcessorPromise = createAudioWorkletProcessorPromise(processorDefinition, audioWorkletNodeOptions);
+      nodeToProcessorMap.set(nativeAudioWorkletNode, audioWorkletProcessorPromise);
+      return audioWorkletProcessorPromise;
+    };
+
+    var createNativeAudioWorkletNodeFakerFactory = function createNativeAudioWorkletNodeFakerFactory(connectMultipleOutputs, createIndexSizeError, createInvalidStateError, createNativeChannelMergerNode, createNativeChannelSplitterNode, createNativeConstantSourceNode, createNativeGainNode, createNativeScriptProcessorNode, createNotSupportedError, disconnectMultipleOutputs) {
+      return function (nativeContext, processorDefinition, options) {
+        if (options.numberOfInputs === 0 && options.numberOfOutputs === 0) {
+          throw createNotSupportedError();
+        }
+
+        if (options.outputChannelCount !== undefined) {
+          if (options.outputChannelCount.length !== options.numberOfOutputs) {
+            throw createIndexSizeError();
+          } // @todo Check if any of the channelCount values is greater than the implementation's maximum number of channels.
+
+
+          if (options.outputChannelCount.some(function (channelCount) {
+            return channelCount < 1;
+          })) {
+            throw createNotSupportedError();
+          }
+        } // Bug #61: This is not part of the standard but required for the faker to work.
+
+
+        if (options.channelCountMode !== 'explicit') {
+          throw createNotSupportedError();
+        }
+
+        var numberOfInputChannels = options.channelCount * options.numberOfInputs;
+        var numberOfOutputChannels = options.outputChannelCount.reduce(function (sum, value) {
+          return sum + value;
+        }, 0);
+        var numberOfParameters = processorDefinition.parameterDescriptors === undefined ? 0 : processorDefinition.parameterDescriptors.length; // Bug #61: This is not part of the standard but required for the faker to work.
+
+        if (numberOfInputChannels + numberOfParameters > 6 || numberOfOutputChannels > 6) {
+          throw createNotSupportedError();
+        }
+
+        var messageChannel = new MessageChannel();
+        var gainNodes = [];
+        var inputChannelSplitterNodes = [];
+
+        for (var i = 0; i < options.numberOfInputs; i += 1) {
+          gainNodes.push(createNativeGainNode(nativeContext, {
+            channelCount: options.channelCount,
+            channelCountMode: options.channelCountMode,
+            channelInterpretation: options.channelInterpretation,
+            gain: 1
+          }));
+          inputChannelSplitterNodes.push(createNativeChannelSplitterNode(nativeContext, {
+            channelCount: options.channelCount,
+            channelCountMode: 'explicit',
+            channelInterpretation: 'discrete',
+            numberOfOutputs: options.channelCount
+          }));
+        }
+
+        var constantSourceNodes = [];
+
+        if (processorDefinition.parameterDescriptors !== undefined) {
+          var _iteratorNormalCompletion = true;
+          var _didIteratorError = false;
+          var _iteratorError = undefined;
+
+          try {
+            var _loop = function _loop() {
+              var _step$value = _step.value,
+                  defaultValue = _step$value.defaultValue,
+                  maxValue = _step$value.maxValue,
+                  minValue = _step$value.minValue;
+              var constantSourceNode = createNativeConstantSourceNode(nativeContext, {
+                channelCount: 1,
+                channelCountMode: 'explicit',
+                channelInterpretation: 'discrete',
+                offset: defaultValue === undefined ? 0 : defaultValue
+              });
+              Object.defineProperties(constantSourceNode.offset, {
+                defaultValue: {
+                  get: function get() {
+                    return defaultValue === undefined ? 0 : defaultValue;
+                  }
+                },
+                maxValue: {
+                  get: function get() {
+                    return maxValue === undefined ? 3.4028234663852886e38 : maxValue;
+                  }
+                },
+                minValue: {
+                  get: function get() {
+                    return minValue === undefined ? -3.4028234663852886e38 : minValue;
+                  }
+                }
+              });
+              constantSourceNodes.push(constantSourceNode);
+            };
+
+            for (var _iterator = processorDefinition.parameterDescriptors[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+              _loop();
+            }
+          } catch (err) {
+            _didIteratorError = true;
+            _iteratorError = err;
+          } finally {
+            try {
+              if (!_iteratorNormalCompletion && _iterator.return != null) {
+                _iterator.return();
+              }
+            } finally {
+              if (_didIteratorError) {
+                throw _iteratorError;
+              }
+            }
+          }
+        }
+
+        var inputChannelMergerNode = createNativeChannelMergerNode(nativeContext, {
+          numberOfInputs: Math.max(1, numberOfInputChannels + numberOfParameters)
+        });
+        var bufferSize = 512;
+        var scriptProcessorNode = createNativeScriptProcessorNode(nativeContext, bufferSize, numberOfInputChannels + numberOfParameters, // Bug #87: Only Firefox will fire an AudioProcessingEvent if there is no connected output.
+        Math.max(1, numberOfOutputChannels));
+        var outputChannelSplitterNode = createNativeChannelSplitterNode(nativeContext, {
+          channelCount: Math.max(1, numberOfOutputChannels),
+          channelCountMode: 'explicit',
+          channelInterpretation: 'discrete',
+          numberOfOutputs: Math.max(1, numberOfOutputChannels)
+        });
+        var outputChannelMergerNodes = [];
+
+        for (var _i = 0; _i < options.numberOfOutputs; _i += 1) {
+          outputChannelMergerNodes.push(createNativeChannelMergerNode(nativeContext, {
+            numberOfInputs: options.outputChannelCount[_i]
+          }));
+        }
+
+        for (var _i2 = 0; _i2 < options.numberOfInputs; _i2 += 1) {
+          gainNodes[_i2].connect(inputChannelSplitterNodes[_i2]);
+
+          for (var j = 0; j < options.channelCount; j += 1) {
+            inputChannelSplitterNodes[_i2].connect(inputChannelMergerNode, j, _i2 * options.channelCount + j);
+          }
+        }
+
+        var parameterMap = new ReadOnlyMap(processorDefinition.parameterDescriptors === undefined ? [] : processorDefinition.parameterDescriptors.map(function (_ref, index) {
+          var name = _ref.name;
+          var constantSourceNode = constantSourceNodes[index];
+          constantSourceNode.connect(inputChannelMergerNode, 0, numberOfInputChannels + index);
+          constantSourceNode.start(0);
+          return [name, constantSourceNode.offset];
+        }));
+        inputChannelMergerNode.connect(scriptProcessorNode);
+
+        if (options.numberOfOutputs > 0) {
+          scriptProcessorNode.connect(outputChannelSplitterNode);
+        }
+
+        for (var _i3 = 0, outputChannelSplitterNodeOutput = 0; _i3 < options.numberOfOutputs; _i3 += 1) {
+          var outputChannelMergerNode = outputChannelMergerNodes[_i3];
+
+          for (var _j = 0; _j < options.outputChannelCount[_i3]; _j += 1) {
+            outputChannelSplitterNode.connect(outputChannelMergerNode, outputChannelSplitterNodeOutput + _j, _j);
+          }
+
+          outputChannelSplitterNodeOutput += options.outputChannelCount[_i3];
+        }
+
+        var onprocessorerror = null; // Bug #87: Expose at least one output to make this node connectable.
+
+        var outputAudioNodes = options.numberOfOutputs === 0 ? [scriptProcessorNode] : outputChannelMergerNodes;
+        var faker = {
+          get bufferSize() {
+            return bufferSize;
+          },
+
+          get channelCount() {
+            return options.channelCount;
+          },
+
+          set channelCount(_) {
+            // Bug #61: This is not part of the standard but required for the faker to work.
+            throw createInvalidStateError();
+          },
+
+          get channelCountMode() {
+            return options.channelCountMode;
+          },
+
+          set channelCountMode(_) {
+            // Bug #61: This is not part of the standard but required for the faker to work.
+            throw createInvalidStateError();
+          },
+
+          get channelInterpretation() {
+            return gainNodes[0].channelInterpretation;
+          },
+
+          set channelInterpretation(value) {
+            for (var _i4 = 0; _i4 < gainNodes.length; _i4++) {
+              var gainNode = gainNodes[_i4];
+              gainNode.channelInterpretation = value;
+            }
+          },
+
+          get context() {
+            return gainNodes[0].context;
+          },
+
+          get inputs() {
+            return gainNodes;
+          },
+
+          get numberOfInputs() {
+            return options.numberOfInputs;
+          },
+
+          get numberOfOutputs() {
+            return options.numberOfOutputs;
+          },
+
+          get onprocessorerror() {
+            return onprocessorerror;
+          },
+
+          set onprocessorerror(value) {
+            if (value === null || typeof value === 'function') {
+              onprocessorerror = value;
+            } else {
+              onprocessorerror = null;
+            }
+          },
+
+          get parameters() {
+            return parameterMap;
+          },
+
+          get port() {
+            return messageChannel.port2;
+          },
+
+          addEventListener: function addEventListener() {
+            return gainNodes[0].addEventListener(arguments.length <= 0 ? undefined : arguments[0], arguments.length <= 1 ? undefined : arguments[1], arguments.length <= 2 ? undefined : arguments[2]);
+          },
+          connect: function connect() {
+            return connectMultipleOutputs(outputAudioNodes, arguments.length <= 0 ? undefined : arguments[0], arguments.length <= 1 ? undefined : arguments[1], arguments.length <= 2 ? undefined : arguments[2]);
+          },
+          disconnect: function disconnect() {
+            return disconnectMultipleOutputs(outputAudioNodes, arguments.length <= 0 ? undefined : arguments[0], arguments.length <= 1 ? undefined : arguments[1], arguments.length <= 2 ? undefined : arguments[2]);
+          },
+          dispatchEvent: function dispatchEvent() {
+            return gainNodes[0].dispatchEvent(arguments.length <= 0 ? undefined : arguments[0]);
+          },
+          removeEventListener: function removeEventListener() {
+            return gainNodes[0].removeEventListener(arguments.length <= 0 ? undefined : arguments[0], arguments.length <= 1 ? undefined : arguments[1], arguments.length <= 2 ? undefined : arguments[2]);
+          }
+        };
+        processorDefinition.prototype.port = messageChannel.port1;
+        var audioWorkletProcessor = null;
+        var audioWorkletProcessorPromise = createAudioWorkletProcessor(nativeContext, faker, processorDefinition, options);
+        audioWorkletProcessorPromise.then(function (dWrkltPrcssr) {
+          return audioWorkletProcessor = dWrkltPrcssr;
+        });
+        var inputs = createNestedArrays(options.numberOfInputs, options.channelCount);
+        var outputs = createNestedArrays(options.numberOfOutputs, options.outputChannelCount);
+        var parameters = processorDefinition.parameterDescriptors === undefined ? [] : processorDefinition.parameterDescriptors.reduce(function (prmtrs, _ref2) {
+          var name = _ref2.name;
+          return Object.assign({}, prmtrs, _defineProperty({}, name, new Float32Array(128)));
+        }, {});
+        var isActive = true;
+
+        scriptProcessorNode.onaudioprocess = function (_ref3) {
+          var inputBuffer = _ref3.inputBuffer,
+              outputBuffer = _ref3.outputBuffer;
+
+          if (audioWorkletProcessor !== null) {
+            var _loop2 = function _loop2(_i5) {
+              for (var _j2 = 0; _j2 < options.numberOfInputs; _j2 += 1) {
+                for (var k = 0; k < options.channelCount; k += 1) {
+                  // Bug #5: Safari does not support copyFromChannel().
+                  var slicedInputBuffer = inputBuffer.getChannelData(k).slice(_i5, _i5 + 128);
+
+                  inputs[_j2][k].set(slicedInputBuffer);
+                }
+              }
+
+              if (processorDefinition.parameterDescriptors !== undefined) {
+                processorDefinition.parameterDescriptors.forEach(function (_ref4, index) {
+                  var name = _ref4.name;
+                  var slicedInputBuffer = inputBuffer.getChannelData(numberOfInputChannels + index).slice(_i5, _i5 + 128);
+                  parameters[name].set(slicedInputBuffer);
+                });
+              }
+
+              try {
+                var audioNodeConnections = getAudioNodeConnections(faker);
+                var potentiallyEmptyInputs = inputs.map(function (input, index) {
+                  if (audioNodeConnections.inputs[index].size === 0) {
+                    return [];
+                  }
+
+                  return input;
+                });
+                var activeSourceFlag = audioWorkletProcessor.process(potentiallyEmptyInputs, outputs, parameters);
+                isActive = activeSourceFlag;
+
+                for (var _j3 = 0, _outputChannelSplitterNodeOutput = 0; _j3 < options.numberOfOutputs; _j3 += 1) {
+                  for (var _k = 0; _k < options.outputChannelCount[_j3]; _k += 1) {
+                    // Bug #5: Safari does not support copyFromChannel().
+                    outputBuffer.getChannelData(_outputChannelSplitterNodeOutput + _k).set(outputs[_j3][_k], _i5);
+                  }
+
+                  _outputChannelSplitterNodeOutput += options.outputChannelCount[_j3];
+                }
+              } catch (_a) {
+                isActive = false;
+
+                if (onprocessorerror !== null) {
+                  onprocessorerror.call(null, new ErrorEvent('processorerror'));
+                }
+              }
+
+              if (!isActive) {
+                scriptProcessorNode.onaudioprocess = null; // tslint:disable-line:deprecation
+
+                return "break";
+              }
+            };
+
+            for (var _i5 = 0; _i5 < bufferSize; _i5 += 128) {
+              var _ret = _loop2(_i5);
+
+              if (_ret === "break") break;
+            }
+          }
+        };
+
+        return faker;
+      };
+    };
+
+    var createNativeBiquadFilterNodeFactory = function createNativeBiquadFilterNodeFactory(createNativeAudioNode) {
+      return function (nativeContext, options) {
+        var nativeBiquadFilterNode = createNativeAudioNode(nativeContext, function (ntvCntxt) {
+          return ntvCntxt.createBiquadFilter();
+        });
+        assignNativeAudioNodeOptions(nativeBiquadFilterNode, options);
+
+        if (options.Q !== nativeBiquadFilterNode.Q.value) {
+          nativeBiquadFilterNode.Q.value = options.Q;
+        }
+
+        if (options.detune !== nativeBiquadFilterNode.detune.value) {
+          nativeBiquadFilterNode.detune.value = options.detune;
+        }
+
+        if (options.frequency !== nativeBiquadFilterNode.frequency.value) {
+          nativeBiquadFilterNode.frequency.value = options.frequency;
+        }
+
+        if (options.gain !== nativeBiquadFilterNode.gain.value) {
+          nativeBiquadFilterNode.gain.value = options.gain;
+        }
+
+        if (options.type !== nativeBiquadFilterNode.type) {
+          nativeBiquadFilterNode.type = options.type;
+        }
+
+        return nativeBiquadFilterNode;
+      };
+    };
+
+    var createNativeChannelMergerNodeFactory = function createNativeChannelMergerNodeFactory(createNativeAudioNode, wrapChannelMergerNode) {
+      return function (nativeContext) {
+        var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+        var nativeChannelMergerNode = createNativeAudioNode(nativeContext, function (ntvCntxt) {
+          return ntvCntxt.createChannelMerger(options.numberOfInputs === undefined ? 6 : options.numberOfInputs);
+        });
+        assignNativeAudioNodeOptions(nativeChannelMergerNode, options); // Bug #15: Safari does not return the default properties.
+
+        if (nativeChannelMergerNode.channelCount !== 1 && nativeChannelMergerNode.channelCountMode !== 'explicit') {
+          wrapChannelMergerNode(nativeContext, nativeChannelMergerNode);
+        } // Bug #16: Firefox does not throw an error when setting a different channelCount or channelCountMode.
+
+
+        try {
+          nativeChannelMergerNode.channelCount = options.numberOfInputs === undefined ? 6 : options.numberOfInputs;
+          wrapChannelMergerNode(nativeContext, nativeChannelMergerNode);
+        } catch (
+        /* Ignore errors. */
+        _a) {}
+        /* Ignore errors. */
+        // tslint:disable-line:no-empty
+
+
+        return nativeChannelMergerNode;
+      };
+    };
+
+    var wrapChannelSplitterNode = function wrapChannelSplitterNode(channelSplitterNode) {
+      var channelCount = channelSplitterNode.numberOfOutputs; // Bug #96: Safari does not have the correct channelCount.
+
+      if (channelSplitterNode.channelCount !== channelCount) {
+        channelSplitterNode.channelCount = channelCount;
+      } // Bug #29: Edge & Safari do not have the correct channelCountMode.
+
+
+      if (channelSplitterNode.channelCountMode !== 'explicit') {
+        channelSplitterNode.channelCountMode = 'explicit';
+      } // Bug #31: Edge & Safari do not have the correct channelInterpretation.
+
+
+      if (channelSplitterNode.channelInterpretation !== 'discrete') {
+        channelSplitterNode.channelInterpretation = 'discrete';
+      } // Bug #97: Safari does not throw an error when attempting to change the channelCount to something other than its initial value.
+
+
+      Object.defineProperty(channelSplitterNode, 'channelCount', {
+        get: function get() {
+          return channelCount;
+        },
+        set: function set(value) {
+          if (value !== channelCount) {
+            throw createInvalidStateError();
+          }
+        }
+      });
+      /*
+       * Bug #30: Only Chrome, Firefox & Opera throw an error when attempting to change the channelCountMode to something other than
+       * explicit.
+       */
+
+      Object.defineProperty(channelSplitterNode, 'channelCountMode', {
+        get: function get() {
+          return 'explicit';
+        },
+        set: function set(value) {
+          if (value !== 'explicit') {
+            throw createInvalidStateError();
+          }
+        }
+      });
+      /*
+       * Bug #32: Only Chrome, Firefox & Opera throws an error when attempting to change the channelInterpretation to something other than
+       * discrete.
+       */
+
+      Object.defineProperty(channelSplitterNode, 'channelInterpretation', {
+        get: function get() {
+          return 'discrete';
+        },
+        set: function set(value) {
+          if (value !== 'discrete') {
+            throw createInvalidStateError();
+          }
+        }
+      });
+    };
+
+    var createNativeChannelSplitterNodeFactory = function createNativeChannelSplitterNodeFactory(createNativeAudioNode) {
+      return function (nativeContext, options) {
+        var nativeChannelSplitterNode = createNativeAudioNode(nativeContext, function (ntvCntxt) {
+          return ntvCntxt.createChannelSplitter(options.numberOfOutputs);
+        }); // Bug #29, #30, #31, #32, #96 & #97: Only Chrome, Firefox & Opera partially support the spec yet.
+
+        wrapChannelSplitterNode(nativeChannelSplitterNode);
+        return nativeChannelSplitterNode;
+      };
+    };
+
+    var createNativeConstantSourceNodeFactory = function createNativeConstantSourceNodeFactory(createNativeAudioNode, createNativeConstantSourceNodeFaker, testAudioScheduledSourceNodeStartMethodNegativeParametersSupport, testAudioScheduledSourceNodeStopMethodNegativeParametersSupport, testConstantSourceNodeAccurateSchedulingSupport, wrapConstantSourceNodeAccurateScheduling) {
+      return function (nativeContext, options) {
+        // Bug #62: Edge & Safari do not support ConstantSourceNodes.
+        // @todo TypeScript doesn't know yet about createConstantSource().
+        if (nativeContext.createConstantSource === undefined) {
+          return createNativeConstantSourceNodeFaker(nativeContext, options);
+        }
+
+        var nativeConstantSourceNode = createNativeAudioNode(nativeContext, function (ntvCntxt) {
+          return ntvCntxt.createConstantSource();
+        });
+        assignNativeAudioNodeOptions(nativeConstantSourceNode, options);
+
+        if (options.offset !== nativeConstantSourceNode.offset.value) {
+          nativeConstantSourceNode.offset.value = options.offset;
+        } // Bug #44: Only Chrome & Opera throw a RangeError yet.
+
+
+        if (!cacheTestResult(testAudioScheduledSourceNodeStartMethodNegativeParametersSupport, function () {
+          return testAudioScheduledSourceNodeStartMethodNegativeParametersSupport(nativeContext);
+        })) {
+          wrapAudioScheduledSourceNodeStartMethodNegativeParameters(nativeConstantSourceNode);
+        } // Bug #44: No browser does throw a RangeError yet.
+
+
+        if (!cacheTestResult(testAudioScheduledSourceNodeStopMethodNegativeParametersSupport, function () {
+          return testAudioScheduledSourceNodeStopMethodNegativeParametersSupport(nativeContext);
+        })) {
+          wrapAudioScheduledSourceNodeStopMethodNegativeParameters(nativeConstantSourceNode);
+        } // Bug #70: Firefox does not schedule ConstantSourceNodes accurately.
+
+
+        if (!cacheTestResult(testConstantSourceNodeAccurateSchedulingSupport, function () {
+          return testConstantSourceNodeAccurateSchedulingSupport(nativeContext);
+        })) {
+          wrapConstantSourceNodeAccurateScheduling(nativeConstantSourceNode, nativeContext);
+        }
+
+        return nativeConstantSourceNode;
+      };
+    };
+
+    var createNativeConstantSourceNodeFakerFactory = function createNativeConstantSourceNodeFakerFactory(createNativeAudioBufferSourceNode, createNativeGainNode) {
+      return function (nativeContext, _a) {
+        var offset = _a.offset,
+            audioNodeOptions = tslib_1.__rest(_a, ["offset"]);
+
+        var audioBufferSourceNode = createNativeAudioBufferSourceNode(nativeContext);
+        /*
+         * @todo Edge will throw a NotSupportedError when calling createBuffer() on a closed context. That's why the audioBuffer is created
+         * after the audioBufferSourceNode in this case. If the context is closed createNativeAudioBufferSourceNode() will throw the
+         * expected error and createBuffer() never gets called.
+         */
+
+        var audioBuffer = nativeContext.createBuffer(1, 2, nativeContext.sampleRate);
+        var gainNode = createNativeGainNode(nativeContext, Object.assign({}, audioNodeOptions, {
+          gain: offset
+        })); // Bug #5: Safari does not support copyFromChannel() and copyToChannel().
+
+        var channelData = audioBuffer.getChannelData(0); // Bug #95: Safari does not play or loop one sample buffers.
+
+        channelData[0] = 1;
+        channelData[1] = 1;
+        audioBufferSourceNode.buffer = audioBuffer;
+        audioBufferSourceNode.loop = true;
+        audioBufferSourceNode.connect(gainNode);
+        return {
+          get bufferSize() {
+            return undefined;
+          },
+
+          get channelCount() {
+            return gainNode.channelCount;
+          },
+
+          set channelCount(value) {
+            gainNode.channelCount = value;
+          },
+
+          get channelCountMode() {
+            return gainNode.channelCountMode;
+          },
+
+          set channelCountMode(value) {
+            gainNode.channelCountMode = value;
+          },
+
+          get channelInterpretation() {
+            return gainNode.channelInterpretation;
+          },
+
+          set channelInterpretation(value) {
+            gainNode.channelInterpretation = value;
+          },
+
+          get context() {
+            return gainNode.context;
+          },
+
+          get inputs() {
+            return undefined;
+          },
+
+          get numberOfInputs() {
+            return audioBufferSourceNode.numberOfInputs;
+          },
+
+          get numberOfOutputs() {
+            return gainNode.numberOfOutputs;
+          },
+
+          get offset() {
+            return gainNode.gain;
+          },
+
+          get onended() {
+            return audioBufferSourceNode.onended;
+          },
+
+          set onended(value) {
+            audioBufferSourceNode.onended = value;
+          },
+
+          addEventListener: function addEventListener() {
+            return audioBufferSourceNode.addEventListener(arguments.length <= 0 ? undefined : arguments[0], arguments.length <= 1 ? undefined : arguments[1], arguments.length <= 2 ? undefined : arguments[2]);
+          },
+          connect: function connect() {
+            if ((arguments.length <= 2 ? undefined : arguments[2]) === undefined) {
+              return gainNode.connect.call(gainNode, arguments.length <= 0 ? undefined : arguments[0], arguments.length <= 1 ? undefined : arguments[1]);
+            }
+
+            return gainNode.connect.call(gainNode, arguments.length <= 0 ? undefined : arguments[0], arguments.length <= 1 ? undefined : arguments[1], arguments.length <= 2 ? undefined : arguments[2]);
+          },
+          disconnect: function disconnect() {
+            return gainNode.disconnect.call(gainNode, arguments.length <= 0 ? undefined : arguments[0], arguments.length <= 1 ? undefined : arguments[1], arguments.length <= 2 ? undefined : arguments[2]);
+          },
+          dispatchEvent: function dispatchEvent() {
+            return audioBufferSourceNode.dispatchEvent(arguments.length <= 0 ? undefined : arguments[0]);
+          },
+          removeEventListener: function removeEventListener() {
+            return audioBufferSourceNode.removeEventListener(arguments.length <= 0 ? undefined : arguments[0], arguments.length <= 1 ? undefined : arguments[1], arguments.length <= 2 ? undefined : arguments[2]);
+          },
+          start: function start() {
+            var when = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 0;
+            audioBufferSourceNode.start.call(audioBufferSourceNode, when);
+          },
+          stop: function stop() {
+            var when = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 0;
+            audioBufferSourceNode.stop.call(audioBufferSourceNode, when);
+          }
+        };
+      };
+    };
+
+    var createNativeGainNodeFactory = function createNativeGainNodeFactory(createNativeAudioNode) {
+      return function (nativeContext, options) {
+        var nativeGainNode = createNativeAudioNode(nativeContext, function (ntvCntxt) {
+          return ntvCntxt.createGain();
+        });
+        assignNativeAudioNodeOptions(nativeGainNode, options);
+
+        if (options.gain !== nativeGainNode.gain.value) {
+          nativeGainNode.gain.value = options.gain;
+        }
+
+        return nativeGainNode;
+      };
+    };
+
+    var createNativeIIRFilterNodeFactory = function createNativeIIRFilterNodeFactory(createNativeAudioNode, createNativeIIRFilterNodeFaker) {
+      return function (nativeContext, options) {
+        // Bug #9: Safari does not support IIRFilterNodes.
+        if (nativeContext.createIIRFilter === undefined) {
+          return createNativeIIRFilterNodeFaker(nativeContext, options);
+        }
+
+        var nativeIIRFilterNode = createNativeAudioNode(nativeContext, function (ntvCntxt) {
+          return ntvCntxt.createIIRFilter(options.feedforward, options.feedback);
+        });
+        assignNativeAudioNodeOptions(nativeIIRFilterNode, options);
+        return nativeIIRFilterNode;
+      };
+    };
+
+    function divide(a, b) {
+      var denominator = b[0] * b[0] + b[1] * b[1];
+      return [(a[0] * b[0] + a[1] * b[1]) / denominator, (a[1] * b[0] - a[0] * b[1]) / denominator];
+    }
+
+    function multiply(a, b) {
+      return [a[0] * b[0] - a[1] * b[1], a[0] * b[1] + a[1] * b[0]];
+    }
+
+    function evaluatePolynomial(coefficient, z) {
+      var result = [0, 0];
+
+      for (var i = coefficient.length - 1; i >= 0; i -= 1) {
+        result = multiply(result, z);
+        result[0] += coefficient[i];
+      }
+
+      return result;
+    }
+
+    var createNativeIIRFilterNodeFakerFactory = function createNativeIIRFilterNodeFakerFactory(createInvalidAccessError, createInvalidStateError, createNativeScriptProcessorNode, createNotSupportedError) {
+      return function (nativeContext, _ref) {
+        var channelCount = _ref.channelCount,
+            channelCountMode = _ref.channelCountMode,
+            channelInterpretation = _ref.channelInterpretation,
+            feedback = _ref.feedback,
+            feedforward = _ref.feedforward;
+        var bufferSize = 256;
+        var feedbackLength = feedback.length;
+        var feedforwardLength = feedforward.length;
+        var minLength = Math.min(feedbackLength, feedforwardLength);
+
+        if (feedback.length === 0 || feedback.length > 20) {
+          throw createNotSupportedError();
+        }
+
+        if (feedback[0] === 0) {
+          throw createInvalidStateError();
+        }
+
+        if (feedforward.length === 0 || feedforward.length > 20) {
+          throw createNotSupportedError();
+        }
+
+        if (feedforward[0] === 0) {
+          throw createInvalidStateError();
+        }
+
+        if (feedback[0] !== 1) {
+          for (var i = 0; i < feedforwardLength; i += 1) {
+            feedforward[i] /= feedback[0];
+          }
+
+          for (var _i = 1; _i < feedbackLength; _i += 1) {
+            feedback[_i] /= feedback[0];
+          }
+        }
+
+        var scriptProcessorNode = createNativeScriptProcessorNode(nativeContext, bufferSize, channelCount, channelCount);
+        scriptProcessorNode.channelCount = channelCount;
+        scriptProcessorNode.channelCountMode = channelCountMode;
+        scriptProcessorNode.channelInterpretation = channelInterpretation;
+        var bufferLength = 32;
+        var bufferIndexes = [];
+        var xBuffers = [];
+        var yBuffers = [];
+
+        for (var _i2 = 0; _i2 < channelCount; _i2 += 1) {
+          bufferIndexes.push(0);
+          var xBuffer = new Float32Array(bufferLength);
+          var yBuffer = new Float32Array(bufferLength); // @todo Add a test which checks support for TypedArray.prototype.fill().
+
+          xBuffer.fill(0);
+          yBuffer.fill(0);
+          xBuffers.push(xBuffer);
+          yBuffers.push(yBuffer);
+        }
+
+        scriptProcessorNode.onaudioprocess = function (event) {
+          var inputBuffer = event.inputBuffer;
+          var outputBuffer = event.outputBuffer;
+          var numberOfChannels = inputBuffer.numberOfChannels;
+
+          for (var _i3 = 0; _i3 < numberOfChannels; _i3 += 1) {
+            var input = inputBuffer.getChannelData(_i3);
+            var output = outputBuffer.getChannelData(_i3);
+            bufferIndexes[_i3] = filterBuffer(feedback, feedbackLength, feedforward, feedforwardLength, minLength, xBuffers[_i3], yBuffers[_i3], bufferIndexes[_i3], bufferLength, input, output);
+          }
+        };
+
+        var nyquist = nativeContext.sampleRate / 2;
+        return {
+          get bufferSize() {
+            return bufferSize;
+          },
+
+          get channelCount() {
+            return scriptProcessorNode.channelCount;
+          },
+
+          set channelCount(value) {
+            scriptProcessorNode.channelCount = value;
+          },
+
+          get channelCountMode() {
+            return scriptProcessorNode.channelCountMode;
+          },
+
+          set channelCountMode(value) {
+            scriptProcessorNode.channelCountMode = value;
+          },
+
+          get channelInterpretation() {
+            return scriptProcessorNode.channelInterpretation;
+          },
+
+          set channelInterpretation(value) {
+            scriptProcessorNode.channelInterpretation = value;
+          },
+
+          get context() {
+            return scriptProcessorNode.context;
+          },
+
+          get inputs() {
+            return [scriptProcessorNode];
+          },
+
+          get numberOfInputs() {
+            return scriptProcessorNode.numberOfInputs;
+          },
+
+          get numberOfOutputs() {
+            return scriptProcessorNode.numberOfOutputs;
+          },
+
+          addEventListener: function addEventListener() {
+            // @todo Dissallow adding an audioprocess listener.
+            return scriptProcessorNode.addEventListener(arguments.length <= 0 ? undefined : arguments[0], arguments.length <= 1 ? undefined : arguments[1], arguments.length <= 2 ? undefined : arguments[2]);
+          },
+          connect: function connect() {
+            if ((arguments.length <= 2 ? undefined : arguments[2]) === undefined) {
+              return scriptProcessorNode.connect.call(scriptProcessorNode, arguments.length <= 0 ? undefined : arguments[0], arguments.length <= 1 ? undefined : arguments[1]);
+            }
+
+            return scriptProcessorNode.connect.call(scriptProcessorNode, arguments.length <= 0 ? undefined : arguments[0], arguments.length <= 1 ? undefined : arguments[1], arguments.length <= 2 ? undefined : arguments[2]);
+          },
+          disconnect: function disconnect() {
+            return scriptProcessorNode.disconnect.call(scriptProcessorNode, arguments.length <= 0 ? undefined : arguments[0], arguments.length <= 1 ? undefined : arguments[1], arguments.length <= 2 ? undefined : arguments[2]);
+          },
+          dispatchEvent: function dispatchEvent() {
+            return scriptProcessorNode.dispatchEvent(arguments.length <= 0 ? undefined : arguments[0]);
+          },
+          getFrequencyResponse: function getFrequencyResponse(frequencyHz, magResponse, phaseResponse) {
+            if (frequencyHz.length !== magResponse.length || magResponse.length !== phaseResponse.length) {
+              throw createInvalidAccessError();
+            }
+
+            var length = frequencyHz.length;
+
+            for (var _i4 = 0; _i4 < length; _i4 += 1) {
+              var omega = -Math.PI * (frequencyHz[_i4] / nyquist);
+              var z = [Math.cos(omega), Math.sin(omega)];
+              var numerator = evaluatePolynomial(feedforward, z);
+              var denominator = evaluatePolynomial(feedback, z);
+              var response = divide(numerator, denominator);
+              magResponse[_i4] = Math.sqrt(response[0] * response[0] + response[1] * response[1]);
+              phaseResponse[_i4] = Math.atan2(response[1], response[0]);
+            }
+          },
+          removeEventListener: function removeEventListener() {
+            return scriptProcessorNode.removeEventListener(arguments.length <= 0 ? undefined : arguments[0], arguments.length <= 1 ? undefined : arguments[1], arguments.length <= 2 ? undefined : arguments[2]);
+          }
+        };
+      };
+    };
+
+    var createNativeMediaElementAudioSourceNodeFactory = function createNativeMediaElementAudioSourceNodeFactory(createNativeAudioNode) {
+      return function (nativeAudioContext, options) {
+        return createNativeAudioNode(nativeAudioContext, function (ntvDCntxt) {
+          return ntvDCntxt.createMediaElementSource(options.mediaElement);
+        });
+      };
+    };
+
+    var createNativeMediaStreamAudioSourceNodeFactory = function createNativeMediaStreamAudioSourceNodeFactory(createNativeAudioNode) {
+      return function (nativeAudioContext, options) {
+        return createNativeAudioNode(nativeAudioContext, function (ntvDCntxt) {
+          return ntvDCntxt.createMediaStreamSource(options.mediaStream);
+        });
+      };
+    };
+
+    var createNativeOfflineAudioContextConstructor = function createNativeOfflineAudioContextConstructor(window) {
+      if (window === null) {
+        return null;
+      }
+
+      if (window.hasOwnProperty('OfflineAudioContext')) {
+        return window.OfflineAudioContext;
+      }
+
+      return window.hasOwnProperty('webkitOfflineAudioContext') ? window.webkitOfflineAudioContext : null;
+    };
+
+    var createNativeOscillatorNodeFactory = function createNativeOscillatorNodeFactory(createNativeAudioNode, testAudioScheduledSourceNodeStartMethodNegativeParametersSupport, testAudioScheduledSourceNodeStopMethodConsecutiveCallsSupport, testAudioScheduledSourceNodeStopMethodNegativeParametersSupport, wrapAudioScheduledSourceNodeStopMethodConsecutiveCalls) {
+      return function (nativeContext, options) {
+        var nativeOscillatorNode = createNativeAudioNode(nativeContext, function (ntvCntxt) {
+          return ntvCntxt.createOscillator();
+        });
+        assignNativeAudioNodeOptions(nativeOscillatorNode, options);
+
+        if (options.detune !== nativeOscillatorNode.detune.value) {
+          nativeOscillatorNode.detune.value = options.detune;
+        }
+
+        if (options.frequency !== nativeOscillatorNode.frequency.value) {
+          nativeOscillatorNode.frequency.value = options.frequency;
+        } // @todo periodicWave
+
+
+        if (options.type !== nativeOscillatorNode.type) {
+          nativeOscillatorNode.type = options.type;
+        } // Bug #44: Only Chrome & Opera throw a RangeError yet.
+
+
+        if (!cacheTestResult(testAudioScheduledSourceNodeStartMethodNegativeParametersSupport, function () {
+          return testAudioScheduledSourceNodeStartMethodNegativeParametersSupport(nativeContext);
+        })) {
+          wrapAudioScheduledSourceNodeStartMethodNegativeParameters(nativeOscillatorNode);
+        } // Bug #19: Safari does not ignore calls to stop() of an already stopped AudioBufferSourceNode.
+
+
+        if (!cacheTestResult(testAudioScheduledSourceNodeStopMethodConsecutiveCallsSupport, function () {
+          return testAudioScheduledSourceNodeStopMethodConsecutiveCallsSupport(nativeContext);
+        })) {
+          wrapAudioScheduledSourceNodeStopMethodConsecutiveCalls(nativeOscillatorNode, nativeContext);
+        } // Bug #44: No browser does throw a RangeError yet.
+
+
+        if (!cacheTestResult(testAudioScheduledSourceNodeStopMethodNegativeParametersSupport, function () {
+          return testAudioScheduledSourceNodeStopMethodNegativeParametersSupport(nativeContext);
+        })) {
+          wrapAudioScheduledSourceNodeStopMethodNegativeParameters(nativeOscillatorNode);
+        }
+
+        return nativeOscillatorNode;
+      };
+    };
+
+    var createNativeScriptProcessorNodeFactory = function createNativeScriptProcessorNodeFactory(createNativeAudioNode) {
+      return function (nativeContext, bufferSize, numberOfInputChannels, numberOfOutputChannels) {
+        return createNativeAudioNode(nativeContext, function (ntvCntxt) {
+          return ntvCntxt.createScriptProcessor(bufferSize, numberOfInputChannels, numberOfOutputChannels);
+        });
+      };
+    };
+
+    var createNativeStereoPannerNodeFactory = function createNativeStereoPannerNodeFactory(createNativeAudioNode, createNativeStereoPannerNodeFaker, createNotSupportedError) {
+      return function (nativeContext, options) {
+        return createNativeAudioNode(nativeContext, function (ntvCntxt) {
+          var channelCountMode = options.channelCountMode;
+          /*
+           * Bug #105: The channelCountMode of 'clamped-max' should be supported. However it is not possible to write a polyfill for Safari
+           * which supports it and therefore it can't be supported at all.
+           */
+
+          if (options.channelCountMode === 'clamped-max') {
+            throw createNotSupportedError();
+          } // Bug #105: Safari does not support the StereoPannerNode.
+
+
+          if (nativeContext.createStereoPanner === undefined) {
+            return createNativeStereoPannerNodeFaker(nativeContext, options);
+          }
+
+          var nativeStereoPannerNode = ntvCntxt.createStereoPanner();
+          assignNativeAudioNodeOptions(nativeStereoPannerNode, options);
+
+          if (options.pan !== nativeStereoPannerNode.pan.value) {
+            nativeStereoPannerNode.pan.value = options.pan;
+          } // Bug #107: Firefox does not kick off the processing of the StereoPannerNode if the value of pan is zero.
+
+
+          if (options.pan === 0) {
+            var gainNode = ntvCntxt.createGain();
+            gainNode.connect(nativeStereoPannerNode.pan);
+          }
+          /*
+           * Bug #105: The channelCountMode of 'clamped-max' should be supported. However it is not possible to write a polyfill for Safari
+           * which supports it and therefore it can't be supported at all.
+           */
+
+
+          Object.defineProperty(nativeStereoPannerNode, 'channelCountMode', {
+            get: function get() {
+              return channelCountMode;
+            },
+            set: function set(value) {
+              if (value !== channelCountMode) {
+                throw createNotSupportedError();
+              }
+            }
+          });
+          return nativeStereoPannerNode;
+        });
+      };
+    };
+
+    var createNativeStereoPannerNodeFakerFactory = function createNativeStereoPannerNodeFakerFactory(createNativeChannelMergerNode, createNativeChannelSplitterNode, createNativeGainNode, createNativeWaveShaperNode, createNotSupportedError) {
+      // The curve has a size of 14bit plus 1 value to have an exact representation for zero. This value has been determined experimentally.
+      var CURVE_SIZE = 16385;
+      var DC_CURVE = new Float32Array([1, 1]);
+      var HALF_PI = Math.PI / 2;
+      var SINGLE_CHANNEL_OPTIONS = {
+        channelCount: 1,
+        channelCountMode: 'explicit',
+        channelInterpretation: 'discrete'
+      };
+      var SINGLE_CHANNEL_WAVE_SHAPER_OPTIONS = Object.assign({}, SINGLE_CHANNEL_OPTIONS, {
+        oversample: 'none'
+      });
+
+      var buildInternalGraphForMono = function buildInternalGraphForMono(nativeContext, inputGainNode, panGainNode, channelMergerNode) {
+        var leftWaveShaperCurve = new Float32Array(CURVE_SIZE);
+        var rightWaveShaperCurve = new Float32Array(CURVE_SIZE);
+
+        for (var i = 0; i < CURVE_SIZE; i += 1) {
+          var x = i / (CURVE_SIZE - 1) * HALF_PI;
+          leftWaveShaperCurve[i] = Math.cos(x);
+          rightWaveShaperCurve[i] = Math.sin(x);
+        }
+
+        var leftGainNode = createNativeGainNode(nativeContext, Object.assign({}, SINGLE_CHANNEL_OPTIONS, {
+          gain: 0
+        }));
+        var leftWaveShaperNode = createNativeWaveShaperNode(nativeContext, Object.assign({}, SINGLE_CHANNEL_WAVE_SHAPER_OPTIONS, {
+          curve: leftWaveShaperCurve
+        }));
+        var panWaveShaperNode = createNativeWaveShaperNode(nativeContext, Object.assign({}, SINGLE_CHANNEL_WAVE_SHAPER_OPTIONS, {
+          curve: DC_CURVE
+        }));
+        var rightGainNode = createNativeGainNode(nativeContext, Object.assign({}, SINGLE_CHANNEL_OPTIONS, {
+          gain: 0
+        }));
+        var rightWaveShaperNode = createNativeWaveShaperNode(nativeContext, Object.assign({}, SINGLE_CHANNEL_WAVE_SHAPER_OPTIONS, {
+          curve: rightWaveShaperCurve
+        }));
+        inputGainNode.connect(leftGainNode);
+        inputGainNode.connect(panWaveShaperNode);
+        inputGainNode.connect(rightGainNode);
+        panWaveShaperNode.connect(panGainNode);
+        panGainNode.connect(leftWaveShaperNode);
+        panGainNode.connect(rightWaveShaperNode);
+        leftWaveShaperNode.connect(leftGainNode.gain);
+        rightWaveShaperNode.connect(rightGainNode.gain);
+        leftGainNode.connect(channelMergerNode, 0, 0);
+        rightGainNode.connect(channelMergerNode, 0, 1);
+        return [leftGainNode, rightGainNode];
+      };
+
+      var buildInternalGraphForStereo = function buildInternalGraphForStereo(nativeContext, inputGainNode, panGainNode, channelMergerNode) {
+        var leftInputForLeftOutputWaveShaperCurve = new Float32Array(CURVE_SIZE);
+        var leftInputForRightOutputWaveShaperCurve = new Float32Array(CURVE_SIZE);
+        var rightInputForLeftOutputWaveShaperCurve = new Float32Array(CURVE_SIZE);
+        var rightInputForRightOutputWaveShaperCurve = new Float32Array(CURVE_SIZE);
+        var centerIndex = Math.floor(CURVE_SIZE / 2);
+
+        for (var i = 0; i < CURVE_SIZE; i += 1) {
+          if (i > centerIndex) {
+            var x = (i - centerIndex) / (CURVE_SIZE - 1 - centerIndex) * HALF_PI;
+            leftInputForLeftOutputWaveShaperCurve[i] = Math.cos(x);
+            leftInputForRightOutputWaveShaperCurve[i] = Math.sin(x);
+            rightInputForLeftOutputWaveShaperCurve[i] = 0;
+            rightInputForRightOutputWaveShaperCurve[i] = 1;
+          } else {
+            var _x = i / (CURVE_SIZE - 1 - centerIndex) * HALF_PI;
+
+            leftInputForLeftOutputWaveShaperCurve[i] = 1;
+            leftInputForRightOutputWaveShaperCurve[i] = 0;
+            rightInputForLeftOutputWaveShaperCurve[i] = Math.cos(_x);
+            rightInputForRightOutputWaveShaperCurve[i] = Math.sin(_x);
+          }
+        }
+
+        var channelSplitterNode = createNativeChannelSplitterNode(nativeContext, {
+          channelCount: 2,
+          channelCountMode: 'explicit',
+          channelInterpretation: 'discrete',
+          numberOfOutputs: 2
+        });
+        var leftInputForLeftOutputGainNode = createNativeGainNode(nativeContext, Object.assign({}, SINGLE_CHANNEL_OPTIONS, {
+          gain: 0
+        }));
+        var leftInputForLeftOutputWaveShaperNode = createNativeWaveShaperNode(nativeContext, Object.assign({}, SINGLE_CHANNEL_WAVE_SHAPER_OPTIONS, {
+          curve: leftInputForLeftOutputWaveShaperCurve
+        }));
+        var leftInputForRightOutputGainNode = createNativeGainNode(nativeContext, Object.assign({}, SINGLE_CHANNEL_OPTIONS, {
+          gain: 0
+        }));
+        var leftInputForRightOutputWaveShaperNode = createNativeWaveShaperNode(nativeContext, Object.assign({}, SINGLE_CHANNEL_WAVE_SHAPER_OPTIONS, {
+          curve: leftInputForRightOutputWaveShaperCurve
+        }));
+        var panWaveShaperNode = createNativeWaveShaperNode(nativeContext, Object.assign({}, SINGLE_CHANNEL_WAVE_SHAPER_OPTIONS, {
+          curve: DC_CURVE
+        }));
+        var rightInputForLeftOutputGainNode = createNativeGainNode(nativeContext, Object.assign({}, SINGLE_CHANNEL_OPTIONS, {
+          gain: 0
+        }));
+        var rightInputForLeftOutputWaveShaperNode = createNativeWaveShaperNode(nativeContext, Object.assign({}, SINGLE_CHANNEL_WAVE_SHAPER_OPTIONS, {
+          curve: rightInputForLeftOutputWaveShaperCurve
+        }));
+        var rightInputForRightOutputGainNode = createNativeGainNode(nativeContext, Object.assign({}, SINGLE_CHANNEL_OPTIONS, {
+          gain: 0
+        }));
+        var rightInputForRightOutputWaveShaperNode = createNativeWaveShaperNode(nativeContext, Object.assign({}, SINGLE_CHANNEL_WAVE_SHAPER_OPTIONS, {
+          curve: rightInputForRightOutputWaveShaperCurve
+        }));
+        inputGainNode.connect(channelSplitterNode);
+        inputGainNode.connect(panWaveShaperNode);
+        channelSplitterNode.connect(leftInputForLeftOutputGainNode, 1);
+        channelSplitterNode.connect(leftInputForRightOutputGainNode, 1);
+        channelSplitterNode.connect(rightInputForLeftOutputGainNode, 1);
+        channelSplitterNode.connect(rightInputForRightOutputGainNode, 1);
+        panWaveShaperNode.connect(panGainNode);
+        panGainNode.connect(leftInputForLeftOutputWaveShaperNode);
+        panGainNode.connect(leftInputForRightOutputWaveShaperNode);
+        panGainNode.connect(rightInputForLeftOutputWaveShaperNode);
+        panGainNode.connect(rightInputForRightOutputWaveShaperNode);
+        leftInputForLeftOutputWaveShaperNode.connect(leftInputForLeftOutputGainNode.gain);
+        leftInputForRightOutputWaveShaperNode.connect(leftInputForRightOutputGainNode.gain);
+        rightInputForLeftOutputWaveShaperNode.connect(rightInputForLeftOutputGainNode.gain);
+        rightInputForRightOutputWaveShaperNode.connect(rightInputForRightOutputGainNode.gain);
+        leftInputForLeftOutputGainNode.connect(channelMergerNode, 0, 0);
+        rightInputForLeftOutputGainNode.connect(channelMergerNode, 0, 0);
+        leftInputForRightOutputGainNode.connect(channelMergerNode, 0, 1);
+        rightInputForRightOutputGainNode.connect(channelMergerNode, 0, 1);
+        return [leftInputForLeftOutputGainNode, rightInputForLeftOutputGainNode, leftInputForRightOutputGainNode, rightInputForRightOutputGainNode];
+      };
+
+      var buildInternalGraph = function buildInternalGraph(nativeContext, channelCount, inputGainNode, panGainNode, channelMergerNode) {
+        if (channelCount === 1) {
+          return buildInternalGraphForMono(nativeContext, inputGainNode, panGainNode, channelMergerNode);
+        } else if (channelCount === 2) {
+          return buildInternalGraphForStereo(nativeContext, inputGainNode, panGainNode, channelMergerNode);
+        }
+
+        throw createNotSupportedError();
+      };
+
+      return function (nativeContext, _a) {
+        var channelCount = _a.channelCount,
+            channelCountMode = _a.channelCountMode,
+            pan = _a.pan,
+            audioNodeOptions = tslib_1.__rest(_a, ["channelCount", "channelCountMode", "pan"]);
+
+        if (channelCountMode === 'max') {
+          throw createNotSupportedError();
+        }
+
+        var channelMergerNode = createNativeChannelMergerNode(nativeContext, Object.assign({}, audioNodeOptions, {
+          channelCount: 1,
+          channelCountMode: channelCountMode,
+          numberOfInputs: 2
+        }));
+        var inputGainNode = createNativeGainNode(nativeContext, Object.assign({}, audioNodeOptions, {
+          channelCount: channelCount,
+          channelCountMode: channelCountMode,
+          gain: 1
+        }));
+        var panGainNode = createNativeGainNode(nativeContext, {
+          channelCount: 1,
+          channelCountMode: 'explicit',
+          channelInterpretation: 'discrete',
+          gain: pan
+        });
+        var outputNodes = buildInternalGraph(nativeContext, channelCount, inputGainNode, panGainNode, channelMergerNode);
+        var panAudioParam = Object.defineProperties(panGainNode.gain, {
+          defaultValue: {
+            get: function get() {
+              return 0;
+            }
+          }
+        });
+        return {
+          get bufferSize() {
+            return undefined;
+          },
+
+          get channelCount() {
+            return inputGainNode.channelCount;
+          },
+
+          set channelCount(value) {
+            if (inputGainNode.channelCount !== value) {
+              inputGainNode.disconnect();
+              outputNodes.forEach(function (outputNode) {
+                return outputNode.disconnect();
+              });
+              outputNodes = buildInternalGraph(nativeContext, value, inputGainNode, panGainNode, channelMergerNode);
+            }
+
+            inputGainNode.channelCount = value;
+          },
+
+          get channelCountMode() {
+            return inputGainNode.channelCountMode;
+          },
+
+          set channelCountMode(value) {
+            if (value === 'clamped-max' || value === 'max') {
+              throw createNotSupportedError();
+            }
+
+            inputGainNode.channelCountMode = value;
+          },
+
+          get channelInterpretation() {
+            return inputGainNode.channelInterpretation;
+          },
+
+          set channelInterpretation(value) {
+            inputGainNode.channelInterpretation = value;
+          },
+
+          get context() {
+            return inputGainNode.context;
+          },
+
+          get inputs() {
+            return [inputGainNode];
+          },
+
+          get numberOfInputs() {
+            return inputGainNode.numberOfInputs;
+          },
+
+          get numberOfOutputs() {
+            return inputGainNode.numberOfOutputs;
+          },
+
+          get pan() {
+            return panAudioParam;
+          },
+
+          addEventListener: function addEventListener() {
+            return inputGainNode.addEventListener(arguments.length <= 0 ? undefined : arguments[0], arguments.length <= 1 ? undefined : arguments[1], arguments.length <= 2 ? undefined : arguments[2]);
+          },
+          connect: function connect() {
+            if ((arguments.length <= 2 ? undefined : arguments[2]) === undefined) {
+              return channelMergerNode.connect.call(channelMergerNode, arguments.length <= 0 ? undefined : arguments[0], arguments.length <= 1 ? undefined : arguments[1]);
+            }
+
+            return channelMergerNode.connect.call(channelMergerNode, arguments.length <= 0 ? undefined : arguments[0], arguments.length <= 1 ? undefined : arguments[1], arguments.length <= 2 ? undefined : arguments[2]);
+          },
+          disconnect: function disconnect() {
+            return channelMergerNode.disconnect.call(channelMergerNode, arguments.length <= 0 ? undefined : arguments[0], arguments.length <= 1 ? undefined : arguments[1], arguments.length <= 2 ? undefined : arguments[2]);
+          },
+          dispatchEvent: function dispatchEvent() {
+            return inputGainNode.dispatchEvent(arguments.length <= 0 ? undefined : arguments[0]);
+          },
+          removeEventListener: function removeEventListener() {
+            return inputGainNode.removeEventListener(arguments.length <= 0 ? undefined : arguments[0], arguments.length <= 1 ? undefined : arguments[1], arguments.length <= 2 ? undefined : arguments[2]);
+          }
+        };
+      };
+    };
+
+    var createNativeWaveShaperNodeFactory = function createNativeWaveShaperNodeFactory(createInvalidStateError, createNativeAudioNode) {
+      return function (nativeContext, options) {
+        return createNativeAudioNode(nativeContext, function (ntvCntxt) {
+          var nativeWaveShaperNode = ntvCntxt.createWaveShaper();
+          assignNativeAudioNodeOptions(nativeWaveShaperNode, options);
+
+          if (options.curve !== nativeWaveShaperNode.curve) {
+            var curve = options.curve; // Bug #102: Safari does not throw an InvalidStateError when the curve has less than two samples.
+            // Bug #104: Chrome will throw an InvalidAccessError when the curve has less than two samples.
+
+            if (curve !== null && curve.length < 2) {
+              throw createInvalidStateError();
+            }
+
+            nativeWaveShaperNode.curve = curve;
+          }
+
+          if (options.oversample !== nativeWaveShaperNode.oversample) {
+            nativeWaveShaperNode.oversample = options.oversample;
+          }
+
+          return nativeWaveShaperNode;
+        });
+      };
+    };
+
+    var createNoneAudioDestinationNodeConstructor = function createNoneAudioDestinationNodeConstructor(audioNodeConstructor) {
+      return (
+        /*#__PURE__*/
+        function (_audioNodeConstructor) {
+          _inherits(NoneAudioDestinationNode, _audioNodeConstructor);
+
+          function NoneAudioDestinationNode(context, nativeAudioNode, audioNodeRenderer) {
+            _classCallCheck(this, NoneAudioDestinationNode);
+
+            return _possibleConstructorReturn(this, _getPrototypeOf(NoneAudioDestinationNode).call(this, context, nativeAudioNode, audioNodeRenderer));
+          }
+
+          return NoneAudioDestinationNode;
+        }(audioNodeConstructor)
+      );
+    };
+
+    var createNotSupportedError = function createNotSupportedError() {
+      try {
+        return new DOMException('', 'NotSupportedError');
+      } catch (err) {
+        err.code = 9;
+        err.name = 'NotSupportedError';
+        return err;
+      }
+    };
+
+    var DEFAULT_OPTIONS$d = {
+      numberOfChannels: 1
+    };
+    var createOfflineAudioContextConstructor = function createOfflineAudioContextConstructor(baseAudioContextConstructor, createInvalidStateError, nativeOfflineAudioContextConstructor, _startRendering) {
+      return (
+        /*#__PURE__*/
+        function (_baseAudioContextCons) {
+          _inherits(OfflineAudioContext, _baseAudioContextCons);
+
+          function OfflineAudioContext(a, b, c) {
+            var _this;
+
+            _classCallCheck(this, OfflineAudioContext);
+
+            if (nativeOfflineAudioContextConstructor === null) {
+              throw new Error(); // @todo
+            }
+
+            var options;
+
+            if (typeof a === 'number' && b !== undefined && c !== undefined) {
+              options = {
+                length: b,
+                numberOfChannels: a,
+                sampleRate: c
+              };
+            } else if (_typeof(a) === 'object') {
+              options = a;
+            } else {
+              throw new Error('The given parameters are not valid.');
+            }
+
+            var _Object$assign = Object.assign({}, DEFAULT_OPTIONS$d, options),
+                length = _Object$assign.length,
+                numberOfChannels = _Object$assign.numberOfChannels,
+                sampleRate = _Object$assign.sampleRate;
+
+            var nativeOfflineAudioContext = new nativeOfflineAudioContextConstructor(numberOfChannels, length, sampleRate); // #21 Safari does not support promises and therefore would fire the statechange event before the promise can be resolved.
+
+            if (!cacheTestResult(testPromiseSupport, function () {
+              return testPromiseSupport(nativeOfflineAudioContext);
+            })) {
+              nativeOfflineAudioContext.addEventListener('statechange', function () {
+                var i = 0;
+
+                var delayStateChangeEvent = function delayStateChangeEvent(event) {
+                  if (_this._state === 'running') {
+                    if (i > 0) {
+                      nativeOfflineAudioContext.removeEventListener('statechange', delayStateChangeEvent);
+                      event.stopImmediatePropagation();
+
+                      _this._waitForThePromiseToSettle(event);
+                    } else {
+                      i += 1;
+                    }
+                  }
+                };
+
+                return delayStateChangeEvent;
+              }());
+            }
+
+            _this = _possibleConstructorReturn(this, _getPrototypeOf(OfflineAudioContext).call(this, nativeOfflineAudioContext, numberOfChannels));
+            _this._length = length;
+            _this._nativeOfflineAudioContext = nativeOfflineAudioContext;
+            _this._state = null;
+            return _this;
+          }
+
+          _createClass(OfflineAudioContext, [{
+            key: "startRendering",
+            value: function startRendering() {
+              var _this2 = this;
+
+              /*
+               * Bug #9 & #59: It is theoretically possible that startRendering() will first render a partialOfflineAudioContext. Therefore
+               * the state of the nativeOfflineAudioContext might no transition to running immediately.
+               */
+              if (this._state === 'running') {
+                return Promise.reject(createInvalidStateError());
+              }
+
+              this._state = 'running';
+              return _startRendering(this.destination, this._nativeOfflineAudioContext).then(function (audioBuffer) {
+                _this2._state = null;
+                /*
+                 * Bug #50: Deleting the AudioGraph is currently not possible anymore.
+                 * deleteAudioGraph(this, this._nativeOfflineAudioContext);
+                 */
+
+                return audioBuffer;
+              }) // @todo This could be written more elegantly when Promise.finally() becomes avalaible.
+              .catch(function (err) {
+                _this2._state = null;
+                /*
+                 * Bug #50: Deleting the AudioGraph is currently not possible anymore.
+                 * deleteAudioGraph(this, this._nativeOfflineAudioContext);
+                 */
+
+                throw err; // tslint:disable-line:rxjs-throw-error
+              });
+            }
+          }, {
+            key: "_waitForThePromiseToSettle",
+            value: function _waitForThePromiseToSettle(event) {
+              var _this3 = this;
+
+              if (this._state === null) {
+                this._nativeOfflineAudioContext.dispatchEvent(event);
+              } else {
+                setTimeout(function () {
+                  return _this3._waitForThePromiseToSettle(event);
+                });
+              }
+            }
+          }, {
+            key: "length",
+            get: function get() {
+              // Bug #17: Safari does not yet expose the length.
+              if (this._nativeOfflineAudioContext.length === undefined) {
+                return this._length;
+              }
+
+              return this._nativeOfflineAudioContext.length;
+            }
+          }, {
+            key: "state",
+            get: function get() {
+              return this._state === null ? this._nativeOfflineAudioContext.state : this._state;
+            }
+          }]);
+
+          return OfflineAudioContext;
+        }(baseAudioContextConstructor)
+      );
+    };
+
+    var DEFAULT_OPTIONS$e = {
+      channelCount: 2,
+      channelCountMode: 'max',
+      channelInterpretation: 'speakers',
+      detune: 0,
+      frequency: 440,
+      type: 'sine'
+    };
+    var createOscillatorNodeConstructor = function createOscillatorNodeConstructor(createAudioParam, createInvalidStateError, createNativeOscillatorNode, createOscillatorNodeRenderer, isNativeOfflineAudioContext, noneAudioDestinationNodeConstructor) {
+      return (
+        /*#__PURE__*/
+        function (_noneAudioDestination) {
+          _inherits(OscillatorNode, _noneAudioDestination);
+
+          function OscillatorNode(context) {
+            var _this;
+
+            var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : DEFAULT_OPTIONS$e;
+
+            _classCallCheck(this, OscillatorNode);
+
+            var absoluteValue = 1200 * Math.log2(context.sampleRate);
+            var nativeContext = getNativeContext(context);
+            var mergedOptions = Object.assign({}, DEFAULT_OPTIONS$e, options);
+            var nativeOscillatorNode = createNativeOscillatorNode(nativeContext, mergedOptions);
+            var isOffline = isNativeOfflineAudioContext(nativeContext);
+            var oscillatorNodeRenderer = isOffline ? createOscillatorNodeRenderer() : null;
+            var nyquist = context.sampleRate / 2;
+            _this = _possibleConstructorReturn(this, _getPrototypeOf(OscillatorNode).call(this, context, nativeOscillatorNode, oscillatorNodeRenderer)); // Bug #81: Edge, Firefox & Safari do not export the correct values for maxValue and minValue.
+
+            _this._detune = createAudioParam(context, isOffline, nativeOscillatorNode.detune, absoluteValue, -absoluteValue); // Bug #76: Edge & Safari do not export the correct values for maxValue and minValue.
+
+            _this._frequency = createAudioParam(context, isOffline, nativeOscillatorNode.frequency, nyquist, -nyquist);
+            _this._nativeOscillatorNode = nativeOscillatorNode;
+            _this._oscillatorNodeRenderer = oscillatorNodeRenderer;
+            return _this;
+          }
+
+          _createClass(OscillatorNode, [{
+            key: "setPeriodicWave",
+            value: function setPeriodicWave(periodicWave) {
+              this._nativeOscillatorNode.setPeriodicWave(periodicWave);
+            }
+          }, {
+            key: "start",
+            value: function start() {
+              var when = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 0;
+
+              this._nativeOscillatorNode.start(when);
+
+              if (this._oscillatorNodeRenderer !== null) {
+                this._oscillatorNodeRenderer.start = when;
+              }
+            }
+          }, {
+            key: "stop",
+            value: function stop() {
+              var when = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 0;
+
+              this._nativeOscillatorNode.stop(when);
+
+              if (this._oscillatorNodeRenderer !== null) {
+                this._oscillatorNodeRenderer.stop = when;
+              }
+            }
+          }, {
+            key: "detune",
+            get: function get() {
+              return this._detune;
+            }
+          }, {
+            key: "frequency",
+            get: function get() {
+              return this._frequency;
+            }
+          }, {
+            key: "onended",
+            get: function get() {
+              return this._nativeOscillatorNode.onended;
+            },
+            set: function set(value) {
+              this._nativeOscillatorNode.onended = value;
+            }
+          }, {
+            key: "type",
+            get: function get() {
+              return this._nativeOscillatorNode.type;
+            },
+            set: function set(value) {
+              this._nativeOscillatorNode.type = value; // Bug #57: Edge will not throw an error when assigning the type to 'custom'. But it still will change the value.
+
+              if (value === 'custom') {
+                throw createInvalidStateError();
+              }
+            }
+          }]);
+
+          return OscillatorNode;
+        }(noneAudioDestinationNodeConstructor)
+      );
+    };
+
+    var createOscillatorNodeRendererFactory = function createOscillatorNodeRendererFactory(createNativeOscillatorNode) {
+      return function () {
+        var nativeOscillatorNode = null;
+        var start = null;
+        var stop = null;
+        return {
+          set start(value) {
+            start = value;
+          },
+
+          set stop(value) {
+            stop = value;
+          },
+
+          render: function () {
+            var _render = _asyncToGenerator(
+            /*#__PURE__*/
+            _regeneratorRuntime.mark(function _callee(proxy, nativeOfflineAudioContext) {
+              var options;
+              return _regeneratorRuntime.wrap(function _callee$(_context) {
+                while (1) {
+                  switch (_context.prev = _context.next) {
+                    case 0:
+                      if (!(nativeOscillatorNode !== null)) {
+                        _context.next = 2;
+                        break;
+                      }
+
+                      return _context.abrupt("return", nativeOscillatorNode);
+
+                    case 2:
+                      nativeOscillatorNode = getNativeAudioNode(proxy);
+                      /*
+                       * If the initially used nativeOscillatorNode was not constructed on the same OfflineAudioContext it needs to be created
+                       * again.
+                       */
+
+                      if (isOwnedByContext(nativeOscillatorNode, nativeOfflineAudioContext)) {
+                        _context.next = 14;
+                        break;
+                      }
+
+                      options = {
+                        channelCount: nativeOscillatorNode.channelCount,
+                        channelCountMode: nativeOscillatorNode.channelCountMode,
+                        channelInterpretation: nativeOscillatorNode.channelInterpretation,
+                        detune: nativeOscillatorNode.detune.value,
+                        frequency: nativeOscillatorNode.frequency.value,
+                        // @todo periodicWave is not exposed by the native node.
+                        type: nativeOscillatorNode.type
+                      };
+                      nativeOscillatorNode = createNativeOscillatorNode(nativeOfflineAudioContext, options);
+
+                      if (start !== null) {
+                        nativeOscillatorNode.start(start);
+                      }
+
+                      if (stop !== null) {
+                        nativeOscillatorNode.stop(stop);
+                      }
+
+                      _context.next = 10;
+                      return renderAutomation(proxy.context, nativeOfflineAudioContext, proxy.detune, nativeOscillatorNode.detune);
+
+                    case 10:
+                      _context.next = 12;
+                      return renderAutomation(proxy.context, nativeOfflineAudioContext, proxy.frequency, nativeOscillatorNode.frequency);
+
+                    case 12:
+                      _context.next = 18;
+                      break;
+
+                    case 14:
+                      _context.next = 16;
+                      return connectAudioParam(proxy.context, nativeOfflineAudioContext, proxy.detune);
+
+                    case 16:
+                      _context.next = 18;
+                      return connectAudioParam(proxy.context, nativeOfflineAudioContext, proxy.frequency);
+
+                    case 18:
+                      _context.next = 20;
+                      return renderInputsOfAudioNode(proxy, nativeOfflineAudioContext, nativeOscillatorNode);
+
+                    case 20:
+                      return _context.abrupt("return", nativeOscillatorNode);
+
+                    case 21:
+                    case "end":
+                      return _context.stop();
+                  }
+                }
+              }, _callee, this);
+            }));
+
+            return function render(_x, _x2) {
+              return _render.apply(this, arguments);
+            };
+          }()
+        };
+      };
+    };
+
+    var createRenderNativeOfflineAudioContext = function createRenderNativeOfflineAudioContext(createNativeGainNode) {
+      return function (nativeOfflineAudioContext) {
+        // Bug #21: Safari does not support promises yet.
+        if (cacheTestResult(testPromiseSupport, function () {
+          return testPromiseSupport(nativeOfflineAudioContext);
+        })) {
+          return nativeOfflineAudioContext.startRendering();
+        }
+
+        return new Promise(function (resolve) {
+          // Bug #48: Safari does not render an OfflineAudioContext without any connected node.
+          var gainNode = createNativeGainNode(nativeOfflineAudioContext, {
+            channelCount: 1,
+            channelCountMode: 'explicit',
+            channelInterpretation: 'discrete',
+            gain: 0
+          });
+
+          nativeOfflineAudioContext.oncomplete = function (event) {
+            gainNode.disconnect();
+            resolve(event.renderedBuffer);
+          };
+
+          gainNode.connect(nativeOfflineAudioContext.destination);
+          nativeOfflineAudioContext.startRendering();
+        });
+      };
+    };
+
+    var createStartRendering = function createStartRendering(renderNativeOfflineAudioContext, testAudioBufferCopyChannelMethodsSubarraySupport) {
+      return function (destination, nativeOfflineAudioContext) {
+        return getAudioNodeRenderer(destination).render(destination, nativeOfflineAudioContext).then(function () {
+          return renderNativeOfflineAudioContext(nativeOfflineAudioContext);
+        }).then(function (audioBuffer) {
+          // Bug #5: Safari does not support copyFromChannel() and copyToChannel().
+          // Bug #100: Safari does throw a wrong error when calling getChannelData() with an out-of-bounds value.
+          if (typeof audioBuffer.copyFromChannel !== 'function') {
+            wrapAudioBufferCopyChannelMethods(audioBuffer);
+            wrapAudioBufferGetChannelDataMethod(audioBuffer); // Bug #42: Firefox does not yet fully support copyFromChannel() and copyToChannel().
+          } else if (!cacheTestResult(testAudioBufferCopyChannelMethodsSubarraySupport, function () {
+            return testAudioBufferCopyChannelMethodsSubarraySupport(audioBuffer);
+          })) {
+            wrapAudioBufferCopyChannelMethodsSubarray(audioBuffer);
+          }
+
+          return audioBuffer;
+        });
+      };
+    };
+
+    var DEFAULT_OPTIONS$f = {
+      channelCount: 2,
+
+      /*
+       * Bug #105: The channelCountMode should be 'clamped-max' according to the spec but is set to 'explicit' to achieve consistent
+       * behavior.
+       */
+      channelCountMode: 'explicit',
+      channelInterpretation: 'speakers',
+      pan: 0
+    };
+    var createStereoPannerNodeConstructor = function createStereoPannerNodeConstructor(createAudioParam, createNativeStereoPannerNode, createStereoPannerNodeRenderer, isNativeOfflineAudioContext, noneAudioDestinationNodeConstructor) {
+      return (
+        /*#__PURE__*/
+        function (_noneAudioDestination) {
+          _inherits(StereoPannerNode, _noneAudioDestination);
+
+          function StereoPannerNode(context) {
+            var _this;
+
+            var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : DEFAULT_OPTIONS$f;
+
+            _classCallCheck(this, StereoPannerNode);
+
+            var nativeContext = getNativeContext(context);
+            var mergedOptions = Object.assign({}, DEFAULT_OPTIONS$f, options);
+            var nativeStereoPannerNode = createNativeStereoPannerNode(nativeContext, mergedOptions);
+            var isOffline = isNativeOfflineAudioContext(nativeContext);
+            var stereoPannerNodeRenderer = isOffline ? createStereoPannerNodeRenderer() : null;
+            _this = _possibleConstructorReturn(this, _getPrototypeOf(StereoPannerNode).call(this, context, nativeStereoPannerNode, stereoPannerNodeRenderer)); // Bug #106: Edge does not export a maxValue and minValue property.
+
+            _this._pan = createAudioParam(context, isOffline, nativeStereoPannerNode.pan, 1, -1);
+            return _this;
+          }
+
+          _createClass(StereoPannerNode, [{
+            key: "pan",
+            get: function get() {
+              return this._pan;
+            }
+          }]);
+
+          return StereoPannerNode;
+        }(noneAudioDestinationNodeConstructor)
+      );
+    };
+
+    var createStereoPannerNodeRendererFactory = function createStereoPannerNodeRendererFactory(createNativeStereoPannerNode) {
+      return function () {
+        var nativeStereoPannerNode = null;
+        return {
+          render: function () {
+            var _render = _asyncToGenerator(
+            /*#__PURE__*/
+            _regeneratorRuntime.mark(function _callee(proxy, nativeOfflineAudioContext) {
+              var options;
+              return _regeneratorRuntime.wrap(function _callee$(_context) {
+                while (1) {
+                  switch (_context.prev = _context.next) {
+                    case 0:
+                      if (!(nativeStereoPannerNode !== null)) {
+                        _context.next = 2;
+                        break;
+                      }
+
+                      return _context.abrupt("return", nativeStereoPannerNode);
+
+                    case 2:
+                      nativeStereoPannerNode = getNativeAudioNode(proxy);
+                      /*
+                       * If the initially used nativeStereoPannerNode was not constructed on the same OfflineAudioContext it needs to be created
+                       * again.
+                       */
+
+                      if (isOwnedByContext(nativeStereoPannerNode, nativeOfflineAudioContext)) {
+                        _context.next = 10;
+                        break;
+                      }
+
+                      options = {
+                        channelCount: nativeStereoPannerNode.channelCount,
+                        channelCountMode: nativeStereoPannerNode.channelCountMode,
+                        channelInterpretation: nativeStereoPannerNode.channelInterpretation,
+                        pan: nativeStereoPannerNode.pan.value
+                      };
+                      nativeStereoPannerNode = createNativeStereoPannerNode(nativeOfflineAudioContext, options);
+                      _context.next = 8;
+                      return renderAutomation(proxy.context, nativeOfflineAudioContext, proxy.pan, nativeStereoPannerNode.pan);
+
+                    case 8:
+                      _context.next = 12;
+                      break;
+
+                    case 10:
+                      _context.next = 12;
+                      return connectAudioParam(proxy.context, nativeOfflineAudioContext, proxy.pan);
+
+                    case 12:
+                      if (!(nativeStereoPannerNode.inputs !== undefined)) {
+                        _context.next = 17;
+                        break;
+                      }
+
+                      _context.next = 15;
+                      return renderInputsOfAudioNode(proxy, nativeOfflineAudioContext, nativeStereoPannerNode.inputs[0]);
+
+                    case 15:
+                      _context.next = 19;
+                      break;
+
+                    case 17:
+                      _context.next = 19;
+                      return renderInputsOfAudioNode(proxy, nativeOfflineAudioContext, nativeStereoPannerNode);
+
+                    case 19:
+                      return _context.abrupt("return", nativeStereoPannerNode);
+
+                    case 20:
+                    case "end":
+                      return _context.stop();
+                  }
+                }
+              }, _callee, this);
+            }));
+
+            return function render(_x, _x2) {
+              return _render.apply(this, arguments);
+            };
+          }()
+        };
+      };
+    };
+
+    // Bug #33: Edge & Safari expose an AudioBuffer but it can't be used as a constructor.
+    var createTestAudioBufferConstructorSupport = function createTestAudioBufferConstructorSupport(nativeAudioBufferConstructor) {
+      return function () {
+        if (nativeAudioBufferConstructor === null) {
+          return false;
+        }
+
+        try {
+          new nativeAudioBufferConstructor({
+            length: 1,
+            sampleRate: 44100
+          }); // tslint:disable-line:no-unused-expression
+        } catch (_a) {
+          return false;
+        }
+
+        return true;
+      };
+    };
+
+    var createTestAudioBufferSourceNodeStartMethodConsecutiveCallsSupport = function createTestAudioBufferSourceNodeStartMethodConsecutiveCallsSupport(createNativeAudioNode) {
+      return function (nativeContext) {
+        var nativeAudioBufferSourceNode = createNativeAudioNode(nativeContext, function (ntvCntxt) {
+          return ntvCntxt.createBufferSource();
+        });
+        nativeAudioBufferSourceNode.start();
+
+        try {
+          nativeAudioBufferSourceNode.start();
+        } catch (_a) {
+          return true;
+        }
+
+        return false;
+      };
+    };
+
+    // Bug #92: Edge does not respect the duration parameter yet.
+    var createTestAudioBufferSourceNodeStartMethodDurationParameterSupport = function createTestAudioBufferSourceNodeStartMethodDurationParameterSupport(nativeOfflineAudioContextConstructor) {
+      return function () {
+        if (nativeOfflineAudioContextConstructor === null) {
+          return Promise.resolve(false);
+        }
+
+        var offlineAudioContext = new nativeOfflineAudioContextConstructor(1, 1, 44100);
+        var audioBuffer = offlineAudioContext.createBuffer(1, 1, offlineAudioContext.sampleRate);
+        var audioBufferSourceNode = offlineAudioContext.createBufferSource();
+        audioBuffer.getChannelData(0)[0] = 1;
+        audioBufferSourceNode.buffer = audioBuffer;
+        audioBufferSourceNode.start(0, 0, 0);
+        audioBufferSourceNode.connect(offlineAudioContext.destination); // Bug #21: Safari does not support promises yet.
+
+        return new Promise(function (resolve) {
+          offlineAudioContext.oncomplete = function (_ref) {
+            var renderedBuffer = _ref.renderedBuffer;
+            // Bug #5: Safari does not support copyFromChannel().
+            resolve(renderedBuffer.getChannelData(0)[0] === 0);
+          };
+
+          offlineAudioContext.startRendering();
+        });
+      };
+    };
+
+    var createTestAudioContextCloseMethodSupport = function createTestAudioContextCloseMethodSupport(nativeAudioContextConstructor) {
+      return function () {
+        if (nativeAudioContextConstructor === null) {
+          return false;
+        } // Try to check the prototype before constructing the AudioContext.
+
+
+        if (nativeAudioContextConstructor.prototype !== undefined && nativeAudioContextConstructor.prototype.close !== undefined) {
+          return true;
+        }
+
+        var audioContext = new nativeAudioContextConstructor();
+        var isAudioContextClosable = audioContext.close !== undefined;
+
+        try {
+          audioContext.close();
+        } catch (_a) {// Ignore errors.
+        }
+
+        return isAudioContextClosable;
+      };
+    };
+
+    /**
+     * Edge up to version 14, Firefox up to version 52, Safari up to version 9 and maybe other browsers
+     * did not refuse to decode invalid parameters with a TypeError.
+     */
+    var createTestAudioContextDecodeAudioDataMethodTypeErrorSupport = function createTestAudioContextDecodeAudioDataMethodTypeErrorSupport(nativeOfflineAudioContextConstructor) {
+      return function () {
+        if (nativeOfflineAudioContextConstructor === null) {
+          return Promise.resolve(false);
+        }
+
+        var offlineAudioContext = new nativeOfflineAudioContextConstructor(1, 1, 44100); // Bug #21: Safari does not support promises yet.
+
+        return new Promise(function (resolve) {
+          offlineAudioContext // Bug #1: Safari requires a successCallback.
+          .decodeAudioData(null, function () {// Ignore the success callback.
+          }, function (err) {
+            offlineAudioContext.startRendering();
+            resolve(err instanceof TypeError);
+          }).catch(function () {// Ignore errors.
+          });
+        });
+      };
+    };
+
+    var createTestAudioContextOptionsSupport = function createTestAudioContextOptionsSupport(nativeAudioContextConstructor) {
+      return function () {
+        if (nativeAudioContextConstructor === null) {
+          return false;
+        }
+
+        var audioContext;
+
+        try {
+          audioContext = new nativeAudioContextConstructor({
+            latencyHint: 'balanced'
+          });
+        } catch (_a) {
+          return false;
+        }
+
+        audioContext.close();
+        return true;
+      };
+    };
+
+    var createTestAudioScheduledSourceNodeStartMethodNegativeParametersSupport = function createTestAudioScheduledSourceNodeStartMethodNegativeParametersSupport(createNativeAudioNode) {
+      return function (nativeContext) {
+        var nativeAudioBufferSourceNode = createNativeAudioNode(nativeContext, function (ntvCntxt) {
+          return ntvCntxt.createBufferSource();
+        });
+
+        try {
+          nativeAudioBufferSourceNode.start(-1);
+        } catch (err) {
+          return err instanceof RangeError;
+        }
+
+        return false;
+      };
+    };
+
+    var createTestAudioScheduledSourceNodeStopMethodConsecutiveCallsSupport = function createTestAudioScheduledSourceNodeStopMethodConsecutiveCallsSupport(createNativeAudioNode) {
+      return function (nativeContext) {
+        var nativeAudioBuffer = nativeContext.createBuffer(1, 1, 44100);
+        var nativeAudioBufferSourceNode = createNativeAudioNode(nativeContext, function (ntvCntxt) {
+          return ntvCntxt.createBufferSource();
+        });
+        nativeAudioBufferSourceNode.buffer = nativeAudioBuffer;
+        nativeAudioBufferSourceNode.start();
+        nativeAudioBufferSourceNode.stop();
+
+        try {
+          nativeAudioBufferSourceNode.stop();
+          return true;
+        } catch (_a) {
+          return false;
+        }
+      };
+    };
+
+    var createTestAudioScheduledSourceNodeStopMethodNegativeParametersSupport = function createTestAudioScheduledSourceNodeStopMethodNegativeParametersSupport(createNativeAudioNode) {
+      return function (nativeContext) {
+        var nativeAudioBufferSourceNode = createNativeAudioNode(nativeContext, function (ntvCntxt) {
+          return ntvCntxt.createBufferSource();
+        });
+
+        try {
+          nativeAudioBufferSourceNode.stop(-1);
+        } catch (err) {
+          return err instanceof RangeError;
+        }
+
+        return false;
+      };
+    };
+
+    /**
+     * Firefox up to version 44 had a bug which resulted in a misbehaving ChannelMergerNode. If one of
+     * its channels would be unconnected the remaining channels were somehow upmixed to spread the
+     * signal across all available channels.
+     */
+    var createTestChannelMergerNodeSupport = function createTestChannelMergerNodeSupport(nativeAudioContextConstructor) {
+      return function () {
+        if (nativeAudioContextConstructor === null) {
+          return Promise.resolve(false);
+        }
+
+        var audioContext = new nativeAudioContextConstructor();
+        var audioBuffer = audioContext.createBuffer(2, 2, audioContext.sampleRate);
+        var audioBufferSourceNode = audioContext.createBufferSource();
+        var channelMergerNode = audioContext.createChannelMerger(2);
+        var scriptProcessorNode = audioContext.createScriptProcessor(256);
+        return new Promise(function (resolve) {
+          var startTime; // Bug #95: Safari does not play/loop one sample buffers.
+
+          audioBuffer.getChannelData(0)[0] = 1;
+          audioBuffer.getChannelData(0)[1] = 1;
+          audioBuffer.getChannelData(1)[0] = 1;
+          audioBuffer.getChannelData(1)[1] = 1;
+          audioBufferSourceNode.buffer = audioBuffer;
+          audioBufferSourceNode.loop = true;
+
+          scriptProcessorNode.onaudioprocess = function (event) {
+            var channelData = event.inputBuffer.getChannelData(1);
+            var length = channelData.length;
+
+            for (var i = 0; i < length; i += 1) {
+              if (channelData[i] !== 0) {
+                resolve(false);
+                return;
+              }
+            }
+
+            if (startTime + 1 / audioContext.sampleRate < event.playbackTime) {
+              resolve(true);
+            }
+          };
+
+          audioBufferSourceNode.connect(channelMergerNode, 0, 0);
+          channelMergerNode.connect(scriptProcessorNode);
+          scriptProcessorNode.connect(audioContext.destination);
+          startTime = audioContext.currentTime;
+          audioBufferSourceNode.start(startTime);
+        }).then(function (result) {
+          audioBufferSourceNode.stop();
+          audioBufferSourceNode.disconnect();
+          channelMergerNode.disconnect();
+          scriptProcessorNode.disconnect();
+          audioContext.close();
+          return result;
+        });
+      };
+    };
+
+    /**
+     * Firefox up to version 61 had a bug which caused the ChannelSplitterNode to expose a wrong channelCount property.
+     */
+    var createTestChannelSplitterNodeChannelCountSupport = function createTestChannelSplitterNodeChannelCountSupport(nativeOfflineAudioContextConstructor) {
+      return function () {
+        if (nativeOfflineAudioContextConstructor === null) {
+          return false;
+        }
+
+        var offlineAudioContext = new nativeOfflineAudioContextConstructor(1, 1, 44100);
+        var channelSplitterNode = offlineAudioContext.createChannelSplitter(4);
+        return channelSplitterNode.channelCount === 4;
+      };
+    };
+
+    var createTestConstantSourceNodeAccurateSchedulingSupport = function createTestConstantSourceNodeAccurateSchedulingSupport(createNativeAudioNode) {
+      return function (nativeContext) {
+        // @todo TypeScript doesn't know yet about createConstantSource().
+        var nativeConstantSourceNode = createNativeAudioNode(nativeContext, function (ntvCntxt) {
+          return ntvCntxt.createConstantSource();
+        });
+        /*
+         * @todo This is using bug #75 to detect bug #70. That works because both bugs are unique to
+         * the implementation of Firefox right now, but it could probably be done in a better way.
+         */
+
+        return nativeConstantSourceNode.offset.maxValue !== Number.POSITIVE_INFINITY;
+      };
+    };
+
+    var createTestIsSecureContextSupport = function createTestIsSecureContextSupport(window) {
+      return function () {
+        return window !== null && window.hasOwnProperty('isSecureContext');
+      };
+    };
+
+    var DEFAULT_OPTIONS$g = {
+      curve: null,
+      oversample: 'none'
+    };
+    var createWaveShaperNodeConstructor = function createWaveShaperNodeConstructor(createInvalidStateError, createNativeWaveShaperNode, createWaveShaperNodeRenderer, isNativeOfflineAudioContext, noneAudioDestinationNodeConstructor) {
+      return (
+        /*#__PURE__*/
+        function (_noneAudioDestination) {
+          _inherits(WaveShaperNode, _noneAudioDestination);
+
+          function WaveShaperNode(context) {
+            var _this;
+
+            var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : DEFAULT_OPTIONS$g;
+
+            _classCallCheck(this, WaveShaperNode);
+
+            var nativeContext = getNativeContext(context);
+            var mergedOptions = Object.assign({}, DEFAULT_OPTIONS$g, options);
+            var nativeWaveShaperNode = createNativeWaveShaperNode(nativeContext, mergedOptions);
+            var isOffline = isNativeOfflineAudioContext(nativeContext);
+            var waveShaperNodeRenderer = isOffline ? createWaveShaperNodeRenderer() : null;
+            _this = _possibleConstructorReturn(this, _getPrototypeOf(WaveShaperNode).call(this, context, nativeWaveShaperNode, waveShaperNodeRenderer));
+            _this._isCurveNullified = false;
+            _this._nativeWaveShaperNode = nativeWaveShaperNode;
+            return _this;
+          }
+
+          _createClass(WaveShaperNode, [{
+            key: "curve",
+            get: function get() {
+              if (this._isCurveNullified) {
+                return null;
+              }
+
+              return this._nativeWaveShaperNode.curve;
+            },
+            set: function set(value) {
+              // Bug #103: Safari does not allow to set the curve to null.
+              if (value === null) {
+                this._isCurveNullified = true;
+                this._nativeWaveShaperNode.curve = new Float32Array([0, 0]); // Bug #102: Safari does not throw an InvalidStateError when the curve has less than two samples.
+                // Bug #104: Chrome will throw an InvalidAccessError when the curve has less than two samples.
+              } else if (value.length < 2) {
+                throw createInvalidStateError();
+              } else {
+                this._isCurveNullified = false;
+                this._nativeWaveShaperNode.curve = value;
+              }
+            }
+          }, {
+            key: "oversample",
+            get: function get() {
+              return this._nativeWaveShaperNode.oversample;
+            },
+            set: function set(value) {
+              this._nativeWaveShaperNode.oversample = value;
+            }
+          }]);
+
+          return WaveShaperNode;
+        }(noneAudioDestinationNodeConstructor)
+      );
+    };
+
+    var createWaveShaperNodeRendererFactory = function createWaveShaperNodeRendererFactory(createNativeWaveShaperNode) {
+      return function () {
+        var nativeWaveShaperNode = null;
+        return {
+          render: function () {
+            var _render = _asyncToGenerator(
+            /*#__PURE__*/
+            _regeneratorRuntime.mark(function _callee(proxy, nativeOfflineAudioContext) {
+              var options;
+              return _regeneratorRuntime.wrap(function _callee$(_context) {
+                while (1) {
+                  switch (_context.prev = _context.next) {
+                    case 0:
+                      if (!(nativeWaveShaperNode !== null)) {
+                        _context.next = 2;
+                        break;
+                      }
+
+                      return _context.abrupt("return", nativeWaveShaperNode);
+
+                    case 2:
+                      nativeWaveShaperNode = getNativeAudioNode(proxy);
+                      /*
+                       * If the initially used nativeWaveShaperNode was not constructed on the same OfflineAudioContext it needs to be created
+                       * again.
+                       */
+
+                      if (!isOwnedByContext(nativeWaveShaperNode, nativeOfflineAudioContext)) {
+                        options = {
+                          channelCount: nativeWaveShaperNode.channelCount,
+                          channelCountMode: nativeWaveShaperNode.channelCountMode,
+                          channelInterpretation: nativeWaveShaperNode.channelInterpretation,
+                          curve: nativeWaveShaperNode.curve,
+                          oversample: nativeWaveShaperNode.oversample
+                        };
+                        nativeWaveShaperNode = createNativeWaveShaperNode(nativeOfflineAudioContext, options);
+                      }
+
+                      _context.next = 6;
+                      return renderInputsOfAudioNode(proxy, nativeOfflineAudioContext, nativeWaveShaperNode);
+
+                    case 6:
+                      return _context.abrupt("return", nativeWaveShaperNode);
+
+                    case 7:
+                    case "end":
+                      return _context.stop();
+                  }
+                }
+              }, _callee, this);
+            }));
+
+            return function render(_x, _x2) {
+              return _render.apply(this, arguments);
+            };
+          }()
+        };
+      };
+    };
+
+    var createWindow = function createWindow() {
+      return typeof window === 'undefined' ? null : window;
+    };
+
+    var createWrapAudioScheduledSourceNodeStopMethodConsecutiveCalls = function createWrapAudioScheduledSourceNodeStopMethodConsecutiveCalls(createNativeAudioNode) {
+      return function (nativeAudioScheduledSourceNode, nativeContext) {
+        var nativeGainNode = createNativeAudioNode(nativeContext, function (ntvCntxt) {
+          return ntvCntxt.createGain();
+        });
+        nativeAudioScheduledSourceNode.connect(nativeGainNode);
+
+        var disconnectGainNode = function (disconnect) {
+          return function () {
+            disconnect.call(nativeAudioScheduledSourceNode, nativeGainNode);
+            nativeAudioScheduledSourceNode.removeEventListener('ended', disconnectGainNode);
+          };
+        }(nativeAudioScheduledSourceNode.disconnect);
+
+        nativeAudioScheduledSourceNode.addEventListener('ended', disconnectGainNode);
+
+        nativeAudioScheduledSourceNode.connect = function (destination) {
+          var output = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 0;
+          var input = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 0;
+
+          if (destination instanceof AudioNode) {
+            nativeGainNode.connect.call(nativeGainNode, destination, output, input); // Bug #11: Safari does not support chaining yet.
+
+            return destination;
+          } // @todo This return statement is necessary to satisfy TypeScript.
+
+
+          return nativeGainNode.connect.call(nativeGainNode, destination, output);
+        };
+
+        nativeAudioScheduledSourceNode.disconnect = function () {
+          nativeGainNode.disconnect.apply(nativeGainNode, arguments);
+        };
+
+        nativeAudioScheduledSourceNode.stop = function (stop) {
+          var isStopped = false;
+          return function () {
+            var when = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 0;
+
+            if (isStopped) {
+              try {
+                stop.call(nativeAudioScheduledSourceNode, when);
+              } catch (_a) {
+                nativeGainNode.gain.setValueAtTime(0, when);
+              }
+            } else {
+              stop.call(nativeAudioScheduledSourceNode, when);
+              isStopped = true;
+            }
+          };
+        }(nativeAudioScheduledSourceNode.stop);
+      };
+    };
+
+    var createWrapChannelMergerNode = function createWrapChannelMergerNode(createInvalidStateError, createNativeAudioNode) {
+      return function (nativeContext, channelMergerNode) {
+        var audioBufferSourceNode = createNativeAudioNode(nativeContext, function (ntvCntxt) {
+          return ntvCntxt.createBufferSource();
+        });
+        channelMergerNode.channelCount = 1;
+        channelMergerNode.channelCountMode = 'explicit'; // Bug #20: Safari requires a connection of any kind to treat the input signal correctly.
+
+        var length = channelMergerNode.numberOfInputs;
+
+        for (var i = 0; i < length; i += 1) {
+          audioBufferSourceNode.connect(channelMergerNode, 0, i);
+        }
+
+        Object.defineProperty(channelMergerNode, 'channelCount', {
+          get: function get() {
+            return 1;
+          },
+          set: function set() {
+            throw createInvalidStateError();
+          }
+        });
+        Object.defineProperty(channelMergerNode, 'channelCountMode', {
+          get: function get() {
+            return 'explicit';
+          },
+          set: function set() {
+            throw createInvalidStateError();
+          }
+        });
+      };
+    };
+
+    var createWrapConstantSourceNodeAccurateScheduling = function createWrapConstantSourceNodeAccurateScheduling(createNativeAudioNode) {
+      return function (nativeConstantSourceNode, nativeContext) {
+        var nativeGainNode = createNativeAudioNode(nativeContext, function (ntvCntxt) {
+          return ntvCntxt.createGain();
+        });
+        nativeConstantSourceNode.connect(nativeGainNode);
+
+        var disconnectGainNode = function (disconnect) {
+          return function () {
+            disconnect.call(nativeConstantSourceNode, nativeGainNode);
+            nativeConstantSourceNode.removeEventListener('ended', disconnectGainNode);
+          };
+        }(nativeConstantSourceNode.disconnect);
+
+        nativeConstantSourceNode.addEventListener('ended', disconnectGainNode);
+
+        nativeConstantSourceNode.connect = function (destination) {
+          var output = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 0;
+          var input = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 0;
+
+          if (destination instanceof AudioNode) {
+            // Bug #11: Safari does not support chaining yet, but that wrapper should not be used in Safari.
+            return nativeGainNode.connect.call(nativeGainNode, destination, output, input);
+          } // @todo This return statement is necessary to satisfy TypeScript.
+
+
+          return nativeGainNode.connect.call(nativeGainNode, destination, output);
+        };
+
+        nativeConstantSourceNode.disconnect = function () {
+          nativeGainNode.disconnect.apply(nativeGainNode, arguments);
+        };
+
+        var startTime = 0;
+        var stopTime = null;
+
+        var scheduleEnvelope = function scheduleEnvelope() {
+          nativeGainNode.gain.cancelScheduledValues(0);
+          nativeGainNode.gain.setValueAtTime(0, 0);
+
+          if (stopTime === null || startTime < stopTime) {
+            nativeGainNode.gain.setValueAtTime(1, startTime);
+          }
+
+          if (stopTime !== null && startTime < stopTime) {
+            nativeGainNode.gain.setValueAtTime(0, stopTime);
+          }
+        };
+
+        nativeConstantSourceNode.start = function (start) {
+          return function () {
+            var when = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 0;
+            start.call(nativeConstantSourceNode, when);
+            startTime = when;
+            scheduleEnvelope();
+          };
+        }(nativeConstantSourceNode.start);
+
+        nativeConstantSourceNode.stop = function (stop) {
+          return function () {
+            var when = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 0;
+            stop.call(nativeConstantSourceNode, when);
+            stopTime = when;
+            scheduleEnvelope();
+          };
+        }(nativeConstantSourceNode.stop);
+      };
+    };
+
+    var window$1 = createWindow();
+    var nativeOfflineAudioContextConstructor = createNativeOfflineAudioContextConstructor(window$1);
+    var isNativeOfflineAudioContext = createIsNativeOfflineAudioContext(nativeOfflineAudioContextConstructor);
+    var nativeAudioContextConstructor = createNativeAudioContextConstructor(window$1);
+    var getBackupNativeContext = createGetBackupNativeContext(isNativeOfflineAudioContext, nativeAudioContextConstructor, nativeOfflineAudioContextConstructor);
+    var createNativeAudioNode = createNativeAudioNodeFactory(getBackupNativeContext);
+    var createNativeAnalyserNode = createNativeAnalyserNodeFactory(createNativeAudioNode);
+    var createAnalyserNodeRenderer = createAnalyserNodeRendererFactory(createNativeAnalyserNode);
+    var audioNodeConstructor = createAudioNodeConstructor(createInvalidAccessError, isNativeOfflineAudioContext);
+    var noneAudioDestinationNodeConstructor = createNoneAudioDestinationNodeConstructor(audioNodeConstructor);
+    var analyserNodeConstructor = createAnalyserNodeConstructor(createAnalyserNodeRenderer, createNativeAnalyserNode, isNativeOfflineAudioContext, noneAudioDestinationNodeConstructor);
+    var nativeAudioBufferConstructor = createNativeAudioBufferConstructor(window$1);
+    var audioBufferConstructor = createAudioBufferConstructor(createNotSupportedError, nativeAudioBufferConstructor, nativeOfflineAudioContextConstructor, createTestAudioBufferConstructorSupport(nativeAudioBufferConstructor));
+    var testAudioScheduledSourceNodeStartMethodNegativeParametersSupport = createTestAudioScheduledSourceNodeStartMethodNegativeParametersSupport(createNativeAudioNode);
+    var testAudioScheduledSourceNodeStopMethodConsecutiveCallsSupport = createTestAudioScheduledSourceNodeStopMethodConsecutiveCallsSupport(createNativeAudioNode);
+    var testAudioScheduledSourceNodeStopMethodNegativeParametersSupport = createTestAudioScheduledSourceNodeStopMethodNegativeParametersSupport(createNativeAudioNode);
+    var wrapAudioScheduledSourceNodeStopMethodConsecutiveCalls = createWrapAudioScheduledSourceNodeStopMethodConsecutiveCalls(createNativeAudioNode);
+    var createNativeAudioBufferSourceNode = createNativeAudioBufferSourceNodeFactory(createNativeAudioNode, createTestAudioBufferSourceNodeStartMethodConsecutiveCallsSupport(createNativeAudioNode), createTestAudioBufferSourceNodeStartMethodDurationParameterSupport(nativeOfflineAudioContextConstructor), testAudioScheduledSourceNodeStartMethodNegativeParametersSupport, testAudioScheduledSourceNodeStopMethodConsecutiveCallsSupport, testAudioScheduledSourceNodeStopMethodNegativeParametersSupport, wrapAudioScheduledSourceNodeStopMethodConsecutiveCalls);
+    var createAudioBufferSourceNodeRenderer = createAudioBufferSourceNodeRendererFactory(createNativeAudioBufferSourceNode);
+    var createAudioParam = createAudioParamFactory(createAudioParamRenderer);
+    var audioBufferSourceNodeConstructor = createAudioBufferSourceNodeConstructor(createAudioBufferSourceNodeRenderer, createAudioParam, createInvalidStateError, createNativeAudioBufferSourceNode, isNativeOfflineAudioContext, noneAudioDestinationNodeConstructor);
+    var audioDestinationNodeConstructor = createAudioDestinationNodeConstructor(audioNodeConstructor, createAudioDestinationNodeRenderer, createIndexSizeError, createInvalidStateError, createNativeAudioDestinationNode, isNativeOfflineAudioContext);
+    var createNativeBiquadFilterNode = createNativeBiquadFilterNodeFactory(createNativeAudioNode);
+    var createBiquadFilterNodeRenderer = createBiquadFilterNodeRendererFactory(createNativeBiquadFilterNode);
+    var biquadFilterNodeConstructor = createBiquadFilterNodeConstructor(createAudioParam, createBiquadFilterNodeRenderer, createInvalidAccessError, createNativeBiquadFilterNode, isNativeOfflineAudioContext, noneAudioDestinationNodeConstructor);
+    var wrapChannelMergerNode = createWrapChannelMergerNode(createInvalidStateError, createNativeAudioNode);
+    var createNativeChannelMergerNode = createNativeChannelMergerNodeFactory(createNativeAudioNode, wrapChannelMergerNode);
+    var createChannelMergerNodeRenderer = createChannelMergerNodeRendererFactory(createNativeChannelMergerNode);
+    var channelMergerNodeConstructor = createChannelMergerNodeConstructor(createChannelMergerNodeRenderer, createNativeChannelMergerNode, isNativeOfflineAudioContext, noneAudioDestinationNodeConstructor);
+    var createNativeChannelSplitterNode = createNativeChannelSplitterNodeFactory(createNativeAudioNode);
+    var createChannelSplitterNodeRenderer = createChannelSplitterNodeRendererFactory(createNativeChannelSplitterNode);
+    var channelSplitterNodeConstructor = createChannelSplitterNodeConstructor(createChannelSplitterNodeRenderer, createNativeChannelSplitterNode, isNativeOfflineAudioContext, noneAudioDestinationNodeConstructor);
+    var createNativeGainNode = createNativeGainNodeFactory(createNativeAudioNode);
+    var createNativeConstantSourceNodeFaker = createNativeConstantSourceNodeFakerFactory(createNativeAudioBufferSourceNode, createNativeGainNode);
+    var testConstantSourceNodeAccurateSchedulingSupport = createTestConstantSourceNodeAccurateSchedulingSupport(createNativeAudioNode);
+    var wrapConstantSourceNodeAccurateScheduling = createWrapConstantSourceNodeAccurateScheduling(createNativeAudioNode);
+    var createNativeConstantSourceNode = createNativeConstantSourceNodeFactory(createNativeAudioNode, createNativeConstantSourceNodeFaker, testAudioScheduledSourceNodeStartMethodNegativeParametersSupport, testAudioScheduledSourceNodeStopMethodNegativeParametersSupport, testConstantSourceNodeAccurateSchedulingSupport, wrapConstantSourceNodeAccurateScheduling);
+    var createConstantSourceNodeRenderer = createConstantSourceNodeRendererFactory(createNativeConstantSourceNode);
+    var constantSourceNodeConstructor = createConstantSourceNodeConstructor(createAudioParam, createConstantSourceNodeRenderer, createNativeConstantSourceNode, isNativeOfflineAudioContext, noneAudioDestinationNodeConstructor);
+    var createGainNodeRenderer = createGainNodeRendererFactory(createNativeGainNode);
+    var gainNodeConstructor = createGainNodeConstructor(createAudioParam, createGainNodeRenderer, createNativeGainNode, isNativeOfflineAudioContext, noneAudioDestinationNodeConstructor);
+    var createNativeScriptProcessorNode = createNativeScriptProcessorNodeFactory(createNativeAudioNode);
+    var createNativeIIRFilterNodeFaker = createNativeIIRFilterNodeFakerFactory(createInvalidAccessError, createInvalidStateError, createNativeScriptProcessorNode, createNotSupportedError);
+    var renderNativeOfflineAudioContext = createRenderNativeOfflineAudioContext(createNativeGainNode);
+    var createIIRFilterNodeRenderer = createIIRFilterNodeRendererFactory(createNativeAudioBufferSourceNode, createNativeAudioNode, nativeOfflineAudioContextConstructor, renderNativeOfflineAudioContext);
+    var createNativeIIRFilterNode = createNativeIIRFilterNodeFactory(createNativeAudioNode, createNativeIIRFilterNodeFaker);
+    var iIRFilterNodeConstructor = createIIRFilterNodeConstructor(createNativeIIRFilterNode, createIIRFilterNodeRenderer, isNativeOfflineAudioContext, noneAudioDestinationNodeConstructor);
+    var minimalBaseAudioContextConstructor = createMinimalBaseAudioContextConstructor(audioDestinationNodeConstructor);
+    var createNativeOscillatorNode = createNativeOscillatorNodeFactory(createNativeAudioNode, testAudioScheduledSourceNodeStartMethodNegativeParametersSupport, testAudioScheduledSourceNodeStopMethodConsecutiveCallsSupport, testAudioScheduledSourceNodeStopMethodNegativeParametersSupport, wrapAudioScheduledSourceNodeStopMethodConsecutiveCalls);
+    var createOscillatorNodeRenderer = createOscillatorNodeRendererFactory(createNativeOscillatorNode);
+    var oscillatorNodeConstructor = createOscillatorNodeConstructor(createAudioParam, createInvalidStateError, createNativeOscillatorNode, createOscillatorNodeRenderer, isNativeOfflineAudioContext, noneAudioDestinationNodeConstructor);
+    var createNativeWaveShaperNode = createNativeWaveShaperNodeFactory(createInvalidStateError, createNativeAudioNode);
+    var nativeStereoPannerNodeFakerFactory = createNativeStereoPannerNodeFakerFactory(createNativeChannelMergerNode, createNativeChannelSplitterNode, createNativeGainNode, createNativeWaveShaperNode, createNotSupportedError);
+    var createNativeStereoPannerNode = createNativeStereoPannerNodeFactory(createNativeAudioNode, nativeStereoPannerNodeFakerFactory, createNotSupportedError);
+    var createStereoPannerNodeRenderer = createStereoPannerNodeRendererFactory(createNativeStereoPannerNode);
+    var stereoPannerNodeConstructor = createStereoPannerNodeConstructor(createAudioParam, createNativeStereoPannerNode, createStereoPannerNodeRenderer, isNativeOfflineAudioContext, noneAudioDestinationNodeConstructor);
+    var createWaveShaperNodeRenderer = createWaveShaperNodeRendererFactory(createNativeWaveShaperNode);
+    var waveShaperNodeConstructor = createWaveShaperNodeConstructor(createInvalidStateError, createNativeWaveShaperNode, createWaveShaperNodeRenderer, isNativeOfflineAudioContext, noneAudioDestinationNodeConstructor);
+    var isSecureContext = createIsSecureContext(window$1); // The addAudioWorkletModule() function is only available in a SecureContext.
+
+    var addAudioWorkletModule = isSecureContext ? createAddAudioWorkletModule(createAbortError, createNotSupportedError, getBackupNativeContext) : undefined;
+    var decodeAudioData = createDecodeAudioData(createDataCloneError, createEncodingError, nativeOfflineAudioContextConstructor, isNativeOfflineAudioContext, testAudioBufferCopyChannelMethodsSubarraySupport, testPromiseSupport);
+    var baseAudioContextConstructor = createBaseAudioContextConstructor(addAudioWorkletModule, analyserNodeConstructor, audioBufferConstructor, audioBufferSourceNodeConstructor, biquadFilterNodeConstructor, channelMergerNodeConstructor, channelSplitterNodeConstructor, constantSourceNodeConstructor, decodeAudioData, gainNodeConstructor, iIRFilterNodeConstructor, minimalBaseAudioContextConstructor, oscillatorNodeConstructor, stereoPannerNodeConstructor, waveShaperNodeConstructor);
+    var createNativeMediaElementAudioSourceNode = createNativeMediaElementAudioSourceNodeFactory(createNativeAudioNode);
+    var mediaElementAudioSourceNodeConstructor = createMediaElementAudioSourceNodeConstructor(createNativeMediaElementAudioSourceNode, noneAudioDestinationNodeConstructor);
+    var createNativeMediaStreamAudioSourceNode = createNativeMediaStreamAudioSourceNodeFactory(createNativeAudioNode);
+    var mediaStreamAudioSourceNodeConstructor = createMediaStreamAudioSourceNodeConstructor(createNativeMediaStreamAudioSourceNode, noneAudioDestinationNodeConstructor);
+    var audioContextConstructor = createAudioContextConstructor(baseAudioContextConstructor, createInvalidStateError, mediaElementAudioSourceNodeConstructor, mediaStreamAudioSourceNodeConstructor, nativeAudioContextConstructor);
+    var connectMultipleOutputs = createConnectMultipleOutputs(createIndexSizeError);
+    var disconnectMultipleOutputs = createDisconnectMultipleOutputs(createIndexSizeError);
+    var createNativeAudioWorkletNodeFaker = createNativeAudioWorkletNodeFakerFactory(connectMultipleOutputs, createIndexSizeError, createInvalidStateError, createNativeChannelMergerNode, createNativeChannelSplitterNode, createNativeConstantSourceNode, createNativeGainNode, createNativeScriptProcessorNode, createNotSupportedError, disconnectMultipleOutputs);
+    var createNativeAudioWorkletNode = createNativeAudioWorkletNodeFactory(createInvalidStateError, createNativeAudioNode, createNativeAudioWorkletNodeFaker, createNotSupportedError);
+    var nativeAudioWorkletNodeConstructor = createNativeAudioWorkletNodeConstructor(window$1);
+    var createAudioWorkletNodeRenderer = createAudioWorkletNodeRendererFactory(connectMultipleOutputs, createNativeAudioBufferSourceNode, createNativeChannelMergerNode, createNativeChannelSplitterNode, createNativeConstantSourceNode, createNativeGainNode, disconnectMultipleOutputs, nativeAudioWorkletNodeConstructor, nativeOfflineAudioContextConstructor, renderNativeOfflineAudioContext); // The AudioWorkletNode constructor is only available in a SecureContext.
+
+    var audioWorkletNodeConstructor = isSecureContext ? createAudioWorkletNodeConstructor(createAudioParam, createAudioWorkletNodeRenderer, createNativeAudioWorkletNode, isNativeOfflineAudioContext, nativeAudioWorkletNodeConstructor, noneAudioDestinationNodeConstructor) : undefined;
+    var minimalAudioContextConstructor = createMinimalAudioContextConstructor(createInvalidStateError, minimalBaseAudioContextConstructor, nativeAudioContextConstructor);
+    var startRendering = createStartRendering(renderNativeOfflineAudioContext, testAudioBufferCopyChannelMethodsSubarraySupport);
+    var minimalOfflineAudioContextConstructor = createMinimalOfflineAudioContextConstructor(createInvalidStateError, minimalBaseAudioContextConstructor, nativeOfflineAudioContextConstructor, startRendering);
+    var offlineAudioContextConstructor = createOfflineAudioContextConstructor(baseAudioContextConstructor, createInvalidStateError, nativeOfflineAudioContextConstructor, startRendering);
+    var isSupported = function isSupported() {
+      return createIsSupportedPromise(browsernizr, asyncArrayBuffer.isSupported, createTestAudioContextCloseMethodSupport(nativeAudioContextConstructor), createTestAudioContextDecodeAudioDataMethodTypeErrorSupport(nativeOfflineAudioContextConstructor), createTestAudioContextOptionsSupport(nativeAudioContextConstructor), createTestChannelMergerNodeSupport(nativeAudioContextConstructor), createTestChannelSplitterNodeChannelCountSupport(nativeOfflineAudioContextConstructor), createTestIsSecureContextSupport(window$1));
+    };
+
+    exports.AnalyserNode = analyserNodeConstructor;
+    exports.AudioBuffer = audioBufferConstructor;
+    exports.AudioBufferSourceNode = audioBufferSourceNodeConstructor;
+    exports.addAudioWorkletModule = addAudioWorkletModule;
+    exports.decodeAudioData = decodeAudioData;
+    exports.AudioContext = audioContextConstructor;
+    exports.AudioWorkletNode = audioWorkletNodeConstructor;
+    exports.BiquadFilterNode = biquadFilterNodeConstructor;
+    exports.ChannelMergerNode = channelMergerNodeConstructor;
+    exports.ChannelSplitterNode = channelSplitterNodeConstructor;
+    exports.ConstantSourceNode = constantSourceNodeConstructor;
+    exports.GainNode = gainNodeConstructor;
+    exports.IIRFilterNode = iIRFilterNodeConstructor;
+    exports.MediaElementAudioSourceNode = mediaElementAudioSourceNodeConstructor;
+    exports.MediaStreamAudioSourceNode = mediaStreamAudioSourceNodeConstructor;
+    exports.MinimalAudioContext = minimalAudioContextConstructor;
+    exports.MinimalOfflineAudioContext = minimalOfflineAudioContextConstructor;
+    exports.OfflineAudioContext = offlineAudioContextConstructor;
+    exports.OscillatorNode = oscillatorNodeConstructor;
+    exports.StereoPannerNode = stereoPannerNodeConstructor;
+    exports.WaveShaperNode = waveShaperNodeConstructor;
+    exports.isSupported = isSupported;
+
+    Object.defineProperty(exports, '__esModule', { value: true });
+
+})));
+
+},{"@babel/runtime/helpers/assertThisInitialized":21,"@babel/runtime/helpers/asyncToGenerator":22,"@babel/runtime/helpers/classCallCheck":23,"@babel/runtime/helpers/createClass":24,"@babel/runtime/helpers/defineProperty":25,"@babel/runtime/helpers/getPrototypeOf":26,"@babel/runtime/helpers/inherits":27,"@babel/runtime/helpers/possibleConstructorReturn":32,"@babel/runtime/helpers/slicedToArray":34,"@babel/runtime/helpers/toConsumableArray":35,"@babel/runtime/helpers/typeof":36,"@babel/runtime/regenerator":37,"async-array-buffer":41,"tslib":47}],47:[function(require,module,exports){
+(function (global){
+/*! *****************************************************************************
+Copyright (c) Microsoft Corporation. All rights reserved.
+Licensed under the Apache License, Version 2.0 (the "License"); you may not use
+this file except in compliance with the License. You may obtain a copy of the
+License at http://www.apache.org/licenses/LICENSE-2.0
+
+THIS CODE IS PROVIDED ON AN *AS IS* BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, EITHER EXPRESS OR IMPLIED, INCLUDING WITHOUT LIMITATION ANY IMPLIED
+WARRANTIES OR CONDITIONS OF TITLE, FITNESS FOR A PARTICULAR PURPOSE,
+MERCHANTABLITY OR NON-INFRINGEMENT.
+
+See the Apache Version 2.0 License for specific language governing permissions
+and limitations under the License.
+***************************************************************************** */
+/* global global, define, System, Reflect, Promise */
+var __extends;
+var __assign;
+var __rest;
+var __decorate;
+var __param;
+var __metadata;
+var __awaiter;
+var __generator;
+var __exportStar;
+var __values;
+var __read;
+var __spread;
+var __await;
+var __asyncGenerator;
+var __asyncDelegator;
+var __asyncValues;
+var __makeTemplateObject;
+var __importStar;
+var __importDefault;
+(function (factory) {
+    var root = typeof global === "object" ? global : typeof self === "object" ? self : typeof this === "object" ? this : {};
+    if (typeof define === "function" && define.amd) {
+        define("tslib", ["exports"], function (exports) { factory(createExporter(root, createExporter(exports))); });
+    }
+    else if (typeof module === "object" && typeof module.exports === "object") {
+        factory(createExporter(root, createExporter(module.exports)));
+    }
+    else {
+        factory(createExporter(root));
+    }
+    function createExporter(exports, previous) {
+        if (exports !== root) {
+            if (typeof Object.create === "function") {
+                Object.defineProperty(exports, "__esModule", { value: true });
+            }
+            else {
+                exports.__esModule = true;
+            }
+        }
+        return function (id, v) { return exports[id] = previous ? previous(id, v) : v; };
+    }
+})
+(function (exporter) {
+    var extendStatics = Object.setPrototypeOf ||
+        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+
+    __extends = function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+
+    __assign = Object.assign || function (t) {
+        for (var s, i = 1, n = arguments.length; i < n; i++) {
+            s = arguments[i];
+            for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p)) t[p] = s[p];
+        }
+        return t;
+    };
+
+    __rest = function (s, e) {
+        var t = {};
+        for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p) && e.indexOf(p) < 0)
+            t[p] = s[p];
+        if (s != null && typeof Object.getOwnPropertySymbols === "function")
+            for (var i = 0, p = Object.getOwnPropertySymbols(s); i < p.length; i++) if (e.indexOf(p[i]) < 0)
+                t[p[i]] = s[p[i]];
+        return t;
+    };
+
+    __decorate = function (decorators, target, key, desc) {
+        var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+        if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+        else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+        return c > 3 && r && Object.defineProperty(target, key, r), r;
+    };
+
+    __param = function (paramIndex, decorator) {
+        return function (target, key) { decorator(target, key, paramIndex); }
+    };
+
+    __metadata = function (metadataKey, metadataValue) {
+        if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(metadataKey, metadataValue);
+    };
+
+    __awaiter = function (thisArg, _arguments, P, generator) {
+        return new (P || (P = Promise))(function (resolve, reject) {
+            function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+            function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+            function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
+            step((generator = generator.apply(thisArg, _arguments || [])).next());
+        });
+    };
+
+    __generator = function (thisArg, body) {
+        var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
+        return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
+        function verb(n) { return function (v) { return step([n, v]); }; }
+        function step(op) {
+            if (f) throw new TypeError("Generator is already executing.");
+            while (_) try {
+                if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
+                if (y = 0, t) op = [op[0] & 2, t.value];
+                switch (op[0]) {
+                    case 0: case 1: t = op; break;
+                    case 4: _.label++; return { value: op[1], done: false };
+                    case 5: _.label++; y = op[1]; op = [0]; continue;
+                    case 7: op = _.ops.pop(); _.trys.pop(); continue;
+                    default:
+                        if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
+                        if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
+                        if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
+                        if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
+                        if (t[2]) _.ops.pop();
+                        _.trys.pop(); continue;
+                }
+                op = body.call(thisArg, _);
+            } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
+            if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
+        }
+    };
+
+    __exportStar = function (m, exports) {
+        for (var p in m) if (!exports.hasOwnProperty(p)) exports[p] = m[p];
+    };
+
+    __values = function (o) {
+        var m = typeof Symbol === "function" && o[Symbol.iterator], i = 0;
+        if (m) return m.call(o);
+        return {
+            next: function () {
+                if (o && i >= o.length) o = void 0;
+                return { value: o && o[i++], done: !o };
+            }
+        };
+    };
+
+    __read = function (o, n) {
+        var m = typeof Symbol === "function" && o[Symbol.iterator];
+        if (!m) return o;
+        var i = m.call(o), r, ar = [], e;
+        try {
+            while ((n === void 0 || n-- > 0) && !(r = i.next()).done) ar.push(r.value);
+        }
+        catch (error) { e = { error: error }; }
+        finally {
+            try {
+                if (r && !r.done && (m = i["return"])) m.call(i);
+            }
+            finally { if (e) throw e.error; }
+        }
+        return ar;
+    };
+
+    __spread = function () {
+        for (var ar = [], i = 0; i < arguments.length; i++)
+            ar = ar.concat(__read(arguments[i]));
+        return ar;
+    };
+
+    __await = function (v) {
+        return this instanceof __await ? (this.v = v, this) : new __await(v);
+    };
+
+    __asyncGenerator = function (thisArg, _arguments, generator) {
+        if (!Symbol.asyncIterator) throw new TypeError("Symbol.asyncIterator is not defined.");
+        var g = generator.apply(thisArg, _arguments || []), i, q = [];
+        return i = {}, verb("next"), verb("throw"), verb("return"), i[Symbol.asyncIterator] = function () { return this; }, i;
+        function verb(n) { if (g[n]) i[n] = function (v) { return new Promise(function (a, b) { q.push([n, v, a, b]) > 1 || resume(n, v); }); }; }
+        function resume(n, v) { try { step(g[n](v)); } catch (e) { settle(q[0][3], e); } }
+        function step(r) { r.value instanceof __await ? Promise.resolve(r.value.v).then(fulfill, reject) : settle(q[0][2], r);  }
+        function fulfill(value) { resume("next", value); }
+        function reject(value) { resume("throw", value); }
+        function settle(f, v) { if (f(v), q.shift(), q.length) resume(q[0][0], q[0][1]); }
+    };
+
+    __asyncDelegator = function (o) {
+        var i, p;
+        return i = {}, verb("next"), verb("throw", function (e) { throw e; }), verb("return"), i[Symbol.iterator] = function () { return this; }, i;
+        function verb(n, f) { i[n] = o[n] ? function (v) { return (p = !p) ? { value: __await(o[n](v)), done: n === "return" } : f ? f(v) : v; } : f; }
+    };
+
+    __asyncValues = function (o) {
+        if (!Symbol.asyncIterator) throw new TypeError("Symbol.asyncIterator is not defined.");
+        var m = o[Symbol.asyncIterator], i;
+        return m ? m.call(o) : (o = typeof __values === "function" ? __values(o) : o[Symbol.iterator](), i = {}, verb("next"), verb("throw"), verb("return"), i[Symbol.asyncIterator] = function () { return this; }, i);
+        function verb(n) { i[n] = o[n] && function (v) { return new Promise(function (resolve, reject) { v = o[n](v), settle(resolve, reject, v.done, v.value); }); }; }
+        function settle(resolve, reject, d, v) { Promise.resolve(v).then(function(v) { resolve({ value: v, done: d }); }, reject); }
+    };
+
+    __makeTemplateObject = function (cooked, raw) {
+        if (Object.defineProperty) { Object.defineProperty(cooked, "raw", { value: raw }); } else { cooked.raw = raw; }
+        return cooked;
+    };
+
+    __importStar = function (mod) {
+        if (mod && mod.__esModule) return mod;
+        var result = {};
+        if (mod != null) for (var k in mod) if (Object.hasOwnProperty.call(mod, k)) result[k] = mod[k];
+        result["default"] = mod;
+        return result;
+    };
+
+    __importDefault = function (mod) {
+        return (mod && mod.__esModule) ? mod : { "default": mod };
+    };
+
+    exporter("__extends", __extends);
+    exporter("__assign", __assign);
+    exporter("__rest", __rest);
+    exporter("__decorate", __decorate);
+    exporter("__param", __param);
+    exporter("__metadata", __metadata);
+    exporter("__awaiter", __awaiter);
+    exporter("__generator", __generator);
+    exporter("__exportStar", __exportStar);
+    exporter("__values", __values);
+    exporter("__read", __read);
+    exporter("__spread", __spread);
+    exporter("__await", __await);
+    exporter("__asyncGenerator", __asyncGenerator);
+    exporter("__asyncDelegator", __asyncDelegator);
+    exporter("__asyncValues", __asyncValues);
+    exporter("__makeTemplateObject", __makeTemplateObject);
+    exporter("__importStar", __importStar);
+    exporter("__importDefault", __importDefault);
+});
+
+}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
+},{}],48:[function(require,module,exports){
+const Utility = {
+  rndf( min=0, max=1, number, canRepeat=true ) {
+    let out = 0
+  	if( number === undefined ) {
+  		let diff = max - min,
+  		    r = Math.random(),
+  		    rr = diff * r
+
+  		out =  min + rr;
+  	}else{
+      let output = [],
+  		    tmp = []
+
+  		for( let i = 0; i < number; i++ ) {
+  			let num
+        if( canRepeat ) {
+          num = Utility.rndf(min, max)
+        }else{
+          num = Utility.rndf( min, max )
+          while( tmp.indexOf( num ) > -1) {
+            num = Utility.rndf( min, max )
+          }
+          tmp.push( num )
+        }
+  			output.push( num )
+  		}
+
+  		out = output
+  	}
+
+    return out
+  },
+
+  Rndf( _min = 0, _max = 1, quantity, canRepeat=true ) {
+    // have to code gen function to hard code min / max values inside, as closures
+    // or bound values won't be passed through the worklet port.XXX perhaps there should
+    // be a way to transfer a function and its upvalues through the worklet? OTOH,
+    // codegen works fine.
+
+    const fncString = `const min = ${_min}
+    const max = ${_max} 
+    const range = max - min
+    const canRepeat = ${quantity} > range ? true : ${ canRepeat }
+
+    let out
+
+    if( ${quantity} > 1 ) { 
+      out = []
+      for( let i = 0; i < ${quantity}; i++ ) {
+        let num = min + Math.random() * range
+
+        if( canRepeat === false ) {
+          while( out.indexOf( num ) > -1 ) {
+            num = min + Math.random() * range
+          }
+        }
+        out[ i ] = num
+      }
+    }else{
+      out = min + Math.random() * range 
+    }
+
+    return out;`
+    
+    return new Function( fncString )
+  },
+
+  rndi( min = 0, max = 1, number, canRepeat = true ) {
+    let range = max - min,
+        out
+    
+    if( range < number ) canRepeat = true
+
+    if( typeof number === 'undefined' ) {
+      range = max - min
+      out = Math.round( min + Math.random() * range )
+    }else{
+  		let output = [],
+  		    tmp = []
+
+  		for( let i = 0; i < number; i++ ) {
+  			let num
+  			if( canRepeat ) {
+  				num = Utility.rndi( min, max )
+  			}else{
+  				num = Utility.rndi( min, max )
+  				while( tmp.indexOf( num ) > -1 ) {
+  					num = Utility.rndi( min, max )
+  				}
+  				tmp.push( num )
+  			}
+  			output.push( num )
+  		}
+  		out = output
+    }
+    return out
+  },
+
+  Rndi( _min = 0, _max = 1, quantity=1, canRepeat = false ) {
+    // have to code gen function to hard code min / max values inside, as closures
+    // or bound values won't be passed through the worklet port.XXX perhaps there should
+    // be a way to transfer a function and its upvalues through the worklet? OTOH,
+    // codegen works fine.
+
+    const fncString = `const min = ${_min}
+    const max = ${_max} 
+    const range = max - min
+    const canRepeat = ${quantity} > range ? true : ${ canRepeat }
+
+    let out
+
+    if( ${quantity} > 1 ) { 
+      out = []
+      for( let i = 0; i < ${quantity}; i++ ) {
+        let num = min + Math.round( Math.random() * range );
+
+        if( canRepeat === false ) {
+          while( out.indexOf( num ) > -1 ) {
+            num = min + Math.round( Math.random() * range );
+          }
+        }
+        out[ i ] = num
+      }
+    }else{
+      out = min + Math.round( Math.random() * range ); 
+    }
+
+    return out;`
+    
+    return new Function( fncString )
+  },
+
+  btof( beats ) { return 1 / (beats * ( 60 / Gibber.Clock.bpm )) },
+
+  random() {
+    this.randomFlag = true
+    this.randomArgs = Array.prototype.slice.call( arguments, 0 )
+
+    return this
+  },
+
+  elementArray: function( list ) {
+    let out = []
+
+    for( var i = 0; i < list.length; i++ ) {
+      out.push( list.item( i ) )
+    }
+
+    return out
+  },
+  
+  __classListMethods: [ 'toggle', 'add', 'remove' ],
+
+  create( query ) {
+    let elementList = document.querySelectorAll( query ),
+        arr = Utility.elementArray( elementList )
+    
+    for( let method of Utility.__classListMethods ) { 
+      arr[ method ] = style => {
+        for( let element of arr ) { 
+          element.classList[ method ]( style )
+        }
+      } 
+    }
+
+    return arr
+  },
+
+  export( obj ) {
+    obj.rndi = this.rndi
+    obj.rndf = this.rndf
+    obj.Rndi = this.Rndi
+    obj.Rndf = this.Rndf
+    obj.btof = this.btof
+
+    Array.prototype.rnd = this.random
+  }
+}
+
+module.exports = Utility
+
+},{}]},{},[18]);

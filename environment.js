@@ -1,4 +1,5 @@
 const codeMarkup = require( './codeMarkup.js' )
+const sac = require( 'standardized-audio-context' )
 
 let cm, cmconsole, exampleCode, 
     isStereo = false,
@@ -125,6 +126,7 @@ const createEditor = function( selector, shouldAnnotate = true ) {
   play.innerText = 'play'
   play.classList.add( 'float-right' )
   play.onclick = ()=> {
+    console.log( 'initialized:', Gibber.initialized )
     if( Gibber.initialized === true ) {
       playCode( cm, shouldAnnotate )
     }else{
@@ -150,8 +152,9 @@ const playCode = function( cm, shouldAnnotate=true ) {
 }
 
 window.onload = function() {
+  window.sac = sac
   const workletPath = 'gibberish_worklet.js' 
-  Gibber.init( workletPath )
+  Gibber.init( workletPath, new sac.AudioContext() )
 
   environment.editor = cm
   window.Environment = environment
@@ -187,6 +190,7 @@ window.onload = function() {
   createEditor( '#full' )
   createEditor( '#sparklines1' )
   createEditor( '#sparklines2' )
+  createEditor( '#fade' )
 
 }
 
